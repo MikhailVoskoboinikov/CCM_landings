@@ -1,0 +1,94 @@
+---
+/*
+ * Стенд для обсуждения: все варианты всех блоков на реальных данных.
+ * Выбор вариантов и комментарии хранятся в браузере, их можно выгрузить
+ * и загрузить JSON-файлом. Логика — components/playground/pg.ts.
+ */
+import Base from "@/layouts/Base.astro";
+import Block from "@/components/blocks/Block.astro";
+import Footer from "@/components/blocks/Footer.astro";
+import StickyCta from "@/components/blocks/StickyCta.astro";
+import { BLOCKS, DEFAULTS } from "@/config/blocks";
+import { COUNTRIES, COURSE_LIST, COURSES, type CountryId, type CourseId } from "@/data";
+
+export function getStaticPaths() {
+  return Object.keys(COUNTRIES).flatMap((country) => COURSE_LIST.map((c) => ({ params: { country, course: c.id } })));
+}
+
+const country = COUNTRIES[Astro.params.country as CountryId];
+const course = COURSES[Astro.params.course as CourseId];
+const pg = { blocks: BLOCKS, defaults: DEFAULTS, course: course.id, country: country.id };
+---
+<Base title={`Стенд: ${course.name} · ${country.city}`} country={country} courseId={course.id} noindex>
+  {BLOCKS.map((b) => (
+    <div data-pg-block={b.id} class="contents">
+      <div data-pg-bar={b.id} class="relative z-30 flex flex-wrap items-center gap-x-3 gap-y-1.5 bg-[#1c2030] px-4 py-2 text-[12px] text-white/70">
+        <b class="text-white">{b.label}</b>
+        <span class="flex flex-wrap gap-1">
+          {b.variants.map(([v, label]) => (
+            <button data-pg-pick={v} class="rounded-full px-2.5 py-1 text-white/80 ring-1 ring-white/20 data-[on]:bg-white data-[on]:text-[#1c2030] data-[on]:ring-white">{label}</button>
+          ))}
+        </span>
+        {b.copy && (
+          <span class="flex items-center gap-1">
+            Текст:
+            <button data-pg-copy="a" class="rounded-full px-2.5 py-1 ring-1 ring-white/20 data-[on]:bg-white data-[on]:text-[#1c2030]">A</button>
+            <button data-pg-copy="b" class="rounded-full px-2.5 py-1 ring-1 ring-white/20 data-[on]:bg-white data-[on]:text-[#1c2030]">Б</button>
+          </span>
+        )}
+        <button data-pg-comment class="ml-auto flex items-center gap-1.5 rounded-full px-2.5 py-1 ring-1 ring-white/20 data-[has]:bg-[#3b5bdb] data-[has]:ring-[#3b5bdb]">
+          💬 <span data-pg-count></span> Комментарий
+        </button>
+      </div>
+      {b.variants.flatMap(([v]) =>
+        (b.copy ? ["a", "b"] : [""]).map((copy) => (
+          <div data-pg-variant={v} data-pg-copyv={copy} class="hidden">
+            <Block id={b.id} variant={v} copy={copy || undefined} course={course} country={country} base="/playground" />
+          </div>
+        )),
+      )}
+    </div>
+  ))}
+  <Footer country={country} base="/playground" />
+  <StickyCta course={course} country={country} />
+
+  <!-- Панель стенда -->
+  <div data-pg-panel class="fixed bottom-20 right-3 z-[60] w-[min(360px,calc(100vw-24px))] rounded-2xl bg-[#1c2030] p-3 text-[13px] text-white shadow-2xl md:bottom-4">
+    <div class="flex items-center justify-between gap-2">
+      <b>Стенд лендингов ЦКМ</b>
+      <button data-pg-collapse class="rounded-lg px-2 py-1 text-white/70 hover:bg-white/10">свернуть</button>
+    </div>
+    <div data-pg-body class="mt-3 grid gap-2.5">
+      <div class="flex flex-wrap gap-1">
+        {COURSE_LIST.map((c) => (
+          <a href={`/playground/${country.id}/${c.id}`} class={`rounded-full px-3 py-1 ring-1 ring-white/20 ${c.id === course.id ? "bg-white text-[#1c2030]" : "hover:bg-white/10"}`}>{c.short}</a>
+        ))}
+      </div>
+      <div class="flex flex-wrap gap-1">
+        {Object.values(COUNTRIES).map((c) => (
+          <a href={`/playground/${c.id}/${course.id}`} class={`rounded-full px-3 py-1 ring-1 ring-white/20 ${c.id === country.id ? "bg-white text-[#1c2030]" : "hover:bg-white/10"}`}>{c.city}</a>
+        ))}
+      </div>
+      <div class="flex flex-wrap gap-x-4 gap-y-1 text-white/80">
+        <label class="flex items-center gap-1.5"><input type="checkbox" data-pg-toggle="bars" checked /> Панели блоков</label>
+        <label class="flex items-center gap-1.5"><input type="checkbox" data-pg-toggle="marks" checked /> Пометки</label>
+      </div>
+      <div class="grid grid-cols-2 gap-1.5">
+        <button data-pg-open="questions" class="rounded-xl bg-white/10 px-3 py-2 hover:bg-white/15">Вопросы к ЦКМ <span data-pg-qn class="rounded-full bg-[#ffe58a] px-1.5 font-bold text-[#5a4300]"></span></button>
+        <button data-pg-open="comments" class="rounded-xl bg-white/10 px-3 py-2 hover:bg-white/15">Комментарии <span data-pg-cn class="rounded-full bg-white px-1.5 font-bold text-[#1c2030]"></span></button>
+        <button data-pg-export-sel class="rounded-xl bg-white/10 px-3 py-2 hover:bg-white/15">Скопировать выбор</button>
+        <button data-pg-reset class="rounded-xl bg-white/10 px-3 py-2 hover:bg-white/15">Сбросить выбор</button>
+      </div>
+    </div>
+  </div>
+
+  <aside data-pg-drawer class="fixed inset-y-0 right-0 z-[70] hidden w-full max-w-[400px] flex-col bg-white text-[14px] text-ink shadow-2xl"></aside>
+  <div data-pg-toast class="fixed bottom-6 left-1/2 z-[80] hidden -translate-x-1/2 rounded-xl bg-[#1c2030] px-4 py-2 text-white"></div>
+  <input type="file" accept="application/json" data-pg-import class="hidden" />
+
+  <script type="application/json" id="pg-config" set:html={JSON.stringify(pg)} />
+  <script>
+    import { initPlayground } from "@/components/playground/pg";
+    initPlayground();
+  </script>
+</Base>

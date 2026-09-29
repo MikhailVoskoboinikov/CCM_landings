@@ -1,0 +1,24 @@
+---
+/* Анимированная линия ЭКГ: бегущий по кардиограмме импульс */
+interface Props { class?: string; beats?: number }
+const { class: cls = "", beats = 4 } = Astro.props;
+const W = 160;
+const beat = (x: number) =>
+  `L${x + 40} 60 l6 -7 l6 7 L${x + 64} 60 l4 9 l8 -52 l8 58 l5 -15 L${x + 100} 60 q10 -13 20 0 L${x + W} 60`;
+const d = `M0 60 ` + Array.from({ length: beats }, (_, i) => beat(i * W)).join(" ");
+---
+<svg viewBox={`0 0 ${beats * W} 100`} preserveAspectRatio="none" class={cls} aria-hidden="true">
+  <path d={d} fill="none" stroke="currentColor" stroke-opacity="0.12" stroke-width="2" vector-effect="non-scaling-stroke" />
+  <path
+    d={d}
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    vector-effect="non-scaling-stroke"
+    pathLength="1"
+    stroke-dasharray="0.18 0.82"
+    class="animate-ecg"
+  />
+</svg>

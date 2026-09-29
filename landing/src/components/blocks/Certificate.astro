@@ -1,0 +1,120 @@
+---
+/*
+ * Сертификат — главный блок: по брифу информация должна быть больше
+ * о сертификате, чем о курсе. Варианты:
+ *  anatomy — образец с пронумерованными точками и пояснениями к ним
+ *  tilt    — объёмная карточка и «где пригодится»
+ *  path    — путь от курса до проверки подлинности
+ */
+import Icon from "@/components/parts/Icon.astro";
+import Rich from "@/components/parts/Rich.astro";
+import CertificateDoc from "@/components/parts/CertificateDoc.astro";
+import Tilt from "@/components/parts/Tilt";
+import type { Course } from "@/data";
+
+interface Props { variant?: "anatomy" | "tilt" | "path"; course: Course }
+const { variant = "anatomy", course } = Astro.props;
+const c = course.certificate;
+const steps = [
+  { icon: "Hand", title: "Курс", text: "Один день практики в малой группе" },
+  { icon: "BadgeCheck", title: c.kind === "erc" ? "Экзамен по стандарту ERC" : "Итоговая оценка навыков", text: "Инструктор проверяет каждый навык на манекене" },
+  { icon: "Award", title: "Сертификат", text: c.kind === "erc" ? `Действует ${c.validity}` : "Именной сертификат учебного центра" },
+  { icon: "QrCode", title: "Проверка", text: c.verify },
+];
+---
+<section class="relative overflow-hidden bg-soft py-16 md:py-28" id="certificate">
+  <div class="pointer-events-none absolute -left-32 top-10 size-96 rounded-full bg-brand/10 blur-3xl"></div>
+
+  {variant === "anatomy" && (
+    <div class="container-l relative" data-cert-anatomy>
+      <div class="max-w-2xl" data-reveal>
+        <h2 class="h-section">{c.title}</h2>
+        <p class="lead-text mt-4"><Rich text={c.lead} /></p>
+      </div>
+      <div class="mt-12 grid items-center gap-10 md:grid-cols-[1.15fr_.85fr] md:gap-14">
+        <div data-reveal><CertificateDoc course={course} hotspots /></div>
+        <ol class="grid gap-2">
+          {c.anatomy.map((a, i) => (
+            <li data-anatomy={i + 1} class="flex cursor-default gap-4 rounded-2xl p-4 transition-colors hover:bg-white data-[on]:bg-white data-[on]:shadow-sm" data-reveal style={`--reveal-delay:${i * 70}ms`}>
+              <span class="grid size-8 shrink-0 place-items-center rounded-full bg-brand text-sm font-bold text-white">{i + 1}</span>
+              <div>
+                <h3 class="font-bold">{a.title}</h3>
+                <p class="mt-0.5 text-[15px] text-ink-2"><Rich text={a.text} /></p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <div class="mt-12 grid gap-4 sm:grid-cols-3">
+        {c.useful.map((u) => (
+          <div class="flex gap-3 rounded-2xl bg-white p-5" data-reveal>
+            <Icon name={u.icon} class="mt-0.5 shrink-0 text-brand" />
+            <div><h3 class="font-bold">{u.title}</h3><p class="mt-1 text-[15px] text-ink-2"><Rich text={u.text} /></p></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {variant === "tilt" && (
+    <div class="container-l relative grid items-center gap-12 md:grid-cols-2 md:gap-16">
+      <div class="mx-auto w-full max-w-[540px]" data-reveal>
+        <Tilt client:visible><CertificateDoc course={course} /></Tilt>
+        <p class="mt-6 flex items-center justify-center gap-2 text-sm text-ink-2"><Icon name="ShieldCheck" size={18} class="text-brand" /><Rich text={c.verify} /></p>
+      </div>
+      <div>
+        <h2 class="h-section" data-reveal>{c.title}</h2>
+        <p class="lead-text mt-4" data-reveal><Rich text={c.lead} /></p>
+        <h3 class="mt-10 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Где пригодится</h3>
+        <ul class="mt-4 grid gap-3">
+          {c.useful.map((u, i) => (
+            <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-[0_2px_20px_-8px_rgba(17,19,23,.12)]" data-reveal style={`--reveal-delay:${i * 80}ms`}>
+              <span class="grid size-11 shrink-0 place-items-center rounded-full bg-brand-50 text-brand"><Icon name={u.icon} size={20} /></span>
+              <div><h4 class="font-bold">{u.title}</h4><p class="mt-0.5 text-[15px] text-ink-2"><Rich text={u.text} /></p></div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )}
+
+  {variant === "path" && (
+    <div class="container-l relative">
+      <div class="mx-auto max-w-2xl text-center" data-reveal>
+        <h2 class="h-section">{c.title}</h2>
+        <p class="lead-text mt-4"><Rich text={c.lead} /></p>
+      </div>
+      <div class="mx-auto mt-12 max-w-[560px]" data-reveal><CertificateDoc course={course} /></div>
+      <ol class="relative mt-14 grid gap-8 md:grid-cols-4 md:gap-6">
+        <span class="absolute left-[22px] top-2 h-[calc(100%-16px)] w-0.5 bg-brand/25 md:left-0 md:top-[22px] md:h-0.5 md:w-full" aria-hidden="true"></span>
+        {steps.map((s, i) => (
+          <li class="relative flex gap-4 md:flex-col md:gap-5" data-reveal style={`--reveal-delay:${i * 90}ms`}>
+            <span class="relative grid size-11 shrink-0 place-items-center rounded-full bg-brand text-white ring-8 ring-soft"><Icon name={s.icon} size={20} /></span>
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-wider text-brand">Шаг {i + 1}</p>
+              <h3 class="mt-1 text-lg font-bold">{s.title}</h3>
+              <p class="mt-1 text-[15px] text-ink-2"><Rich text={s.text} /></p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  )}
+</section>
+
+<script>
+  // Связь пунктов «анатомии» с точками на образце
+  document.querySelectorAll<HTMLElement>("[data-cert-anatomy]").forEach((root) => {
+    const items = root.querySelectorAll<HTMLElement>("[data-anatomy]");
+    const light = (n: string | null) => {
+      items.forEach((it) => it.toggleAttribute("data-on", it.dataset.anatomy === n));
+      root.querySelectorAll<HTMLElement>("[data-spot]").forEach((s) => (s.style.transform = s.dataset.spot === n ? "scale(1.25)" : ""));
+    };
+    items.forEach((it) => {
+      it.addEventListener("pointerenter", () => light(it.dataset.anatomy!));
+      it.addEventListener("click", () => light(it.dataset.anatomy!));
+    });
+    root.querySelectorAll<HTMLElement>("[data-spot]").forEach((s) => s.addEventListener("click", () => light(s.dataset.spot!)));
+    root.addEventListener("pointerleave", () => light(null));
+  });
+</script>

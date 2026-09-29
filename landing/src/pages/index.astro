@@ -1,0 +1,30 @@
+---
+/* Служебная стартовая страница: ссылки на страницы курсов и стенд */
+import "@/styles/global.css";
+import { COUNTRIES, COURSE_LIST } from "@/data";
+---
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Лендинги учебного центра ЦКМ</title>
+  </head>
+  <body class="container-l py-12">
+    <h1 class="h-section">Лендинги учебного центра ЦКМ</h1>
+    {Object.values(COUNTRIES).map((c) => (
+      <section class="mt-10">
+        <h2 class="text-xl font-bold">{c.name}</h2>
+        <ul class="mt-4 grid gap-2">
+          {COURSE_LIST.map((k) => (
+            <li class="flex flex-wrap gap-x-4">
+              <a class="font-semibold text-brand hover:underline" href={`/${c.id}/${k.id}`}>{k.name}</a>
+              <a class="text-ink-2 hover:underline" href={`/playground/${c.id}/${k.id}`}>стенд с вариантами</a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </body>
+</html>

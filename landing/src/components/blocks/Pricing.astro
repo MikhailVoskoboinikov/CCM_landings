@@ -1,0 +1,97 @@
+---
+/*
+ * Стоимость. Варианты:
+ *  card  — одна цена и что в неё входит
+ *  calc  — калькулятор для группы
+ *  dates — ближайшие даты с ценой и местами
+ */
+import Icon from "@/components/parts/Icon.astro";
+import Rich from "@/components/parts/Rich.astro";
+import PriceCalc from "@/components/parts/PriceCalc";
+import type { Country, Course } from "@/data";
+
+interface Props { variant?: "card" | "calc" | "dates"; course: Course; country: Country }
+const { variant = "card", course, country } = Astro.props;
+const p = course.price;
+const amount = p.amount[country.id] ?? null;
+const priceText = amount
+  ? `${new Intl.NumberFormat("ru-RU").format(amount)} ${country.currency}`
+  : `[[— ${country.currency}|Цена курса «${course.name}» в стране: ${country.name}]]`;
+/* Условная цена только для демонстрации калькулятора */
+const DEMO = { uz: 950_000, kg: 6_500 } as const;
+const dates = [
+  ["[[12 октября|Реальные даты и время курсов]]", "Суббота, 10:00", 3],
+  ["[[19 октября|?]]", "Суббота, 10:00", 7],
+  ["[[2 ноября|?]]", "Суббота, 10:00", 10],
+] as const;
+---
+<section class="relative overflow-hidden bg-soft py-16 md:py-28" id="pricing">
+  <div class="container-l relative">
+    {variant === "card" && (
+      <div class="grid items-center gap-10 md:grid-cols-2 md:gap-16">
+        <div data-reveal>
+          <h2 class="h-section">Стоимость</h2>
+          <p class="lead-text mt-4">Одна цена за всё: обучение, материалы, экзамен и сертификат.</p>
+          <p class="mt-8 text-sm text-ink-2">Для организаций — <button data-lead-open={course.id} class="font-semibold text-brand underline-offset-4 hover:underline">условия по договору</button></p>
+        </div>
+        <div class="rounded-[28px] bg-white p-7 shadow-[0_20px_60px_-24px_rgba(17,19,23,.25)] md:p-9" data-reveal>
+          <p class="text-sm text-muted-foreground">{p.note}</p>
+          <p class="mt-1 text-[44px] font-bold leading-none tracking-tight md:text-[56px]"><Rich text={priceText} /></p>
+          <ul class="mt-7 grid gap-3">
+            {p.includes.map((i) => <li class="flex gap-3"><Icon name="Check" size={20} class="shrink-0 text-brand" />{i}</li>)}
+          </ul>
+          <div class="mt-7 flex flex-wrap gap-2">
+            {p.groupDiscounts.map((d) => (
+              <span class="rounded-full bg-brand-50 px-3 py-1.5 text-sm font-semibold text-brand-600"><Rich text={`[[от ${d.from} человек — −${d.percent}%|Есть ли скидки для групп и какие?]]`} /></span>
+            ))}
+          </div>
+          <button data-lead-open={course.id} class="mt-8 h-14 w-full rounded-full bg-brand text-base font-semibold text-white transition hover:bg-brand-600">Записаться</button>
+        </div>
+      </div>
+    )}
+
+    {variant === "calc" && (
+      <div class="grid items-center gap-10 md:grid-cols-2 md:gap-16">
+        <div data-reveal>
+          <h2 class="h-section">Стоимость</h2>
+          <p class="lead-text mt-4">Вместе дешевле: приходите с друзьями, коллегами или семьёй.</p>
+          <ul class="mt-8 grid gap-3">
+            {p.includes.map((i) => <li class="flex gap-3 text-ink-2"><Icon name="Check" size={20} class="shrink-0 text-brand" />{i}</li>)}
+          </ul>
+        </div>
+        <div data-reveal>
+          <PriceCalc client:visible amount={amount} demoAmount={DEMO[country.id]} currency={country.currency} discounts={p.groupDiscounts} courseId={course.id} />
+        </div>
+      </div>
+    )}
+
+    {variant === "dates" && (
+      <div>
+        <div class="flex flex-wrap items-end justify-between gap-6" data-reveal>
+          <div>
+            <h2 class="h-section">Ближайшие курсы</h2>
+            <p class="lead-text mt-4">{country.address}</p>
+          </div>
+          <div class="text-right">
+            <p class="text-sm text-muted-foreground">{p.note}</p>
+            <p class="text-3xl font-bold"><Rich text={priceText} /></p>
+          </div>
+        </div>
+        <ul class="mt-10 grid gap-3 md:grid-cols-3">
+          {dates.map(([d, time, seats], i) => (
+            <li class="flex flex-col rounded-3xl bg-white p-6" data-reveal style={`--reveal-delay:${i * 80}ms`}>
+              <p class="text-2xl font-bold"><Rich text={d} /></p>
+              <p class="mt-1 text-ink-2">{time}</p>
+              <div class="mt-6">
+                <div class="flex justify-between text-sm"><span class="text-muted-foreground">Свободно мест</span><b class={seats <= 3 ? "text-brand" : ""}>{seats} из 10</b></div>
+                <div class="mt-2 h-1.5 rounded-full bg-soft"><div class="h-full rounded-full bg-brand" style={`width:${(10 - seats) * 10}%`}></div></div>
+              </div>
+              <button data-lead-open={course.id} class="mt-6 h-12 rounded-full bg-ink font-semibold text-white transition hover:bg-brand">Записаться на эту дату</button>
+            </li>
+          ))}
+        </ul>
+        <p class="mt-4 text-sm text-muted-foreground">Даты и число мест — пример. В боевой версии они придут из CRM.</p>
+      </div>
+    )}
+  </div>
+</section>

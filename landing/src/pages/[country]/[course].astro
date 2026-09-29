@@ -1,0 +1,25 @@
+---
+/* Боевая страница курса: /uz/bls, /kg/first-aid-kids и т. д. */
+import Base from "@/layouts/Base.astro";
+import Block from "@/components/blocks/Block.astro";
+import Footer from "@/components/blocks/Footer.astro";
+import StickyCta from "@/components/blocks/StickyCta.astro";
+import { BLOCKS, DEFAULTS } from "@/config/blocks";
+import { COUNTRIES, COURSE_LIST, type CountryId, type CourseId, COURSES } from "@/data";
+import { plain } from "@/lib/rich";
+
+export function getStaticPaths() {
+  return Object.keys(COUNTRIES).flatMap((country) => COURSE_LIST.map((c) => ({ params: { country, course: c.id } })));
+}
+
+const country = COUNTRIES[Astro.params.country as CountryId];
+const course = COURSES[Astro.params.course as CourseId];
+const hero = course.hero[DEFAULTS["hero.copy"] as "a" | "b"];
+---
+<Base title={`${plain(hero.title)} — учебный центр ЦКМ, ${country.city}`} description={plain(hero.sub)} country={country} courseId={course.id}>
+  {BLOCKS.map((b) => (
+    <Block id={b.id} variant={DEFAULTS[b.id]} copy={DEFAULTS["hero.copy"]} course={course} country={country} />
+  ))}
+  <Footer country={country} />
+  <StickyCta course={course} country={country} />
+</Base>

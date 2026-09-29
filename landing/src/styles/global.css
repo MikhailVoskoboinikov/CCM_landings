@@ -1,0 +1,182 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/onest";
+
+/* Токены бренда ЦКМ: белый, воздух, красный акцент, жёлтый из логотипа точечно */
+@theme inline {
+  --font-sans: "Onest Variable", system-ui, sans-serif;
+  --font-heading: var(--font-sans);
+
+  --color-brand: var(--brand);
+  --color-brand-600: var(--brand-600);
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-sun: var(--sun);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-soft: var(--soft);
+  --color-line: var(--line);
+
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --animate-ecg: ecg 3.2s linear infinite;
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-ring: pulse-ring 2s ease-out infinite;
+}
+
+:root {
+  --brand: #d9262c;
+  --brand-600: #b51f25;
+  --brand-50: #fdeeee;
+  --brand-100: #f9d6d7;
+  --sun: #ffb81c;
+  --ink: #111317;
+  --ink-2: #4a4f57;
+  --soft: #f4f5f7;
+  --line: #e6e8ec;
+
+  --background: #ffffff;
+  --foreground: var(--ink);
+  --card: #ffffff;
+  --card-foreground: var(--ink);
+  --popover: #ffffff;
+  --popover-foreground: var(--ink);
+  --primary: var(--brand);
+  --primary-foreground: #ffffff;
+  --secondary: var(--soft);
+  --secondary-foreground: var(--ink);
+  --muted: var(--soft);
+  --muted-foreground: #7c828c;
+  --accent: var(--brand-50);
+  --accent-foreground: var(--brand-600);
+  --destructive: #d9262c;
+  --border: var(--line);
+  --input: #d5d8dd;
+  --ring: var(--brand);
+  --radius: 1rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "ss01";
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  h1, h2, h3 {
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Заголовок секции, вводный текст и контейнер — утилиты, чтобы работали с md: и т. п. */
+@utility h-section {
+  @apply text-[28px] leading-[1.12] font-bold tracking-tight md:text-[44px];
+}
+@utility lead-text {
+  @apply text-[17px] leading-relaxed text-ink-2 md:text-xl;
+}
+@utility container-l {
+  @apply mx-auto w-full max-w-[1160px] px-5 md:px-8;
+}
+
+@layer components {
+
+  /* Пометка «уточнить у ЦКМ»: видна в макете и в режиме разработки */
+  .q-mark {
+    background: #ffe58a;
+    color: #3a2800;
+    border-radius: 4px;
+    padding: 0 3px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    cursor: help;
+  }
+  .q-mark.q-empty {
+    padding: 0 6px;
+    font-weight: 700;
+  }
+  html.hide-marks .q-mark {
+    background: none;
+    color: inherit;
+    padding: 0;
+  }
+  html.hide-marks .q-mark.q-empty {
+    display: none;
+  }
+
+  /* Появление при прокрутке, см. layouts/Base.astro */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  [data-reveal].is-in {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ecg {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: -1; }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
+  50% { transform: translateY(-8px) rotate(var(--r, 0deg)); }
+}
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.7; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  [data-reveal] { opacity: 1; transform: none; }
+}

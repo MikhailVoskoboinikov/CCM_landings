@@ -1,0 +1,14 @@
+---
+/* Иконка lucide по имени — рендерится в статичный SVG, без JS на клиенте */
+import { icons } from "lucide-react";
+
+interface Props {
+  name: string;
+  class?: string;
+  size?: number;
+  strokeWidth?: number;
+}
+const { name, class: cls, size = 22, strokeWidth = 1.8 } = Astro.props;
+const C = icons[name as keyof typeof icons];
+---
+{C && <C className={cls} size={size} strokeWidth={strokeWidth} aria-hidden="true" />}

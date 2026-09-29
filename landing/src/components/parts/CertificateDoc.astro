@@ -1,0 +1,64 @@
+---
+/*
+ * Образец сертификата. Это макет до получения реальных образцов от ЦКМ:
+ * фирменные знаки ERC сюда не ставим, пока нет разрешения.
+ * hotspots — номера точек для блока «Анатомия сертификата».
+ */
+import type { Course } from "@/data";
+import { plain } from "@/lib/rich";
+
+interface Props { course: Course; hotspots?: boolean; class?: string }
+const { course, hotspots = false, class: cls = "" } = Astro.props;
+const c = course.certificate;
+const erc = c.kind === "erc";
+const spot = (n: number, pos: string) =>
+  hotspots
+    ? `<span data-spot="${n}" class="absolute ${pos} z-10 grid size-7 place-items-center rounded-full bg-brand text-[13px] font-bold text-white shadow-lg transition-transform"><span class="absolute inset-0 rounded-full bg-brand animate-pulse-ring"></span><span class="relative">${n}</span></span>`
+    : "";
+---
+<div class={`@container relative aspect-[1.414/1] w-full select-none overflow-hidden rounded-[18px] bg-white p-[6%] shadow-[0_30px_60px_-20px_rgba(17,19,23,.35)] ring-1 ring-black/5 ${cls}`}>
+  <!-- Гильош на фоне -->
+  <svg class="pointer-events-none absolute inset-0 size-full text-brand/[0.07]" viewBox="0 0 400 283" preserveAspectRatio="none" aria-hidden="true">
+    {Array.from({ length: 14 }, (_, i) => (
+      <path d={`M-20 ${150 + i * 6} C 80 ${60 + i * 9}, 200 ${260 - i * 7}, 420 ${120 + i * 5}`} fill="none" stroke="currentColor" stroke-width="1" />
+    ))}
+  </svg>
+  <div class="pointer-events-none absolute inset-[3%] rounded-[12px] ring-1 ring-brand/20"></div>
+
+  <div class="relative flex h-full flex-col">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <p class="text-[2.2cqi] font-semibold uppercase tracking-[0.16em] text-muted-foreground">{erc ? "Certificate · Basic Life Support" : "Учебный центр ЦКМ"}</p>
+        <p class="mt-[1cqi] text-[6.2cqi] font-bold leading-[1.1] text-brand">{c.docTitle}</p>
+        <p class="text-[2.8cqi] text-ink-2">{c.docSubtitle}</p>
+      </div>
+      <div class="relative grid size-[18%] shrink-0 place-items-center rounded-full bg-brand-50 text-brand">
+        <svg viewBox="0 0 24 24" class="size-1/2" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="9" r="6" /><path d="m15.5 13.9 1.5 8.1-5-3-5 3 1.5-8.1" /></svg>
+      </div>
+    </div>
+
+    <div class="relative mt-[5%]">
+      <p class="text-[2cqi] uppercase tracking-[0.14em] text-muted-foreground">Выдан</p>
+      <p class="text-[5.4cqi] italic text-ink" style="font-family: 'Segoe Script','Brush Script MT',cursive">Алия Каримова</p>
+      <Fragment set:html={spot(1, "-right-2 top-1")} />
+    </div>
+
+    <div class="relative mt-auto grid grid-cols-[1fr_1fr_auto] items-end gap-[4%]">
+      <div class="relative">
+        <p class="text-[2cqi] uppercase tracking-[0.14em] text-muted-foreground">Номер</p>
+        <p class="font-mono text-[2.8cqi] font-semibold">{erc ? "BLS-2026-0417" : "ЦКМ-2026-0417"}</p>
+        <Fragment set:html={spot(2, "-top-4 right-0")} />
+      </div>
+      <div class="relative">
+        <p class="text-[2cqi] uppercase tracking-[0.14em] text-muted-foreground">{erc ? "Действителен до" : "Программа"}</p>
+        <p class="text-[2.8cqi] font-semibold">{erc ? `09.2028 · ${plain(c.validity)}` : "4–8 часов практики"}</p>
+        <Fragment set:html={spot(3, "-top-4 right-0")} />
+      </div>
+      <div class="relative size-[13cqi] rounded-md bg-[conic-gradient(from_90deg_at_30%_30%,#111317_25%,transparent_0)] bg-[length:25%_25%] ring-4 ring-white outline outline-1 outline-black/10">
+        <Fragment set:html={spot(4, "-top-3 -right-3")} />
+      </div>
+    </div>
+  </div>
+
+  <span class="absolute -right-8 top-5 rotate-[35deg] bg-sun px-[8cqi] py-[0.8cqi] text-[2cqi] font-extrabold tracking-wider text-[#3a2800]">ОБРАЗЕЦ</span>
+</div>

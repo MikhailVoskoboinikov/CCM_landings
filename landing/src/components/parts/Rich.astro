@@ -1,0 +1,7 @@
+---
+/* Текст с пометками «уточнить у ЦКМ», см. lib/rich.ts */
+import { rich } from "@/lib/rich";
+interface Props { text: string; as?: string; class?: string }
+const { text, as: Tag = "span", class: cls } = Astro.props;
+---
+<Tag class={cls} set:html={rich(text)} />

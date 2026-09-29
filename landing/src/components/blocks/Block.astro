@@ -1,0 +1,26 @@
+---
+/* Один блок в нужном варианте: общая точка входа для страниц и /playground */
+import Header from "./Header.astro";
+import Hero from "./Hero.astro";
+import Audience from "./Audience.astro";
+import Certificate from "./Certificate.astro";
+import Program from "./Program.astro";
+import Gallery from "./Gallery.astro";
+import Pricing from "./Pricing.astro";
+import Faq from "./Faq.astro";
+import LeadSection from "./LeadSection.astro";
+import type { Country, Course } from "@/data";
+
+interface Props { id: string; variant: string; copy?: string; course: Course; country: Country; base?: string }
+const { id, variant, copy, course, country, base } = Astro.props;
+const v = variant as any;
+---
+{id === "header" && <Header variant={v} course={course} country={country} base={base} />}
+{id === "hero" && <Hero variant={v} copy={copy as any} course={course} country={country} />}
+{id === "audience" && <Audience variant={v} course={course} />}
+{id === "certificate" && <Certificate variant={v} course={course} />}
+{id === "program" && <Program variant={v} course={course} />}
+{id === "gallery" && <Gallery variant={v} course={course} />}
+{id === "pricing" && <Pricing variant={v} course={course} country={country} />}
+{id === "faq" && <Faq variant={v} course={course} country={country} />}
+{id === "lead" && <LeadSection variant={v} course={course} country={country} />}

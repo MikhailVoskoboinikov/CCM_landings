@@ -1,0 +1,64 @@
+---
+/*
+ * Шапка. Варианты:
+ *  full — логотип, страна, мессенджеры, кнопка записи
+ *  ad   — только логотип и кнопка: для рекламного трафика, где лишние ссылки уводят
+ */
+import { BrandIcon } from "@/components/parts/BrandIcon";
+import { COUNTRIES, IMG, type Country, type Course } from "@/data";
+
+interface Props {
+  variant?: "full" | "ad";
+  country: Country;
+  course: Course;
+  base?: string;
+}
+const { variant = "full", country, course, base = "" } = Astro.props;
+const other = Object.values(COUNTRIES).filter((c) => c.id !== country.id);
+---
+<header class="sticky top-0 z-40 bg-white/85 backdrop-blur-md transition-shadow data-[scrolled]:shadow-[0_6px_24px_-12px_rgba(17,19,23,.18)]" data-header>
+  <div class="container-l flex h-16 items-center gap-3 md:h-[72px]">
+    <a href={`${base}/${country.id}/${course.id}`} class="flex shrink-0 items-center gap-2.5">
+      <img src={IMG.logo} alt="ЦКМ" class="h-9 w-auto md:h-10" width="90" height="40" />
+      <span class="hidden text-[13px] leading-tight text-ink-2 sm:block">Учебный<br />центр</span>
+    </a>
+
+    {variant === "full" && (
+      <details class="relative ml-1 sm:ml-3 [&_summary::-webkit-details-marker]:hidden">
+        <summary class="flex cursor-pointer list-none items-center gap-1.5 rounded-full bg-soft px-3 py-1.5 text-[13px] font-medium">
+          {country.city}
+          <svg viewBox="0 0 24 24" class="size-3.5" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6" /></svg>
+        </summary>
+        <div class="absolute left-0 top-full mt-2 min-w-40 rounded-2xl bg-white p-1.5 shadow-xl ring-1 ring-black/5">
+          {other.map((c) => (
+            <a href={`${base}/${c.id}/${course.id}`} class="block rounded-xl px-3 py-2 text-sm hover:bg-soft">{c.city}, {c.name}</a>
+          ))}
+        </div>
+      </details>
+    )}
+
+    <div class="ml-auto flex items-center gap-2 md:gap-3">
+      {variant === "full" && (
+        <div class="flex items-center gap-1">
+          {country.messengers.map((m, i) => (
+            <a href={m.href} aria-label={m.id} class={`${i > 0 ? "hidden sm:grid" : "grid"} size-10 place-items-center rounded-full text-ink transition-colors hover:bg-soft hover:text-brand`}>
+              <BrandIcon id={m.id} className="size-[22px]" />
+            </a>
+          ))}
+        </div>
+      )}
+      {variant === "full" && <a href={country.phoneHref} class="hidden text-[15px] font-semibold lg:block">{country.phone}</a>}
+      <button data-lead-open={course.id} class="h-10 shrink-0 rounded-full bg-brand px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-600 md:h-11 md:px-6">
+        Записаться
+      </button>
+    </div>
+  </div>
+</header>
+<script>
+  const h = document.querySelector<HTMLElement>("[data-header]");
+  if (h) {
+    const on = () => (scrollY > 8 ? h.setAttribute("data-scrolled", "") : h.removeAttribute("data-scrolled"));
+    on();
+    addEventListener("scroll", on, { passive: true });
+  }
+</script>

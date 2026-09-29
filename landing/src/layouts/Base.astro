@@ -1,0 +1,75 @@
+---
+import "@/styles/global.css";
+import LeadSheet from "@/components/lead/LeadSheet";
+import { COURSE_LIST, type Country, type CourseId } from "@/data";
+import { showMarks } from "@/lib/rich";
+
+interface Props {
+  title: string;
+  description?: string;
+  country: Country;
+  courseId: CourseId;
+  noindex?: boolean;
+}
+const { title, description = "", country, courseId, noindex } = Astro.props;
+const courses = COURSE_LIST.map((c) => ({ id: c.id, name: c.name }));
+---
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#ffffff" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="min-h-dvh">
+    <slot />
+    <LeadSheet client:idle country={country} courses={courses} courseId={courseId} />
+    {showMarks && <div id="q-tip" class="pointer-events-none fixed z-[100] hidden max-w-72 rounded-xl bg-ink px-3 py-2 text-[13px] leading-snug text-white shadow-xl"></div>}
+
+    <script>
+      import { captureAttribution } from "@/lib/attribution";
+      captureAttribution();
+
+      // Появление блоков при прокрутке
+      const io = new IntersectionObserver(
+        (entries) => entries.forEach((e) => e.isIntersecting && (e.target.classList.add("is-in"), io.unobserve(e.target))),
+        { rootMargin: "0px 0px -8% 0px" },
+      );
+      const watch = () => document.querySelectorAll("[data-reveal]:not(.is-in)").forEach((el) => io.observe(el));
+      watch();
+      document.addEventListener("ccm:rendered", watch);
+
+      // Подсказка к пометкам «уточнить у ЦКМ»
+      const tip = document.getElementById("q-tip");
+      if (tip) {
+        const show = (el: HTMLElement) => {
+          if (document.documentElement.classList.contains("hide-marks")) return;
+          tip.innerHTML = `<b style="color:#ffe58a">Уточнить у ЦКМ:</b> ${el.dataset.q}`;
+          tip.classList.remove("hidden");
+          const r = el.getBoundingClientRect();
+          const w = tip.offsetWidth, h = tip.offsetHeight;
+          const x = Math.min(Math.max(8, r.left), innerWidth - w - 8);
+          const y = r.bottom + 8 + h > innerHeight ? r.top - h - 8 : r.bottom + 8;
+          tip.style.left = x + "px";
+          tip.style.top = y + "px";
+        };
+        document.addEventListener("mouseover", (e) => {
+          const q = (e.target as HTMLElement).closest<HTMLElement>(".q-mark");
+          if (q) show(q);
+        });
+        document.addEventListener("mouseout", (e) => {
+          if ((e.target as HTMLElement).closest(".q-mark")) tip.classList.add("hidden");
+        });
+        document.addEventListener("focusin", (e) => {
+          const q = (e.target as HTMLElement).closest<HTMLElement>(".q-mark");
+          if (q) show(q);
+        });
+        addEventListener("scroll", () => tip.classList.add("hidden"), { passive: true });
+      }
+    </script>
+  </body>
+</html>
