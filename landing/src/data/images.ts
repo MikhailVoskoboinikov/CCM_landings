@@ -16,7 +16,6 @@ export const IMG = {
   clinical: T + "tild6666-3535-4466-b033-383165313164/photo_2018-10-03_13-.jpg",
   workers: T + "tild3939-6532-4464-b734-626266333731/Screenshot_1.jpg",
   bandage: T + "tild3536-6333-4261-a539-303664653333/DSC04086_.jpg",
-  heli: T + "tild3961-6537-4131-b130-356166306264/5298735264165469435_.jpg",
   event: T + "tild6265-6666-4134-b266-613934616263/IMG_0160.jpg",
   choking: T + "tild6562-3533-4134-b835-333562646336/IMG_3326.jpg",
 } as const;

@@ -34,7 +34,7 @@ export const DEFAULTS: Record<string, string> = {
   audience: "cards",
   certificate: "anatomy",
   program: "accordion",
-  about: "stats",
+  about: "photo",
   clients: "marquee",
   instructors: "carousel",
   gallery: "carousel",

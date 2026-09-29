@@ -4,7 +4,7 @@
  *  stats — счётчики и четыре причины доверять
  *  photo — фото с флагами ЦКМ на всю ширину, текст и цифры поверх светлой части
  *  map   — схема учебных центров из точек и цифры
- *  story — фото с эвакуации и история ЦКМ
+ *  story — фото инструкторов и история ЦКМ
  */
 import Icon from "@/components/parts/Icon.astro";
 import Rich from "@/components/parts/Rich.astro";
@@ -125,7 +125,7 @@ const home = CENTERS.find((c) => c.country === country.id) ?? CENTERS[0];
     {variant === "story" && (
       <div class="grid items-center gap-10 md:grid-cols-2 md:gap-16">
         <div class="relative" data-reveal>
-          <img src={IMG.heli} alt="Медицинская эвакуация ЦКМ" loading="lazy" class="aspect-[4/3] w-full rounded-[28px] object-cover" />
+          <img src={IMG.team} alt="Инструкторы учебного центра с манекеном" loading="lazy" class="aspect-[4/3] w-full rounded-[28px] object-cover" />
           <div class="absolute -bottom-5 right-4 rounded-2xl bg-white px-5 py-4 shadow-xl md:-right-6">
             <p class="text-3xl font-bold text-brand">с 2006</p>
             <p class="text-sm text-ink-2">года на удалённых объектах</p>
