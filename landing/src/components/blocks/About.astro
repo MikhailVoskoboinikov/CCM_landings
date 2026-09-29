@@ -28,11 +28,17 @@ const home = CENTERS.find((c) => c.country === country.id) ?? CENTERS[0];
   <div class="container-l">
     {variant === "stats" && (
       <>
-        <div class="max-w-2xl" data-reveal>
-          <h2 class="h-section">Центр корпоративной медицины</h2>
-          <p class="lead-text mt-4">С 2006 года ЦКМ оказывает медицинскую помощь там, где до больницы далеко. Этот опыт — основа наших курсов.</p>
+        <div class="grid items-center gap-10 md:grid-cols-[1.05fr_.95fr] md:gap-16">
+          <div data-reveal>
+            <h2 class="h-section">Центр корпоративной медицины</h2>
+            <p class="lead-text mt-4">С 2006 года ЦКМ оказывает медицинскую помощь там, где до больницы далеко: здравпункты на промышленных объектах, медицинская эвакуация, дистанционные консультации. Этот опыт — основа наших курсов.</p>
+          </div>
+          <div class="relative" data-reveal style="--reveal-delay:100ms">
+            <img src={IMG.heli} alt="Медицинская эвакуация ЦКМ" loading="lazy" class="aspect-[16/10] w-full rounded-[28px] object-cover" />
+            <p class="absolute bottom-4 left-4 rounded-full bg-white/90 px-4 py-2 text-sm font-medium backdrop-blur">Медицинская эвакуация ЦКМ</p>
+          </div>
         </div>
-        <dl class="mt-12 grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4">
+        <dl class="mt-12 grid grid-cols-2 gap-x-6 gap-y-10 md:mt-16 md:grid-cols-4">
           {STATS.map((s, i) => (
             <div data-reveal style={`--reveal-delay:${i * 80}ms`}>
               <dt class="text-[40px] font-bold leading-none tracking-tight text-brand md:text-[56px]">

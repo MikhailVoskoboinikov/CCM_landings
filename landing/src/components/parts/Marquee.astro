@@ -1,0 +1,19 @@
+---
+/*
+ * Бесконечная бегущая лента справа налево, останавливается при наведении
+ * и при касании. Содержимое повторяется repeat раз внутри каждой из двух
+ * одинаковых половин: половина должна быть шире самого широкого экрана,
+ * иначе справа появится пустота. Лента сдвигается ровно на одну половину,
+ * поэтому стык не заметен. У элементов внутри — отступ справа (mr-*), а не gap.
+ */
+interface Props { repeat?: number; duration?: number; class?: string }
+const { repeat = 2, duration = 50, class: cls = "" } = Astro.props;
+const html = await Astro.slots.render("default");
+const group = html.repeat(repeat);
+---
+<div class={`group/mq overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_6%,#000_94%,transparent)] ${cls}`}>
+  <div class="flex w-max animate-marquee group-hover/mq:[animation-play-state:paused] group-active/mq:[animation-play-state:paused]" style={`animation-duration:${duration}s`}>
+    <div class="flex shrink-0" set:html={group} />
+    <div class="flex shrink-0" aria-hidden="true" set:html={group} />
+  </div>
+</div>

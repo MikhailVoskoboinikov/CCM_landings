@@ -6,6 +6,7 @@
  */
 import Icon from "@/components/parts/Icon.astro";
 import Rich from "@/components/parts/Rich.astro";
+import Marquee from "@/components/parts/Marquee.astro";
 import { CLIENTS } from "@/data/about";
 
 interface Props { variant?: "marquee" | "grid" }
@@ -17,16 +18,14 @@ const title = "[[Обучаем сотрудников компаний из р�
     <Rich as="h2" class="text-xl font-bold md:text-2xl" text={title} />
   </div>
   {variant === "marquee" && (
-    <div class="mt-8 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]">
-      <div class="flex w-max animate-marquee gap-3 hover:[animation-play-state:paused]">
-        {[...CLIENTS, ...CLIENTS].map((c) => (
-          <div class="flex h-16 shrink-0 items-center gap-3 rounded-2xl bg-soft px-6 text-ink-2">
-            <Icon name={c.icon} size={24} class="text-brand" />
-            <span class="text-[15px] font-semibold tracking-tight">{c.name}</span>
-          </div>
-        ))}
-      </div>
-    </div>
+    <Marquee class="mt-8" repeat={2} duration={45}>
+      {CLIENTS.map((c) => (
+        <div class="mr-3 flex h-16 shrink-0 items-center gap-3 rounded-2xl bg-soft px-6 text-ink-2">
+          <Icon name={c.icon} size={24} class="text-brand" />
+          <span class="whitespace-nowrap text-[15px] font-semibold tracking-tight">{c.name}</span>
+        </div>
+      ))}
+    </Marquee>
   )}
   {variant === "grid" && (
     <div class="container-l mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
