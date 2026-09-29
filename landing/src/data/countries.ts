@@ -22,7 +22,7 @@ export const COUNTRIES: Record<CountryId, Country> = {
       { id: "whatsapp", href: "#" },
       { id: "instagram", href: "#" },
     ],
-    legal: "[[Юрлицо в Узбекистане|Название и реквизиты юрлица в Узбекистане]]",
+    legal: "[[ООО «CCM Training», ИНН 000 000 000, Ташкент|Название и реквизиты юрлица в Узбекистане]]",
   },
   kg: {
     id: "kg",
@@ -40,7 +40,7 @@ export const COUNTRIES: Record<CountryId, Country> = {
       { id: "telegram", href: "#" },
       { id: "instagram", href: "#" },
     ],
-    legal: "[[Юрлицо в Кыргызстане|Название и реквизиты юрлица в Кыргызстане]]",
+    legal: "[[ОсОО «CCM Training», ИНН 00000000000000, Бишкек|Название и реквизиты юрлица в Кыргызстане]]",
   },
 };
 

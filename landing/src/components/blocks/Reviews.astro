@@ -1,39 +1,47 @@
 ---
 /*
- * Отзывы. Выдуманные отзывы не публикуем: пока здесь места под реальные
- * и подсказка, что попросить у выпускника. Варианты:
+ * Отзывы. Варианты:
  *  cards — карточки, листаются пальцем
  *  video — вертикальные видеоотзывы
+ * Пока в data/about.ts примеры текста: они видны только в макете и на тестовом
+ * стенде (с пометками). В боевой сборке блок с примерами не выводится.
  */
 import Icon from "@/components/parts/Icon.astro";
-import { REVIEWS } from "@/data/about";
+import Rich from "@/components/parts/Rich.astro";
+import { REVIEWS, REVIEWS_ARE_SAMPLES } from "@/data/about";
+import { showMarks } from "@/lib/rich";
 
 interface Props { variant?: "cards" | "video" }
 const { variant = "cards" } = Astro.props;
+const hidden = REVIEWS_ARE_SAMPLES && !showMarks;
+const mark = (t: string) => (REVIEWS_ARE_SAMPLES ? `[[${t}|Пример отзыва для макета — нужен реальный текст, имя и согласие автора]]` : t);
 ---
-<section class="bg-soft py-16 md:py-28" id="reviews">
-  <div class="container-l flex flex-wrap items-end justify-between gap-4" data-reveal>
-    <h2 class="h-section">Отзывы выпускников</h2>
-    <p class="rounded-lg bg-[#fff5d6] px-3 py-1 text-sm text-[#7a5200]">Места под реальные отзывы — нужны тексты, фото и согласие</p>
-  </div>
-  <div class="mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-5 px-5 pb-2 [scrollbar-width:none] md:scroll-px-[max(2rem,calc((100vw-1160px)/2+2rem))] md:px-[max(2rem,calc((100vw-1160px)/2+2rem))]">
-    {REVIEWS.map((r, i) =>
-      variant === "video" ? (
-        <article class="relative flex aspect-[9/14] w-[62%] shrink-0 snap-start flex-col justify-end overflow-hidden rounded-3xl bg-ink p-5 text-white sm:w-[260px]" data-reveal style={`--reveal-delay:${i * 60}ms`}>
-          <span class="absolute inset-0 grid place-items-center"><span class="grid size-16 place-items-center rounded-full bg-brand"><Icon name="Play" size={26} class="ml-1" /></span></span>
-          <p class="relative font-semibold">{r.who}</p>
-          <p class="relative text-sm text-white/70">Видео до 60 секунд: {r.hint.toLowerCase()}</p>
-        </article>
-      ) : (
-        <article class="flex w-[82%] shrink-0 snap-start flex-col rounded-3xl bg-white p-6 sm:w-[360px]" data-reveal style={`--reveal-delay:${i * 60}ms`}>
-          <Icon name="Quote" size={32} class="text-brand/30" />
-          <p class="mt-4 flex-1 text-[16px] leading-relaxed text-muted-foreground">Место для отзыва. Попросить рассказать: {r.hint.toLowerCase()}.</p>
-          <div class="mt-6 flex items-center gap-3">
-            <span class="size-11 rounded-full bg-soft"></span>
-            <div><p class="font-semibold">Имя Фамилия</p><p class="text-sm text-muted-foreground">{r.who}</p></div>
-          </div>
-        </article>
-      ),
-    )}
-  </div>
-</section>
+{!hidden && (
+  <section class="bg-soft py-16 md:py-28" id="reviews">
+    <div class="container-l" data-reveal>
+      <h2 class="h-section">Отзывы выпускников</h2>
+    </div>
+    <div class="mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-5 px-5 pb-2 [scrollbar-width:none] md:scroll-px-[max(2rem,calc((100vw-1160px)/2+2rem))] md:px-[max(2rem,calc((100vw-1160px)/2+2rem))]">
+      {REVIEWS.map((r, i) =>
+        variant === "video" ? (
+          <article class="relative flex aspect-[9/14] w-[62%] shrink-0 snap-start flex-col justify-end overflow-hidden rounded-3xl bg-ink p-5 text-white sm:w-[260px]" data-reveal style={`--reveal-delay:${i * 60}ms`}>
+            <span class="absolute inset-0 grid place-items-center"><span class="grid size-16 place-items-center rounded-full bg-brand"><Icon name="Play" size={26} class="ml-1" /></span></span>
+            <p class="relative font-semibold">{r.name}</p>
+            <Rich as="p" class="relative text-sm text-white/75" text={mark(r.who)} />
+          </article>
+        ) : (
+          <article class="flex w-[84%] shrink-0 snap-start flex-col rounded-3xl bg-white p-6 sm:w-[380px]" data-reveal style={`--reveal-delay:${i * 60}ms`}>
+            <div class="flex gap-0.5 text-sun">
+              {Array.from({ length: 5 }, () => <Icon name="Star" size={18} class="fill-current" />)}
+            </div>
+            <Rich as="p" class="mt-4 flex-1 text-[16px] leading-relaxed text-ink" text={mark(r.text)} />
+            <div class="mt-6 flex items-center gap-3">
+              <span class="grid size-11 place-items-center rounded-full bg-brand-50 font-bold text-brand">{r.name[0]}</span>
+              <div><p class="font-semibold">{r.name}</p><p class="text-sm text-muted-foreground">{r.who}</p></div>
+            </div>
+          </article>
+        ),
+      )}
+    </div>
+  </section>
+)}

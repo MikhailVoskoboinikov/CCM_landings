@@ -63,8 +63,10 @@ export interface Course {
   };
   price: {
     note: string;
-    /** Цена за участника в валюте страны; null — пока неизвестна */
-    amount: Partial<Record<CountryId, number | null>>;
+    /** Цена за участника в валюте страны */
+    amount: Record<CountryId, number>;
+    /** false — цена-пример для макета, показывается с пометкой «уточнить» */
+    confirmed: boolean;
     includes: string[];
     groupDiscounts: { from: number; percent: number }[];
   };

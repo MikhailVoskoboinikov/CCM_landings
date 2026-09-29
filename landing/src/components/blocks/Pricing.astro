@@ -1,6 +1,7 @@
 ---
 /*
  * Стоимость. Варианты:
+ *  off   — отдельного блока нет, цена показана в заявке, шторке и вопросах
  *  card  — одна цена и что в неё входит
  *  calc  — калькулятор для группы
  *  dates — ближайшие даты с ценой и местами
@@ -8,23 +9,20 @@
 import Icon from "@/components/parts/Icon.astro";
 import Rich from "@/components/parts/Rich.astro";
 import PriceCalc from "@/components/parts/PriceCalc";
+import { priceText } from "@/lib/price";
 import type { Country, Course } from "@/data";
 
-interface Props { variant?: "card" | "calc" | "dates"; course: Course; country: Country }
+interface Props { variant?: "off" | "card" | "calc" | "dates"; course: Course; country: Country }
 const { variant = "card", course, country } = Astro.props;
 const p = course.price;
-const amount = p.amount[country.id] ?? null;
-const priceText = amount
-  ? `${new Intl.NumberFormat("ru-RU").format(amount)} ${country.currency}`
-  : `[[— ${country.currency}|Цена курса «${course.name}» в стране: ${country.name}]]`;
-/* Условная цена только для демонстрации калькулятора */
-const DEMO = { uz: 950_000, kg: 6_500 } as const;
+const price = priceText(course, country);
 const dates = [
   ["[[12 октября|Реальные даты и время курсов]]", "Суббота, 10:00", 3],
   ["[[19 октября|?]]", "Суббота, 10:00", 7],
   ["[[2 ноября|?]]", "Суббота, 10:00", 10],
 ] as const;
 ---
+{variant !== "off" && (
 <section class="relative overflow-hidden bg-soft py-16 md:py-28" id="pricing">
   <div class="container-l relative">
     {variant === "card" && (
@@ -36,7 +34,7 @@ const dates = [
         </div>
         <div class="rounded-[28px] bg-white p-7 shadow-[0_20px_60px_-24px_rgba(17,19,23,.25)] md:p-9" data-reveal>
           <p class="text-sm text-muted-foreground">{p.note}</p>
-          <p class="mt-1 text-[44px] font-bold leading-none tracking-tight md:text-[56px]"><Rich text={priceText} /></p>
+          <p class="mt-1 text-[44px] font-bold leading-none tracking-tight md:text-[56px]"><Rich text={price} /></p>
           <ul class="mt-7 grid gap-3">
             {p.includes.map((i) => <li class="flex gap-3"><Icon name="Check" size={20} class="shrink-0 text-brand" />{i}</li>)}
           </ul>
@@ -60,7 +58,7 @@ const dates = [
           </ul>
         </div>
         <div data-reveal>
-          <PriceCalc client:visible amount={amount} demoAmount={DEMO[country.id]} currency={country.currency} discounts={p.groupDiscounts} courseId={course.id} />
+          <PriceCalc client:visible amount={p.amount[country.id]} confirmed={p.confirmed} currency={country.currency} discounts={p.groupDiscounts} courseId={course.id} />
         </div>
       </div>
     )}
@@ -74,7 +72,7 @@ const dates = [
           </div>
           <div class="text-right">
             <p class="text-sm text-muted-foreground">{p.note}</p>
-            <p class="text-3xl font-bold"><Rich text={priceText} /></p>
+            <p class="text-3xl font-bold"><Rich text={price} /></p>
           </div>
         </div>
         <ul class="mt-10 grid gap-3 md:grid-cols-3">
@@ -95,3 +93,4 @@ const dates = [
     )}
   </div>
 </section>
+)}

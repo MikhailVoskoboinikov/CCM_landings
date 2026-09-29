@@ -2,7 +2,9 @@
 import "@/styles/global.css";
 import LeadSheet from "@/components/lead/LeadSheet";
 import { COURSE_LIST, type Country, type CourseId } from "@/data";
+import { priceText } from "@/lib/price";
 import { showMarks } from "@/lib/rich";
+import { url } from "@/lib/url";
 
 interface Props {
   title: string;
@@ -13,6 +15,7 @@ interface Props {
 }
 const { title, description = "", country, courseId, noindex } = Astro.props;
 const courses = COURSE_LIST.map((c) => ({ id: c.id, name: c.name }));
+const prices = Object.fromEntries(COURSE_LIST.map((c) => [c.id, priceText(c, country)]));
 ---
 <!doctype html>
 <html lang="ru">
@@ -23,11 +26,11 @@ const courses = COURSE_LIST.map((c) => ({ id: c.id, name: c.name }));
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
     {noindex && <meta name="robots" content="noindex, nofollow" />}
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={url("/favicon.svg")} />
   </head>
   <body class="min-h-dvh">
     <slot />
-    <LeadSheet client:idle country={country} courses={courses} courseId={courseId} />
+    <LeadSheet client:idle country={country} courses={courses} courseId={courseId} prices={prices} />
     {showMarks && <div id="q-tip" class="pointer-events-none fixed z-[100] hidden max-w-72 rounded-xl bg-ink px-3 py-2 text-[13px] leading-snug text-white shadow-xl"></div>}
 
     <script>

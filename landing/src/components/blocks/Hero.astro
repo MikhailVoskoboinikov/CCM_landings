@@ -66,7 +66,7 @@ const m = country.messengers[0];
         <p class="mt-6 max-w-xl text-xl text-white/85"><Rich text={t.sub} /></p>
         <div class="mt-10 flex gap-3">
           <button data-lead-open={course.id} class="h-14 rounded-full bg-brand px-9 font-semibold text-white transition hover:bg-brand-600">Записаться на курс</button>
-          <a href={m.href} class="flex h-14 items-center gap-2 rounded-full bg-white/15 px-6 font-semibold backdrop-blur-md transition hover:bg-white/25"><BrandIcon id={m.id} className="size-5" />{MESSENGER_LABEL[m.id]}</a>
+          <a href={m.href} class="flex h-14 items-center gap-2 rounded-full bg-white/15 px-6 font-semibold backdrop-blur-md transition hover:bg-white/25"><BrandIcon id={m.id} tone="glyph" className="size-5" />{MESSENGER_LABEL[m.id]}</a>
         </div>
         <div class="mt-14 flex gap-3">
           {course.facts.map((f) => (

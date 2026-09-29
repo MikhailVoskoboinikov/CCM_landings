@@ -5,8 +5,11 @@
 import { useEffect, useState } from "react";
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { LeadForm, type LeadFormProps } from "./LeadForm";
+import { rich } from "@/lib/rich";
 
-export default function LeadSheet(props: Omit<LeadFormProps, "onDone" | "compact">) {
+type Props = Omit<LeadFormProps, "onDone" | "compact"> & { prices: Record<string, string> };
+
+export default function LeadSheet({ prices, ...props }: Props) {
   const [open, setOpen] = useState(false);
   const [courseId, setCourseId] = useState(props.courseId);
 
@@ -28,6 +31,13 @@ export default function LeadSheet(props: Omit<LeadFormProps, "onDone" | "compact
         <DrawerHeader className="text-left">
           <DrawerTitle className="text-2xl font-bold">Запись на курс</DrawerTitle>
           <DrawerDescription className="text-base">Оставьте контакты — перезвоним и подберём дату.</DrawerDescription>
+          {prices[courseId] && (
+            <p className="mt-2 flex flex-wrap items-baseline gap-x-2 rounded-2xl bg-soft px-4 py-3 text-sm text-ink-2">
+              Стоимость:
+              <b className="text-base text-ink" dangerouslySetInnerHTML={{ __html: rich(prices[courseId]) }} />
+              за участника, всё включено
+            </p>
+          )}
         </DrawerHeader>
         <div className="overflow-y-auto px-4 pb-8">
           <LeadForm {...props} courseId={courseId} compact onDone={() => setOpen(false)} />

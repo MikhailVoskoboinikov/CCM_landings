@@ -2,6 +2,7 @@
 /* Служебная стартовая страница: ссылки на страницы курсов и стенд */
 import "@/styles/global.css";
 import { COUNTRIES, COURSE_LIST } from "@/data";
+import { url } from "@/lib/url";
 ---
 <!doctype html>
 <html lang="ru">
@@ -19,8 +20,8 @@ import { COUNTRIES, COURSE_LIST } from "@/data";
         <ul class="mt-4 grid gap-2">
           {COURSE_LIST.map((k) => (
             <li class="flex flex-wrap gap-x-4">
-              <a class="font-semibold text-brand hover:underline" href={`/${c.id}/${k.id}`}>{k.name}</a>
-              <a class="text-ink-2 hover:underline" href={`/playground/${c.id}/${k.id}`}>стенд с вариантами</a>
+              <a class="font-semibold text-brand hover:underline" href={url(`/${c.id}/${k.id}`)}>{k.name}</a>
+              <a class="text-ink-2 hover:underline" href={url(`/playground/${c.id}/${k.id}`)}>стенд с вариантами</a>
             </li>
           ))}
         </ul>

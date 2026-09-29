@@ -5,6 +5,7 @@
  *  lead     — один инструктор крупно и остальные списком
  * Сейчас — команда «Альфамедтренинга» как пример; для каждой страны нужен свой состав.
  */
+import Rich from "@/components/parts/Rich.astro";
 import { INSTRUCTORS } from "@/data/about";
 
 interface Props { variant?: "carousel" | "lead" }
@@ -13,10 +14,9 @@ const [first, ...rest] = INSTRUCTORS;
 ---
 <section class="py-16 md:py-28" id="instructors">
   <div class="container-l">
-    <p class="mb-6 inline-block rounded-lg bg-[#fff5d6] px-3 py-1.5 text-sm text-[#7a5200]">Пример: инструкторы «Альфамедтренинга». Состав Ташкента и Бишкека пришлют ЦКМ</p>
     <div class="max-w-2xl" data-reveal>
       <h2 class="h-section">Инструкторы</h2>
-      <p class="lead-text mt-4">Врачи и фельдшеры, которые сами работают в экстренной медицине и прошли аттестацию инструкторов.</p>
+      <Rich as="p" class="lead-text mt-4" text="[[Врачи и фельдшеры, которые сами работают в экстренной медицине и прошли аттестацию инструкторов|Сейчас показана команда «Альфамедтренинга» (Россия). Нужен состав инструкторов Ташкента и Бишкека с фото]]." />
     </div>
   </div>
 

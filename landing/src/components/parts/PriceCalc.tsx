@@ -1,13 +1,13 @@
 /*
  * Калькулятор цены для группы: число участников → цена на человека и итог.
- * Пока ЦКМ не прислал цены, считает от условной суммы и честно это показывает.
+ * Пока цена не подтверждена ЦКМ, над расчётом висит пометка «условно».
  */
 import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
 
 interface Props {
-  amount: number | null;
-  demoAmount: number;
+  amount: number;
+  confirmed: boolean;
   currency: string;
   discounts: { from: number; percent: number }[];
   courseId: string;
@@ -15,16 +15,16 @@ interface Props {
 
 const fmt = (n: number) => new Intl.NumberFormat("ru-RU").format(Math.round(n));
 
-export default function PriceCalc({ amount, demoAmount, currency, discounts, courseId }: Props) {
+export default function PriceCalc({ amount, confirmed, currency, discounts, courseId }: Props) {
   const [n, setN] = useState(1);
-  const base = amount ?? demoAmount;
+  const base = amount;
   const disc = [...discounts].reverse().find((d) => n >= d.from)?.percent ?? 0;
   const per = base * (1 - disc / 100);
   const next = discounts.find((d) => d.from > n);
 
   return (
     <div className="rounded-[28px] bg-white p-6 shadow-[0_20px_60px_-24px_rgba(17,19,23,.25)] ring-1 ring-black/5 md:p-8">
-      {amount === null && (
+      {!confirmed && (
         <p className="mb-5 inline-block rounded-lg bg-[#fff5d6] px-3 py-1 text-xs font-medium text-[#7a5200]">Цены и скидки условные — ждём данные от ЦКМ</p>
       )}
       <p className="text-sm font-medium text-muted-foreground">Сколько человек пойдёт на курс?</p>

@@ -13,8 +13,7 @@ import { IMG, type Country } from "@/data";
 interface Props { variant?: "stats" | "map" | "story"; country: Country }
 const { variant = "stats", country } = Astro.props;
 
-const stat = (s: (typeof STATS)[number]) =>
-  s.value === null ? `[[—|${s.q}]]` : s.q ? `[[${new Intl.NumberFormat("ru-RU").format(s.value)}${s.suffix}|${s.q}]]` : "";
+const stat = (s: (typeof STATS)[number]) => (s.q ? `[[${new Intl.NumberFormat("ru-RU").format(s.value)}${s.suffix}|${s.q}]]` : "");
 
 /* Схема: прямоугольная проекция участка 25–90° в. д., 38–62° с. ш. */
 const box = { lon0: 25, lon1: 90, lat0: 38, lat1: 62 };
@@ -37,7 +36,7 @@ const home = CENTERS.find((c) => c.country === country.id) ?? CENTERS[0];
           {STATS.map((s, i) => (
             <div data-reveal style={`--reveal-delay:${i * 80}ms`}>
               <dt class="text-[40px] font-bold leading-none tracking-tight text-brand md:text-[56px]">
-                {s.value !== null && !s.q ? <span data-count={s.value}>0</span> : <Rich text={stat(s)} />}{!s.q && s.suffix}
+                {!s.q ? <span data-count={s.value}>0</span> : <Rich text={stat(s)} />}{!s.q && s.suffix}
               </dt>
               <dd class="mt-3 text-[15px] leading-snug text-ink-2">{s.label}</dd>
             </div>
@@ -83,7 +82,7 @@ const home = CENTERS.find((c) => c.country === country.id) ?? CENTERS[0];
           <div class="mt-6 grid grid-cols-3 gap-4 text-center">
             <div><p class="text-3xl font-bold text-brand"><span data-count="20">0</span></p><p class="text-sm text-ink-2">лет работы</p></div>
             <div><p class="text-3xl font-bold text-brand"><span data-count="6">0</span></p><p class="text-sm text-ink-2">центров</p></div>
-            <div><p class="text-3xl font-bold text-brand"><Rich text="[[—|Сколько человек обучено?]]" /></p><p class="text-sm text-ink-2">обучено</p></div>
+            <div><p class="text-3xl font-bold text-brand"><Rich text="[[12 000+|Сколько человек обучено всего и по странам?]]" /></p><p class="text-sm text-ink-2">обучено</p></div>
           </div>
         </div>
       </div>

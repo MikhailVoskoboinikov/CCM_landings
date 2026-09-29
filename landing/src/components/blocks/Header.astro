@@ -4,6 +4,7 @@
  *  full — логотип, страна, мессенджеры, кнопка записи
  *  ad   — только логотип и кнопка: для рекламного трафика, где лишние ссылки уводят
  */
+import { url } from "@/lib/url";
 import { BrandIcon } from "@/components/parts/BrandIcon";
 import { COUNTRIES, IMG, type Country, type Course } from "@/data";
 
@@ -18,7 +19,7 @@ const other = Object.values(COUNTRIES).filter((c) => c.id !== country.id);
 ---
 <header class="sticky top-0 z-40 bg-white/85 backdrop-blur-md transition-shadow data-[scrolled]:shadow-[0_6px_24px_-12px_rgba(17,19,23,.18)]" data-header>
   <div class="container-l flex h-16 items-center gap-2 sm:gap-3 md:h-[72px]">
-    <a href={`${base}/${country.id}/${course.id}`} class="flex shrink-0 items-center gap-2.5">
+    <a href={url(`${base}/${country.id}/${course.id}`)} class="flex shrink-0 items-center gap-2.5">
       <img src={IMG.logo} alt="ЦКМ" class="h-8 w-auto sm:h-9 md:h-10" width="90" height="40" />
       <span class="hidden text-[13px] leading-tight text-ink-2 sm:block">Учебный<br />центр</span>
     </a>
@@ -31,7 +32,7 @@ const other = Object.values(COUNTRIES).filter((c) => c.id !== country.id);
         </summary>
         <div class="absolute left-0 top-full mt-2 min-w-40 rounded-2xl bg-white p-1.5 shadow-xl ring-1 ring-black/5">
           {other.map((c) => (
-            <a href={`${base}/${c.id}/${course.id}`} class="block rounded-xl px-3 py-2 text-sm hover:bg-soft">{c.city}, {c.name}</a>
+            <a href={url(`${base}/${c.id}/${course.id}`)} class="block rounded-xl px-3 py-2 text-sm hover:bg-soft">{c.city}, {c.name}</a>
           ))}
         </div>
       </details>

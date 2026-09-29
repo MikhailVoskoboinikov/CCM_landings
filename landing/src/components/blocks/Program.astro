@@ -23,11 +23,10 @@ const day = [
 ---
 <section class="py-16 md:py-28" id="program">
   <div class="container-l">
-    {p.draft && <p class="mb-6 inline-block rounded-lg bg-[#fff5d6] px-3 py-1.5 text-sm text-[#7a5200]">Черновик программы по брифу — согласовать с ЦКМ</p>}
     <div class="grid gap-10 md:grid-cols-[.8fr_1.2fr] md:gap-16">
       <div class="md:sticky md:top-28 md:self-start" data-reveal>
         <h2 class="h-section">Программа курса</h2>
-        <p class="lead-text mt-4"><Rich text={p.lead} /></p>
+        <p class="lead-text mt-4"><Rich text={p.draft ? `[[${p.lead}|Программа составлена по брифу — согласовать с ЦКМ]]` : p.lead} /></p>
         <div class="mt-8 flex gap-8">
           <div><p class="text-4xl font-bold text-brand">{p.sections.length}</p><p class="text-sm text-ink-2">раздела</p></div>
           <div><p class="text-4xl font-bold text-brand">{total}</p><p class="text-sm text-ink-2">тем</p></div>

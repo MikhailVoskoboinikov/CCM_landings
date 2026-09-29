@@ -1,6 +1,7 @@
 ---
 /* Подвал: юрлицо и контакты выбранной страны, как на globalccm.com */
 import Rich from "@/components/parts/Rich.astro";
+import { url } from "@/lib/url";
 import { BrandIcon } from "@/components/parts/BrandIcon";
 import { COURSE_LIST, IMG, type Country } from "@/data";
 
@@ -13,7 +14,7 @@ const { country, base = "" } = Astro.props;
       <img src={IMG.logo} alt="ЦКМ" class="h-16 w-auto" width="140" height="64" loading="lazy" />
       <div class="mt-6 flex gap-2">
         {country.messengers.map((m) => (
-          <a href={m.href} aria-label={m.id} class="grid size-9 place-items-center rounded-full bg-brand text-white"><BrandIcon id={m.id} className="size-4" /></a>
+          <a href={m.href} aria-label={m.id} class="grid size-9 place-items-center rounded-full bg-brand text-white"><BrandIcon id={m.id} tone="glyph" className="size-4" /></a>
         ))}
       </div>
     </div>
@@ -26,7 +27,7 @@ const { country, base = "" } = Astro.props;
     </div>
     <div>
       <h3 class="mb-4 font-semibold tracking-wide">Курсы</h3>
-      {COURSE_LIST.map((c) => <a href={`${base}/${country.id}/${c.id}`} class="mb-2 block text-brand hover:underline">{c.name}</a>)}
+      {COURSE_LIST.map((c) => <a href={url(`${base}/${country.id}/${c.id}`)} class="mb-2 block text-brand hover:underline">{c.name}</a>)}
     </div>
     <div>
       <h3 class="mb-4 font-semibold tracking-wide">Документы</h3>
