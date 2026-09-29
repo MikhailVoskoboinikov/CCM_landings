@@ -2,6 +2,7 @@
 /*
  * О ЦКМ: почему нам доверять. Варианты:
  *  stats — счётчики и четыре причины доверять
+ *  photo — фото с флагами ЦКМ на всю ширину, текст и цифры поверх светлой части
  *  map   — схема учебных центров из точек и цифры
  *  story — фото с эвакуации и история ЦКМ
  */
@@ -9,8 +10,10 @@ import Icon from "@/components/parts/Icon.astro";
 import Rich from "@/components/parts/Rich.astro";
 import { CENTERS, STATS, TRUST } from "@/data/about";
 import { IMG, type Country } from "@/data";
+import { Picture } from "astro:assets";
+import flags from "@/assets/ccm-flags.png";
 
-interface Props { variant?: "stats" | "map" | "story"; country: Country }
+interface Props { variant?: "stats" | "photo" | "map" | "story"; country: Country }
 const { variant = "stats", country } = Astro.props;
 
 const stat = (s: (typeof STATS)[number]) => (s.q ? `[[${new Intl.NumberFormat("ru-RU").format(s.value)}${s.suffix}|${s.q}]]` : "");
@@ -24,7 +27,33 @@ const dots: [number, number][] = [];
 for (let x = 6; x < MW; x += 13) for (let y = 6; y < MH; y += 13) dots.push([x, y]);
 const home = CENTERS.find((c) => c.country === country.id) ?? CENTERS[0];
 ---
-<section class="relative overflow-hidden py-16 md:py-28" id="about">
+<section class={`relative overflow-hidden ${variant === "photo" ? "" : "py-16 md:py-28"}`} id="about">
+  {variant === "photo" && (
+    <div class="relative md:flex md:min-h-[620px] md:items-center lg:min-h-[680px]">
+      {/* Фото медленно дрейфует; справа (на телефоне — снизу) растворяется в белом, там текст */}
+      <div class="relative h-[300px] overflow-hidden sm:h-[380px] md:absolute md:inset-0 md:h-auto">
+        <Picture src={flags} formats={["avif", "webp"]} widths={[640, 1024, 1713]} sizes="100vw" alt="Флаги Центра корпоративной медицины на фоне карты объектов" loading="lazy" class="size-full animate-drift object-cover object-[28%_center] md:object-[20%_center]" />
+        <div class="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-b from-transparent to-white md:hidden" />
+        <div class="absolute inset-0 hidden bg-[linear-gradient(90deg,transparent_30%,rgba(255,255,255,.85)_55%,#fff_72%)] md:block" />
+      </div>
+      <div class="container-l relative -mt-6 pb-16 md:mt-0 md:py-24">
+        <div class="md:ml-auto md:w-[46%]" data-reveal>
+          <h2 class="h-section">Центр корпоративной медицины</h2>
+          <p class="lead-text mt-4">С 2006 года ЦКМ оказывает медицинскую помощь там, где до больницы далеко: здравпункты на промышленных объектах, медицинская эвакуация, дистанционные консультации. Этот опыт — основа наших курсов.</p>
+          <dl class="mt-10 grid grid-cols-2 gap-x-6 gap-y-8">
+            {STATS.map((s) => (
+              <div>
+                <dt class="text-[36px] font-bold leading-none tracking-tight text-brand md:text-[44px]">
+                  {!s.q ? <span data-count={s.value}>0</span> : <Rich text={stat(s)} />}{!s.q && s.suffix}
+                </dt>
+                <dd class="mt-2 text-[14.5px] leading-snug text-ink-2">{s.label}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </div>
+    </div>
+  )}
   <div class="container-l">
     {variant === "stats" && (
       <>
@@ -34,8 +63,7 @@ const home = CENTERS.find((c) => c.country === country.id) ?? CENTERS[0];
             <p class="lead-text mt-4">С 2006 года ЦКМ оказывает медицинскую помощь там, где до больницы далеко: здравпункты на промышленных объектах, медицинская эвакуация, дистанционные консультации. Этот опыт — основа наших курсов.</p>
           </div>
           <div class="relative" data-reveal style="--reveal-delay:100ms">
-            <img src={IMG.heli} alt="Медицинская эвакуация ЦКМ" loading="lazy" class="aspect-[16/10] w-full rounded-[28px] object-cover" />
-            <p class="absolute bottom-4 left-4 rounded-full bg-white/90 px-4 py-2 text-sm font-medium backdrop-blur">Медицинская эвакуация ЦКМ</p>
+            <Picture src={flags} formats={["avif", "webp"]} widths={[640, 1024]} sizes="(min-width: 768px) 520px, 100vw" alt="Флаги Центра корпоративной медицины на фоне карты объектов" loading="lazy" class="aspect-[16/10] w-full rounded-[28px] object-cover object-[30%_center]" />
           </div>
         </div>
         <dl class="mt-12 grid grid-cols-2 gap-x-6 gap-y-10 md:mt-16 md:grid-cols-4">
