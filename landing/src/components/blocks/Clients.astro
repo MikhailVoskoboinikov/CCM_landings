@@ -1,0 +1,31 @@
+---
+/*
+ * Логотипы клиентов — бегущая строка сразу после «О ЦКМ», как просили в ЦКМ.
+ * Варианты: marquee — бегущая строка; grid — сетка.
+ * Сейчас заглушки: нужны логотипы и разрешение компаний на их показ.
+ */
+import { CLIENTS } from "@/data/about";
+
+interface Props { variant?: "marquee" | "grid" }
+const { variant = "marquee" } = Astro.props;
+const logo = (name: string) =>
+  `<div class="flex h-16 w-40 shrink-0 items-center justify-center rounded-2xl bg-soft text-sm font-semibold text-muted-foreground grayscale">${name}</div>`;
+---
+<section class="py-12 md:py-16">
+  <div class="container-l flex flex-wrap items-baseline justify-between gap-3">
+    <h2 class="text-xl font-bold md:text-2xl">Нам доверяют обучение сотрудников</h2>
+    <p class="rounded-lg bg-[#fff5d6] px-3 py-1 text-sm text-[#7a5200]">Заглушки: нужны логотипы и разрешение клиентов</p>
+  </div>
+  {variant === "marquee" && (
+    <div class="mt-8 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]">
+      <div class="flex w-max animate-marquee gap-4 hover:[animation-play-state:paused]">
+        <Fragment set:html={[...CLIENTS, ...CLIENTS].map(logo).join("")} />
+      </div>
+    </div>
+  )}
+  {variant === "grid" && (
+    <div class="container-l mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <Fragment set:html={CLIENTS.map((c) => logo(c).replace("w-40", "w-full")).join("")} />
+    </div>
+  )}
+</section>

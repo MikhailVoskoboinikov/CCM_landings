@@ -13,8 +13,7 @@ interface Props { variant?: "form" | "messengers"; course: Course; country: Coun
 const { variant = "form", course, country } = Astro.props;
 const courses = COURSE_LIST.map((c) => ({ id: c.id, name: c.name }));
 ---
-<section class="relative overflow-hidden bg-soft py-16 md:py-28" id="lead">
-  <Ecg class="pointer-events-none absolute inset-x-0 bottom-10 h-24 w-full text-brand" beats={7} />
+<section class="relative overflow-hidden bg-soft pb-8 pt-16 md:pb-10 md:pt-28" id="lead">
   <div class="container-l relative">
     {variant === "form" && (
       <div class="grid gap-10 md:grid-cols-2 md:gap-16 [&>*]:min-w-0">
@@ -55,4 +54,5 @@ const courses = COURSE_LIST.map((c) => ({ id: c.id, name: c.name }));
       </div>
     )}
   </div>
+  <Ecg class="mt-16 block h-20 w-full text-brand md:mt-20 md:h-24" />
 </section>

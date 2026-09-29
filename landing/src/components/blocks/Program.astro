@@ -1,7 +1,8 @@
 ---
 /*
  * Программа. Варианты:
- *  accordion — раскрывающийся список разделов, как просили в ЦКМ
+ *  accordion — раскрывающийся список разделов, как просили в ЦКМ; разделы
+ *              открываются по очереди по мере прокрутки
  *  timeline  — вертикальная красная линия, в стиле globalccm.com
  *  day       — как проходит день + темы чипами
  */
@@ -37,7 +38,7 @@ const day = [
       {variant === "accordion" && (
         <div class="grid gap-3">
           {p.sections.map((s, i) => (
-            <details class="group rounded-3xl bg-soft transition-colors open:bg-white open:shadow-[0_8px_40px_-16px_rgba(17,19,23,.2)] open:ring-1 open:ring-black/5" open={i === 0} data-reveal style={`--reveal-delay:${i * 60}ms`}>
+            <details data-prog-step class="prog-step group rounded-3xl bg-soft transition-colors duration-500 open:bg-white open:shadow-[0_8px_40px_-16px_rgba(17,19,23,.2)] open:ring-1 open:ring-black/5" open={i === 0} data-reveal style={`--reveal-delay:${i * 60}ms`}>
               <summary class="flex cursor-pointer list-none items-center gap-4 p-5 md:p-6 [&::-webkit-details-marker]:hidden">
                 <span class="text-sm font-bold text-brand tabular-nums">0{i + 1}</span>
                 <span class="flex-1 text-lg font-bold md:text-xl">{s.title}</span>
@@ -101,3 +102,25 @@ const day = [
     </div>
   </div>
 </section>
+
+<script>
+  // Разделы программы раскрываются по очереди: следующий открывается, когда
+  // предыдущий пролистан почти до конца. Закрываются только руками, автоматическое
+  // закрытие дёргало бы страницу под пальцем; закрытый вручную раздел снова сам не откроется.
+  const steps = [...document.querySelectorAll<HTMLDetailsElement>("[data-prog-step]")];
+  steps.forEach((d) => d.open && (d.dataset.auto = "1"));
+  let last = 0;
+  let queued = false;
+  const check = () => {
+    queued = false;
+    const i = steps.findIndex((d) => !d.dataset.auto);
+    if (i < 1 || performance.now() - last < 450) return;
+    const prev = steps[i - 1];
+    if (prev.open && prev.getBoundingClientRect().bottom < innerHeight * 0.6) {
+      steps[i].open = true;
+      steps[i].dataset.auto = "1";
+      last = performance.now();
+    }
+  };
+  addEventListener("scroll", () => !queued && ((queued = true), requestAnimationFrame(check)), { passive: true });
+</script>

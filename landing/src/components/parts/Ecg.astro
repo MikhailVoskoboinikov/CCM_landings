@@ -1,14 +1,42 @@
 ---
-/* Анимированная линия ЭКГ: бегущий по кардиограмме импульс */
+/*
+ * Нормальная ЭКГ, синусовый ритм ~75 в минуту, по которой бежит импульс.
+ * Масштаб как на ленте 25 мм/с: 1 единица по X = 5 мс, один комплекс = 160 ед. = 0,8 с.
+ * Изолиния — y = 60, вверх — положительные зубцы.
+ *   P:   8–24   (80 мс), плавный купол
+ *   PQ:  интервал 8–36 (140 мс)
+ *   QRS: 36–50   (70 мс): маленький Q, высокий узкий R, S
+ *   ST:  50–72, изолиния
+ *   T:   72–110, пологий подъём и более быстрый спуск; QT ≈ 370 мс
+ *   U:   116–126, едва заметный
+ * preserveAspectRatio="xMidYMid slice" сохраняет пропорции на любой ширине:
+ * лишние комплексы просто обрезаются по краям.
+ */
 interface Props { class?: string; beats?: number }
-const { class: cls = "", beats = 4 } = Astro.props;
+const { class: cls = "", beats = 14 } = Astro.props;
 const W = 160;
 const beat = (x: number) =>
-  `L${x + 40} 60 l6 -7 l6 7 L${x + 64} 60 l4 9 l8 -52 l8 58 l5 -15 L${x + 100} 60 q10 -13 20 0 L${x + W} 60`;
+  [
+    `L${x + 8} 60`,
+    `C${x + 11} 60 ${x + 12} 54 ${x + 16} 54`,
+    `C${x + 20} 54 ${x + 21} 60 ${x + 24} 60`,
+    `L${x + 36} 60`,
+    `L${x + 38} 63.5`,
+    `L${x + 42.5} 12`,
+    `L${x + 46.5} 70`,
+    `L${x + 50} 60`,
+    `L${x + 72} 60`,
+    `C${x + 80} 60 ${x + 88} 47 ${x + 96} 47`,
+    `C${x + 102} 47 ${x + 106} 60 ${x + 110} 60`,
+    `L${x + 116} 60`,
+    `C${x + 118} 60 ${x + 119} 58 ${x + 121} 58`,
+    `C${x + 123} 58 ${x + 124} 60 ${x + 126} 60`,
+    `L${x + W} 60`,
+  ].join(" ");
 const d = `M0 60 ` + Array.from({ length: beats }, (_, i) => beat(i * W)).join(" ");
 ---
-<svg viewBox={`0 0 ${beats * W} 100`} preserveAspectRatio="none" class={cls} aria-hidden="true">
-  <path d={d} fill="none" stroke="currentColor" stroke-opacity="0.12" stroke-width="2" vector-effect="non-scaling-stroke" />
+<svg viewBox={`0 0 ${beats * W} 80`} preserveAspectRatio="xMidYMid slice" class={cls} aria-hidden="true">
+  <path d={d} fill="none" stroke="currentColor" stroke-opacity="0.13" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
   <path
     d={d}
     fill="none"
@@ -18,7 +46,8 @@ const d = `M0 60 ` + Array.from({ length: beats }, (_, i) => beat(i * W)).join("
     stroke-linejoin="round"
     vector-effect="non-scaling-stroke"
     pathLength="1"
-    stroke-dasharray="0.18 0.82"
+    stroke-dasharray="0.16 0.84"
     class="animate-ecg"
+    style={`animation-duration:${beats * 0.8}s`}
   />
 </svg>

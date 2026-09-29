@@ -89,6 +89,7 @@
   }
   html {
     @apply font-sans;
+    interpolate-size: allow-keywords;
     -webkit-tap-highlight-color: transparent;
     scroll-behavior: smooth;
   }
@@ -140,6 +141,16 @@
   }
   html.hide-marks .q-mark.q-empty {
     display: none;
+  }
+
+  /* Плавное раскрытие разделов программы (Chrome, Edge; остальные — без анимации) */
+  .prog-step::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition: block-size 0.55s cubic-bezier(0.2, 0.7, 0.2, 1), content-visibility 0.55s allow-discrete;
+  }
+  .prog-step[open]::details-content {
+    block-size: auto;
   }
 
   /* Появление при прокрутке, см. layouts/Base.astro */

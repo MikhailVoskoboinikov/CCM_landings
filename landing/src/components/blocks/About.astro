@@ -1,0 +1,130 @@
+---
+/*
+ * О ЦКМ: почему нам доверять. Варианты:
+ *  stats — счётчики и четыре причины доверять
+ *  map   — схема учебных центров из точек и цифры
+ *  story — фото с эвакуации и история ЦКМ
+ */
+import Icon from "@/components/parts/Icon.astro";
+import Rich from "@/components/parts/Rich.astro";
+import { CENTERS, STATS, TRUST } from "@/data/about";
+import { IMG, type Country } from "@/data";
+
+interface Props { variant?: "stats" | "map" | "story"; country: Country }
+const { variant = "stats", country } = Astro.props;
+
+const stat = (s: (typeof STATS)[number]) =>
+  s.value === null ? `[[—|${s.q}]]` : s.q ? `[[${new Intl.NumberFormat("ru-RU").format(s.value)}${s.suffix}|${s.q}]]` : "";
+
+/* Схема: прямоугольная проекция участка 25–90° в. д., 38–62° с. ш. */
+const box = { lon0: 25, lon1: 90, lat0: 38, lat1: 62 };
+const MW = 520, MH = 300;
+const px = (lon: number) => ((lon - box.lon0) / (box.lon1 - box.lon0)) * MW;
+const py = (lat: number) => ((box.lat1 - lat) / (box.lat1 - box.lat0)) * MH;
+const dots: [number, number][] = [];
+for (let x = 6; x < MW; x += 13) for (let y = 6; y < MH; y += 13) dots.push([x, y]);
+const home = CENTERS.find((c) => c.country === country.id) ?? CENTERS[0];
+---
+<section class="relative overflow-hidden py-16 md:py-28" id="about">
+  <div class="container-l">
+    {variant === "stats" && (
+      <>
+        <div class="max-w-2xl" data-reveal>
+          <h2 class="h-section">Центр корпоративной медицины</h2>
+          <p class="lead-text mt-4">С 2006 года ЦКМ оказывает медицинскую помощь там, где до больницы далеко. Этот опыт — основа наших курсов.</p>
+        </div>
+        <dl class="mt-12 grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4">
+          {STATS.map((s, i) => (
+            <div data-reveal style={`--reveal-delay:${i * 80}ms`}>
+              <dt class="text-[40px] font-bold leading-none tracking-tight text-brand md:text-[56px]">
+                {s.value !== null && !s.q ? <span data-count={s.value}>0</span> : <Rich text={stat(s)} />}{!s.q && s.suffix}
+              </dt>
+              <dd class="mt-3 text-[15px] leading-snug text-ink-2">{s.label}</dd>
+            </div>
+          ))}
+        </dl>
+        <div class="-mx-5 mt-14 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-5 px-5 pb-2 [scrollbar-width:none] md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-4">
+          {TRUST.map((t, i) => (
+            <div class="w-[76%] shrink-0 snap-start rounded-3xl bg-soft p-6 md:w-auto" data-reveal style={`--reveal-delay:${i * 70}ms`}>
+              <Icon name={t.icon} size={28} class="text-brand" />
+              <h3 class="mt-6 text-lg font-bold leading-snug">{t.title}</h3>
+              <p class="mt-2 text-[15px] text-ink-2">{t.text}</p>
+            </div>
+          ))}
+        </div>
+      </>
+    )}
+
+    {variant === "map" && (
+      <div class="grid items-center gap-10 md:grid-cols-[.9fr_1.1fr] md:gap-16">
+        <div data-reveal>
+          <h2 class="h-section">Шесть учебных центров</h2>
+          <p class="lead-text mt-4">Центр корпоративной медицины работает с 2006 года. Учебные центры — в Узбекистане, Кыргызстане, Казахстане и России.</p>
+          <ul class="mt-8 grid gap-4">
+            {TRUST.slice(0, 3).map((t) => (
+              <li class="flex gap-3"><Icon name={t.icon} size={22} class="mt-0.5 shrink-0 text-brand" /><div><b>{t.title}</b><p class="text-[15px] text-ink-2">{t.text}</p></div></li>
+            ))}
+          </ul>
+        </div>
+        <div class="relative" data-reveal>
+          <svg viewBox={`0 0 ${MW} ${MH}`} class="w-full" role="img" aria-label="Схема учебных центров ЦКМ">
+            {dots.map(([x, y]) => <circle cx={x} cy={y} r="1.6" fill="#d5d8dd" />)}
+            {CENTERS.filter((c) => c !== home).map((c) => (
+              <path d={`M${px(home.lon)} ${py(home.lat)} Q ${(px(home.lon) + px(c.lon)) / 2} ${Math.min(py(home.lat), py(c.lat)) - 40} ${px(c.lon)} ${py(c.lat)}`} fill="none" stroke="var(--brand)" stroke-opacity=".35" stroke-width="1.5" stroke-dasharray="4 5" />
+            ))}
+            {CENTERS.map((c) => (
+              <g transform={`translate(${px(c.lon)} ${py(c.lat)})`}>
+                {c === home && <circle r="8" fill="var(--brand)" class="origin-center animate-pulse-ring" style="transform-box: fill-box" />}
+                <circle r={c === home ? 7 : 5} fill={c === home ? "var(--brand)" : "#111317"} stroke="#fff" stroke-width="2.5" />
+                <text x={c.side === "l" ? -12 : 12} y="4" text-anchor={c.side === "l" ? "end" : "start"} font-size={c === home ? 15 : 12} font-weight={c === home ? 700 : 500} fill="#111317">{c.city}</text>
+              </g>
+            ))}
+          </svg>
+          <div class="mt-6 grid grid-cols-3 gap-4 text-center">
+            <div><p class="text-3xl font-bold text-brand"><span data-count="20">0</span></p><p class="text-sm text-ink-2">лет работы</p></div>
+            <div><p class="text-3xl font-bold text-brand"><span data-count="6">0</span></p><p class="text-sm text-ink-2">центров</p></div>
+            <div><p class="text-3xl font-bold text-brand"><Rich text="[[—|Сколько человек обучено?]]" /></p><p class="text-sm text-ink-2">обучено</p></div>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {variant === "story" && (
+      <div class="grid items-center gap-10 md:grid-cols-2 md:gap-16">
+        <div class="relative" data-reveal>
+          <img src={IMG.heli} alt="Медицинская эвакуация ЦКМ" loading="lazy" class="aspect-[4/3] w-full rounded-[28px] object-cover" />
+          <div class="absolute -bottom-5 right-4 rounded-2xl bg-white px-5 py-4 shadow-xl md:-right-6">
+            <p class="text-3xl font-bold text-brand">с 2006</p>
+            <p class="text-sm text-ink-2">года на удалённых объектах</p>
+          </div>
+        </div>
+        <div data-reveal>
+          <h2 class="h-section">Мы сами оказываем помощь там, где до больницы далеко</h2>
+          <p class="lead-text mt-5">Центр корпоративной медицины обеспечивает медицинскую помощь на промышленных объектах: здравпункты, медицинская эвакуация, дистанционные консультации. Инструкторы учебного центра учат тому, что делают на работе.</p>
+          <ul class="mt-8 grid gap-3">
+            <li class="flex gap-3"><Icon name="Check" class="shrink-0 text-brand" />Учебные центры в Ташкенте, Бишкеке, Астане, Москве, Санкт-Петербурге и Томске</li>
+            <li class="flex gap-3"><Icon name="Check" class="shrink-0 text-brand" /><Rich text="Под медицинским сопровождением ЦКМ — [[около 95 000 человек|Можно ли публиковать число сотрудников под сопровождением?]]" /></li>
+            <li class="flex gap-3"><Icon name="Check" class="shrink-0 text-brand" />Программы по рекомендациям ERC 2025</li>
+          </ul>
+        </div>
+      </div>
+    )}
+  </div>
+</section>
+
+<script>
+  // Счётчики набегают, когда блок появляется на экране
+  const fmt = new Intl.NumberFormat("ru-RU");
+  const run = (el: HTMLElement) => {
+    const to = Number(el.dataset.count);
+    const t0 = performance.now();
+    const step = (t: number) => {
+      const k = Math.min(1, (t - t0) / 1400);
+      el.textContent = fmt.format(Math.round(to * (1 - Math.pow(1 - k, 3))));
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+  const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && (run(e.target as HTMLElement), io.unobserve(e.target))), { threshold: 0.6 });
+  document.querySelectorAll<HTMLElement>("[data-count]").forEach((el) => io.observe(el));
+</script>

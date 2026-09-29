@@ -2,7 +2,7 @@
 /*
  * «Для кого». Варианты:
  *  cards — карточки; на телефоне листаются горизонтально
- *  list  — крупная мысль слева, список справа
+ *  list  — крупная мысль и цифры слева, список справа
  */
 import Icon from "@/components/parts/Icon.astro";
 import Rich from "@/components/parts/Rich.astro";
@@ -32,7 +32,7 @@ const a = course.audience;
     </div>
     <div class="container-l mt-8 flex flex-wrap gap-2">
       <span class="rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-600">{a.note}</span>
-      <span class="rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-600">С 14 лет</span>
+      <span class="rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-600">Группы 6–10 человек</span>
     </div>
   </section>
 )}
@@ -44,7 +44,7 @@ const a = course.audience;
         <h2 class="h-section">{a.title}</h2>
         <p class="mt-5 text-2xl font-semibold leading-snug md:text-[30px]"><Rich text={a.lead} /></p>
         <div class="mt-8 flex gap-6">
-          <div><p class="text-4xl font-bold text-brand">14+</p><p class="text-sm text-ink-2">возраст участников</p></div>
+          <div><p class="text-4xl font-bold text-brand">6–10</p><p class="text-sm text-ink-2">человек в группе</p></div>
           <div><p class="text-4xl font-bold text-brand">0</p><p class="text-sm text-ink-2">требований к образованию</p></div>
         </div>
       </div>

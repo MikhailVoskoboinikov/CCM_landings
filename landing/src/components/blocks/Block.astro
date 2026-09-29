@@ -5,7 +5,11 @@ import Hero from "./Hero.astro";
 import Audience from "./Audience.astro";
 import Certificate from "./Certificate.astro";
 import Program from "./Program.astro";
+import About from "./About.astro";
+import Clients from "./Clients.astro";
+import Instructors from "./Instructors.astro";
 import Gallery from "./Gallery.astro";
+import Reviews from "./Reviews.astro";
 import Pricing from "./Pricing.astro";
 import Faq from "./Faq.astro";
 import LeadSection from "./LeadSection.astro";
@@ -20,7 +24,11 @@ const v = variant as any;
 {id === "audience" && <Audience variant={v} course={course} />}
 {id === "certificate" && <Certificate variant={v} course={course} />}
 {id === "program" && <Program variant={v} course={course} />}
+{id === "about" && <About variant={v} country={country} />}
+{id === "clients" && <Clients variant={v} />}
+{id === "instructors" && <Instructors variant={v} />}
 {id === "gallery" && <Gallery variant={v} course={course} />}
 {id === "pricing" && <Pricing variant={v} course={course} country={country} />}
+{id === "reviews" && <Reviews variant={v} />}
 {id === "faq" && <Faq variant={v} course={course} country={country} />}
 {id === "lead" && <LeadSection variant={v} course={course} country={country} />}
