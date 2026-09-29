@@ -1,0 +1,1332 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Макет лендингов ЦКМ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ===== Оболочка макета (панели, комментарии) ===== */
+:root{
+  --t-bg:#E9ECF1; --t-panel:#FFFFFF; --t-ink:#1B1E26; --t-muted:#6A7080; --t-line:#DADFE7;
+  --t-dark:#1C2030; --t-dark-2:#2A3044; --t-accent:#3B5BDB; --t-q:#FFE58A; --t-q-ink:#5A4300;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--t-bg);color:var(--t-ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;padding-top:var(--topbar-h,58px)}
+button,input,select,textarea{font:inherit;color:inherit}
+.T-top{position:fixed;inset:0 0 auto 0;z-index:50;background:var(--t-dark);color:#fff;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 16px}
+.T-brand{font-weight:700;white-space:nowrap;margin-right:4px}
+.T-brand small{display:block;font-weight:400;color:#9AA3B8;font-size:11px}
+.T-field{display:flex;align-items:center;gap:6px;font-size:12px;color:#AEB6C8}
+.T-field select{background:var(--t-dark-2);border:1px solid #3A4260;border-radius:8px;color:#fff;padding:6px 8px;max-width:230px}
+.T-seg{display:inline-flex;background:var(--t-dark-2);border-radius:9px;padding:3px}
+.T-seg button{border:0;background:none;color:#AEB6C8;padding:5px 10px;border-radius:7px;cursor:pointer;font-size:12px}
+.T-seg button.on{background:#fff;color:var(--t-dark)}
+.T-btn{border:0;background:var(--t-dark-2);color:#fff;border-radius:8px;padding:7px 11px;cursor:pointer;font-size:12px;display:inline-flex;gap:6px;align-items:center}
+.T-btn:hover{background:#353C55}
+.T-btn .n{background:var(--t-q);color:var(--t-q-ink);border-radius:10px;padding:0 6px;font-weight:700;font-size:11px}
+.T-btn .n.c{background:#fff;color:var(--t-dark)}
+.T-spacer{flex:1}
+.T-chk{display:flex;gap:6px;align-items:center;font-size:12px;color:#AEB6C8;cursor:pointer;user-select:none}
+
+.T-main{padding:20px 16px 80px;transition:padding-right .2s}
+body.drawer-open .T-main{padding-right:396px}
+.stage{margin:0 auto;background:#fff;container-type:inline-size;container-name:L;overflow:clip;max-width:1440px;border-radius:14px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 8px 30px rgba(20,30,60,.08)}
+body.dev-mobile .stage{max-width:390px;border-radius:30px;box-shadow:0 0 0 10px #1C2030,0 20px 50px rgba(0,0,0,.25);margin-top:10px}
+
+.T-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;background:#F4F6FA;color:var(--t-ink);padding:8px 14px;font-size:12px;border-block:1px solid var(--t-line)}
+body.no-bars .T-bar{display:none}
+.T-bar b{font-weight:700;margin-right:2px}
+.T-bar .grp{display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap}
+.T-bar .grp span{color:var(--t-muted)}
+.T-pill{border:1px solid var(--t-line);background:#fff;border-radius:999px;padding:3px 10px;cursor:pointer;font-size:12px}
+.T-pill.on{background:var(--t-dark);color:#fff;border-color:var(--t-dark)}
+.T-note{color:var(--t-muted);font-size:11.5px}
+.T-cbtn{margin-left:auto;background:#fff;border:1px solid var(--t-line);border-radius:999px;padding:3px 10px;cursor:pointer;display:inline-flex;gap:5px;align-items:center;font-size:12px}
+.T-cbtn.has{background:var(--t-accent);color:#fff;border-color:var(--t-accent)}
+.T-cbtn svg{width:14px;height:14px}
+.T-libhead{padding:26px 20px 6px;font-size:20px;font-weight:800;color:var(--t-ink);font-family:system-ui,sans-serif}
+.T-libhead small{display:block;font-size:13px;font-weight:400;color:var(--t-muted)}
+
+.T-drawer{position:fixed;top:var(--topbar-h,58px);right:0;bottom:0;width:380px;max-width:100%;background:var(--t-panel);z-index:40;box-shadow:-10px 0 30px rgba(20,30,60,.12);display:none;flex-direction:column}
+body.drawer-open .T-drawer{display:flex}
+.T-dtabs{display:flex;gap:4px;padding:12px 12px 0}
+.T-dtabs button{flex:1;border:0;background:#F1F3F7;border-radius:9px;padding:8px;cursor:pointer;font-weight:600}
+.T-dtabs button.on{background:var(--t-dark);color:#fff}
+.T-dbody{flex:1;overflow:auto;padding:14px}
+.T-dfoot{padding:10px 14px;display:flex;flex-wrap:wrap;gap:6px;background:#F7F8FB}
+.T-dfoot button{border:1px solid var(--t-line);background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px}
+.T-ctx{background:#F1F3F7;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:13px}
+.T-ctx .x{float:right;border:0;background:none;cursor:pointer;color:var(--t-muted)}
+.T-in{width:100%;border:1px solid var(--t-line);border-radius:9px;padding:8px 10px;background:#fff}
+textarea.T-in{min-height:84px;resize:vertical}
+.T-add{margin-top:8px;border:0;background:var(--t-accent);color:#fff;border-radius:9px;padding:8px 14px;cursor:pointer;font-weight:600}
+.T-cm{background:#fff;border:1px solid var(--t-line);border-radius:12px;padding:10px 12px;margin-top:10px}
+.T-cm .meta{font-size:11.5px;color:var(--t-muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.T-cm .meta .tag{background:#EEF1FB;color:#33427A;border-radius:6px;padding:1px 6px}
+.T-cm .txt{margin-top:4px;white-space:pre-wrap}
+.T-cm .del{margin-left:auto;border:0;background:none;color:var(--t-muted);cursor:pointer;font-size:11.5px}
+.T-empty{color:var(--t-muted);text-align:center;padding:30px 10px}
+.T-qlist{margin:0;padding:0;list-style:none;counter-reset:q}
+.T-qlist li{counter-increment:q;background:#FFFBEA;border-radius:10px;padding:9px 12px 9px 38px;margin-bottom:8px;position:relative}
+.T-qlist li::before{content:counter(q);position:absolute;left:11px;top:9px;font-weight:700;color:var(--t-q-ink)}
+.T-qlist li small{display:block;color:var(--t-muted);margin-top:3px}
+.T-help{font-size:12.5px;color:var(--t-muted);margin:0 0 12px}
+.T-tip{position:fixed;z-index:100;max-width:280px;background:#1C2030;color:#fff;font-size:12.5px;line-height:1.4;padding:8px 10px;border-radius:9px;pointer-events:none;display:none;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.T-tip b{color:var(--t-q)}
+.T-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1C2030;color:#fff;padding:9px 16px;border-radius:10px;z-index:120;display:none}
+@media (max-width:820px){
+  body.drawer-open .T-main{padding-right:16px}
+  .T-drawer{width:100%}
+  .T-field select{max-width:160px}
+}
+
+/* ===== Лендинг: стиль globalccm.com — белый, воздух, красный акцент ===== */
+.L{
+  --red:#DA2A2F; --red-600:#B91F24; --red-50:#FCEEEE; --yellow:#F5B800;
+  --ink:#111317; --ink-2:#4A4F57; --muted:#8B9099; --line:#E2E5E9; --soft:#F1F3F6; --foot:#F4F4F4;
+  color:var(--ink);font-family:"Open Sans",system-ui,sans-serif;font-size:16px;line-height:1.6;background:#fff;
+}
+.L *{box-sizing:border-box}
+.L h1,.L h2,.L h3,.L h4{margin:0;line-height:1.2}
+.L p{margin:0}
+.L a{color:inherit;text-decoration:none}
+.L .wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+.L .wrap.wide{max-width:1200px}
+.L .sec{padding:64px 0}
+.L .sec.soft{background:var(--soft)}
+.L .sec.tight{padding:36px 0}
+.L .h2{font-size:clamp(26px,3.6cqi,42px);font-weight:700;letter-spacing:-.005em}
+.L .h2.red{color:var(--red)}
+.L .sub-light{font-size:clamp(17px,2cqi,21px);font-weight:300;color:var(--ink-2);margin-top:14px}
+.L .sub-bold{font-size:clamp(16px,1.8cqi,19px);font-weight:700;margin-top:12px}
+.L .head{margin-bottom:36px}
+.L .head.c{text-align:center}
+.L .head.c .sub-light{max-width:620px;margin-left:auto;margin-right:auto}
+.L .ic{width:22px;height:22px;flex:none}
+.L .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 34px;border-radius:999px;font-weight:600;font-size:15px;border:0;cursor:pointer;white-space:nowrap;transition:background .15s}
+.L .btn-red{background:var(--red);color:#fff}
+.L .btn-red:hover{background:var(--red-600)}
+.L .btn-line{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px #BFC4CB}
+.L .btn-line:hover{background:var(--soft)}
+.L .on-photo .btn-line{color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.85)}
+.L .on-photo .btn-line:hover{background:rgba(255,255,255,.12)}
+.L .btn-grey{background:#E4E6E9;color:var(--ink)}
+.L .btn .ic{width:19px;height:19px}
+.L .btns{display:flex;flex-wrap:wrap;gap:14px}
+.L .ph{position:relative;background:#DDE1E6;overflow:hidden}
+.L .ph::before{content:attr(data-label);position:absolute;inset:0;display:grid;place-items:center;padding:12px;text-align:center;font-size:13px;color:#6A7282}
+.L .ph img{position:relative;display:block;width:100%;height:100%;object-fit:cover}
+.L .q{background:var(--t-q,#FFE58A);color:#3A2800;border-radius:3px;padding:0 3px;box-decoration-break:clone;-webkit-box-decoration-break:clone;cursor:help}
+.L .q.empty{padding:0 6px;font-weight:700}
+body.no-marks .L .q{background:none;padding:0;color:inherit}
+body.no-marks .L .q.empty{display:none}
+.L .draft{display:inline-block;background:#FFF5D6;color:#7A5200;border-radius:6px;padding:5px 12px;font-size:13px;margin-bottom:20px;font-family:system-ui,sans-serif}
+body.no-marks .L .draft{display:none}
+.L .grid{display:grid;gap:28px}
+.L .shadow-card{background:#fff;border-radius:20px;padding:28px;box-shadow:0 2px 24px rgba(17,19,23,.07)}
+@container L (min-width:760px){
+  .L .wrap{padding:0 32px}
+  .L .sec{padding:100px 0}
+  .L .sec.tight{padding:48px 0}
+  .L .head{margin-bottom:56px}
+  .L .g2{grid-template-columns:repeat(2,1fr)}
+  .L .g3{grid-template-columns:repeat(3,1fr)}
+  .L .g4{grid-template-columns:repeat(4,1fr)}
+}
+@container L (min-width:560px) and (max-width:759px){ .L .g3,.L .g4{grid-template-columns:repeat(2,1fr)} }
+
+/* Шапка */
+.L .hdr{display:flex;align-items:center;gap:28px;min-height:70px}
+.L .logo{display:flex;align-items:center;gap:12px;flex:none}
+.L .logo img{height:40px;width:auto}
+.L .logo span{font-size:12px;line-height:1.25;color:var(--muted);max-width:110px}
+.L .nav{display:none;gap:26px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.02em}
+.L .nav a:hover{color:var(--red)}
+.L .hdr-r{margin-left:auto;display:flex;align-items:center;gap:18px}
+.L .hdr-phone{display:none;font-weight:600;font-size:15px;white-space:nowrap}
+.L .langs{display:none;gap:12px;font-size:13px;font-weight:600}
+.L .langs a:first-child{color:var(--red)}
+.L .hdr .btn{min-height:42px;padding:0 22px;font-size:13.5px}
+.L .msgr{display:flex;gap:8px}
+.L .msgr a{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#111317;color:#fff}
+.L .msgr .ic{width:17px;height:17px}
+@container L (min-width:1000px){ .L .nav{display:flex} .L .langs{display:flex} }
+@container L (min-width:1240px){ .L .hdr-phone{display:block} }
+@container L (max-width:520px){ .L .hdr .btn-text{display:none} .L .logo span{display:none} .L .hdr .btn{padding:0 14px} }
+
+/* Первый экран */
+.L .hero-cover{position:relative;color:#fff;min-height:560px;display:flex;align-items:center;text-align:center}
+.L .hero-cover .bg{position:absolute;inset:0}
+.L .hero-cover .bg::after{content:"";position:absolute;inset:0;background:rgba(10,10,12,.52)}
+.L .hero-cover .wrap{position:relative;padding-top:80px;padding-bottom:80px;width:100%}
+.L .hero-cover h1{font-size:clamp(32px,5.2cqi,60px);font-weight:700;max-width:860px;margin:0 auto}
+.L .hero-cover .s{font-size:clamp(17px,2.1cqi,22px);font-weight:300;margin-top:22px;opacity:.95}
+.L .hero-cover .line{font-size:14px;margin-top:22px;opacity:.85}
+.L .hero-cover .btns{justify-content:center;margin-top:40px}
+.L .hero-split{padding:40px 0 64px}
+.L .hero-grid{display:grid;gap:36px;align-items:center}
+.L .hero-split h1,.L .hero-formv h1{font-size:clamp(30px,4.6cqi,52px);font-weight:700}
+.L .hero-split .s,.L .hero-formv .s{font-size:clamp(17px,2cqi,21px);font-weight:300;color:var(--ink-2);margin-top:18px}
+.L .hero-split .btns{margin-top:32px}
+.L .hero-img{border-radius:24px;aspect-ratio:4/3}
+.L .facts{list-style:none;margin:28px 0 0;padding:0;display:grid;gap:10px;font-size:15px}
+.L .facts li{display:flex;gap:10px;align-items:center}
+.L .facts .ic{color:var(--red);width:20px;height:20px}
+.L .hero-formv{background:var(--soft);padding:48px 0 64px}
+@container L (min-width:760px){
+  .L .hero-cover{min-height:700px}
+  .L .hero-split{padding:64px 0 100px}
+  .L .hero-grid{grid-template-columns:1.1fr .9fr;gap:64px}
+  .L .hero-img{aspect-ratio:4/5}
+  .L .hero-formv{padding:80px 0 100px}
+}
+
+/* Формы — прямоугольные поля, как на globalccm.com */
+.L .form{background:#fff;color:var(--ink);padding:28px;display:grid;gap:14px;container-type:inline-size;container-name:F;border-radius:20px}
+.L .sec.soft .form,.L .hero-formv .form{box-shadow:0 2px 24px rgba(17,19,23,.06)}
+.L .form h3{font-size:22px;font-weight:700}
+.L .form .fsub{color:var(--ink-2);font-size:14.5px;margin-top:-6px}
+.L .inp{width:100%;min-height:50px;border-radius:0;border:1px solid #C9CDD3;background:#fff;padding:12px 16px;font:inherit;font-size:15px;color:var(--ink)}
+.L .inp:focus{outline:none;border-color:var(--ink)}
+.L select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50%,#8B9099 50%),linear-gradient(135deg,#8B9099 50%,transparent 50%);background-position:calc(100% - 22px) 50%,calc(100% - 16px) 50%;background-size:6px 6px;background-repeat:no-repeat}
+.L .form .btn{justify-self:start;margin-top:6px}
+.L .consent{font-size:12.5px;color:var(--muted)}
+.L .frow{display:grid;gap:14px}
+@container F (min-width:440px){ .L .frow.two{grid-template-columns:1fr 1fr} }
+.L .ok{display:grid;place-items:center;text-align:center;gap:10px;padding:30px 10px}
+.L .ok .ic{width:48px;height:48px;color:#1E9E5A}
+.L .choice{display:grid;gap:10px}
+.L .choice button{display:flex;align-items:center;gap:12px;text-align:left;border:1px solid #C9CDD3;background:#fff;padding:14px 16px;cursor:pointer;font-weight:600}
+.L .choice button:hover{border-color:var(--red);color:var(--red)}
+.L .choice .ic{color:var(--red)}
+.L .steps-dots{display:flex;gap:6px}
+.L .steps-dots i{height:4px;flex:1;border-radius:2px;background:var(--line)}
+.L .steps-dots i.on{background:var(--red)}
+
+/* Доверие */
+.L .nums{display:grid;gap:32px 20px;grid-template-columns:repeat(2,1fr);text-align:center}
+.L .num b{display:block;font-size:clamp(34px,4.8cqi,52px);font-weight:700;line-height:1;color:var(--red)}
+.L .num span{display:block;margin-top:10px;color:var(--ink-2);font-size:14.5px;max-width:220px;margin-left:auto;margin-right:auto}
+@container L (min-width:760px){ .L .nums{grid-template-columns:repeat(4,1fr)} }
+.L .strip{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;font-weight:600;font-size:14px}
+.L .strip span{display:flex;gap:8px;align-items:flex-start}
+.L .strip .ic{color:var(--red)}
+@container L (min-width:760px){ .L .strip{display:flex;flex-wrap:wrap;gap:12px 40px;justify-content:center;font-size:15.5px} .L .strip span{align-items:center} }
+.L .story{display:grid;gap:36px;align-items:center}
+.L .story .ph{border-radius:20px;aspect-ratio:16/11}
+.L .story p{color:var(--ink-2);margin-top:18px}
+@container L (min-width:760px){ .L .story{grid-template-columns:1fr 1fr;gap:64px} }
+
+/* Списки с галочками */
+.L .checks{list-style:none;margin:0;padding:0;display:grid;gap:26px 40px}
+.L .checks li{display:flex;gap:14px}
+.L .checks .ic{color:var(--red);width:24px;height:24px;margin-top:2px}
+.L .checks b{display:block;font-weight:700;font-size:16.5px}
+.L .checks span{color:var(--ink-2);font-size:15px}
+@container L (min-width:760px){ .L .checks.cols{grid-template-columns:repeat(2,1fr)} .L .checks.cols3{grid-template-columns:repeat(3,1fr)} }
+.L .split{display:grid;gap:36px;align-items:center}
+.L .split .ph{border-radius:20px;aspect-ratio:4/5}
+@container L (min-width:760px){ .L .split{grid-template-columns:1fr 1fr;gap:64px} }
+
+/* Таймлайн программы — как «Обучение первой помощи» на globalccm.com */
+.L .prog{display:grid;gap:48px;align-items:start}
+@container L (min-width:860px){ .L .prog.with-side{grid-template-columns:1.25fr .9fr;gap:64px} }
+.L .tl{list-style:none;margin:0;padding:0;counter-reset:n}
+.L .tl li{counter-increment:n;display:grid;grid-template-columns:30px 16px 1fr;gap:18px;align-items:start;position:relative;padding-bottom:24px;font-size:16.5px}
+.L .tl li::before{content:counter(n);font-weight:700;font-size:18px;text-align:right;line-height:1.5}
+.L .tl li .dot{width:16px;height:16px;border-radius:50%;background:var(--red);margin-top:5px}
+.L .tl li:not(:last-child)::after{content:"";position:absolute;left:55.5px;top:24px;bottom:-4px;width:1px;background:#D5D8DD}
+.L .side{display:grid;gap:18px}
+.L .side h3{font-size:22px;font-weight:700;margin-bottom:4px}
+.L .side .it{background:var(--soft);border-radius:20px;padding:24px}
+.L .side .it b{display:block;font-size:17px;margin-bottom:6px}
+.L .side .it p{color:var(--ink-2);font-size:15px}
+.L .day{display:grid;gap:28px}
+.L .day b{display:block;font-size:17px;margin:8px 0 4px}
+.L .day span{color:var(--ink-2);font-size:15px}
+.L .day i{font-style:normal;font-size:34px;font-weight:700;color:var(--red);line-height:1}
+@container L (min-width:760px){ .L .day{grid-template-columns:repeat(4,1fr)} }
+.L .topics{margin-top:48px;columns:1;column-gap:48px}
+.L .topics li{margin-bottom:8px;color:var(--ink-2)}
+@container L (min-width:760px){ .L .topics{columns:2} }
+
+/* Список курсов — как «Мы проводим курсы» на globalccm.com */
+.L .ctl{list-style:none;margin:0;padding:0}
+.L .ctl li{display:grid;grid-template-columns:16px 1fr;grid-template-areas:"dot lbl" "dot body";column-gap:22px;position:relative;padding-bottom:48px}
+.L .ctl .lbl{grid-area:lbl;color:var(--red);font-weight:700;font-size:22px;line-height:1.3}
+.L .ctl .dot{grid-area:dot;width:16px;height:16px;border-radius:50%;background:var(--red);margin-top:7px}
+.L .ctl .body{grid-area:body;margin-top:8px}
+.L .ctl .body b{display:block;font-size:17.5px;font-weight:700}
+.L .ctl .body p{color:var(--ink-2);margin-top:10px;font-weight:300;font-size:16.5px}
+.L .ctl .body a{display:inline-block;margin-top:14px;color:var(--red);font-weight:700;cursor:pointer}
+.L .ctl li:not(:last-child)::after{content:"";position:absolute;left:7.5px;top:26px;bottom:-4px;width:2px;background:var(--red)}
+@container L (min-width:760px){
+  .L .ctl li{grid-template-columns:240px 16px 1fr;grid-template-areas:"lbl dot body";column-gap:44px;padding-bottom:64px}
+  .L .ctl .lbl{text-align:right;font-size:24px}
+  .L .ctl .body{margin-top:0}
+  .L .ctl li:not(:last-child)::after{left:291.5px}
+}
+.L .tbl-wrap{overflow-x:auto}
+.L .tbl{width:100%;border-collapse:collapse;font-size:15.5px}
+.L .tbl th,.L .tbl td{padding:16px 18px;text-align:left;vertical-align:top}
+.L .tbl thead th{font-weight:700;font-size:18px;color:var(--red)}
+.L .tbl tbody tr:nth-child(odd) td{background:var(--soft)}
+.L .tbl td:first-child{font-weight:600;width:24%}
+
+/* Выбор курса */
+.L .route{background:#fff;border-radius:20px;padding:28px;display:grid;gap:10px;align-content:start;text-align:left;border:0;cursor:pointer;box-shadow:0 2px 24px rgba(17,19,23,.06);font:inherit;color:inherit}
+.L .route:hover h3{color:var(--red)}
+.L .route h3{font-size:19px;font-weight:700}
+.L .route p{color:var(--ink-2);font-size:15px}
+.L .route .go{color:var(--red);font-weight:700;font-size:15px;margin-top:6px}
+
+/* Формат */
+.L .fmt{display:grid;gap:12px;align-content:start;position:relative}
+.L .fmt .ic{width:34px;height:34px;color:var(--red)}
+.L .fmt h3{font-size:19px;font-weight:700}
+.L .fmt ul{margin:0;padding-left:18px;color:var(--ink-2);font-size:15px;display:grid;gap:5px}
+.L .fmt .sel{font-family:system-ui,sans-serif;font-size:11.5px;background:var(--t-dark,#1C2030);color:#fff;border-radius:999px;padding:2px 10px;justify-self:start}
+body.no-bars .L .fmt .sel{display:none}
+.L .warn{background:#FFF5D6;border-radius:12px;padding:12px 14px;font-size:14px;color:#6B4A00}
+
+/* Документы */
+.L .cert-grid{display:grid;gap:40px;align-items:center}
+@container L (min-width:760px){ .L .cert-grid{grid-template-columns:.9fr 1.1fr;gap:64px} }
+.L .cert{background:#fff;border-radius:14px;padding:26px;box-shadow:0 18px 50px rgba(17,19,23,.12);position:relative;aspect-ratio:1.414/1;display:flex;flex-direction:column;gap:10px;max-width:520px;overflow:hidden}
+.L .cert::before{content:"";position:absolute;inset:10px;border-radius:8px;box-shadow:inset 0 0 0 1px #E4E6EA}
+.L .cert .ct{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.L .cert .cn{font-size:clamp(20px,3cqi,28px);font-weight:700;color:var(--red)}
+.L .cert .cl{height:9px;border-radius:5px;background:#EEF0F3}
+.L .cert .row{display:flex;justify-content:space-between;align-items:flex-end;margin-top:auto;gap:12px}
+.L .cert .qr{width:64px;height:64px;background:conic-gradient(from 90deg at 30% 30%,#111317 25%,transparent 0) 0 0/16px 16px,#fff;box-shadow:inset 0 0 0 4px #fff,0 0 0 1px #D8DCE5}
+.L .cert .stamp{position:absolute;right:-6px;top:14px;transform:rotate(8deg);background:var(--yellow);color:#3A2800;font-size:11px;font-weight:800;padding:4px 14px;border-radius:4px;font-family:system-ui,sans-serif}
+.L .num-steps{list-style:none;margin:0;padding:0;display:grid;gap:22px;counter-reset:s}
+.L .num-steps li{counter-increment:s;display:grid;grid-template-columns:36px 1fr;gap:16px}
+.L .num-steps li::before{content:counter(s);font-size:26px;font-weight:700;color:var(--red);line-height:1.1}
+.L .num-steps b{display:block;font-size:16.5px}
+.L .num-steps span{color:var(--ink-2);font-size:15px}
+
+/* Организации */
+.L .banner{background:var(--soft);border-radius:24px;padding:32px;display:grid;gap:20px;align-items:center}
+.L .banner h3{font-size:clamp(22px,2.8cqi,30px);font-weight:700}
+.L .banner p{color:var(--ink-2);margin-top:8px}
+@container L (min-width:760px){ .L .banner{grid-template-columns:1fr auto;padding:44px 52px} }
+.L .fcards{display:grid;gap:24px}
+.L .fcards .shadow-card h3{font-size:19px;font-weight:700;margin-bottom:10px}
+.L .fcards .shadow-card p{color:var(--ink-2);font-size:15px}
+@container L (min-width:760px){ .L .fcards.two{grid-template-columns:repeat(2,1fr);max-width:1000px;margin:0 auto} .L .fcards.four{grid-template-columns:repeat(2,1fr)} }
+.L .proc{display:grid;gap:32px;counter-reset:p}
+.L .proc > div{counter-increment:p}
+.L .proc > div::before{content:counter(p);display:block;font-size:34px;font-weight:700;color:var(--red);line-height:1}
+.L .proc b{display:block;font-size:17px;margin:10px 0 4px}
+.L .proc span{color:var(--ink-2);font-size:15px}
+@container L (min-width:760px){ .L .proc{grid-template-columns:repeat(5,1fr);gap:28px} }
+.L .iso{display:grid;gap:32px}
+@container L (min-width:760px){ .L .iso{grid-template-columns:1.1fr .9fr;gap:64px;align-items:start} }
+.L .iso p{color:var(--ink-2)}
+.L .note-box{background:var(--soft);border-radius:20px;padding:26px;color:var(--ink-2);font-size:15px}
+.L .note-box b{color:var(--ink)}
+
+/* Инструкторы, фото */
+.L .ins .ph{aspect-ratio:1/1;border-radius:18px}
+.L .ins .ph img{object-position:50% 20%}
+.L .ins b{display:block;font-size:17px;margin-top:16px}
+.L .ins .role{display:block;color:var(--red);font-weight:600;font-size:14.5px;margin-top:2px}
+.L .ins .crs{display:block;color:var(--muted);font-size:13.5px;margin-top:6px}
+.L .ins-lead{display:grid;gap:32px;align-items:center}
+.L .ins-lead .ph{border-radius:20px;aspect-ratio:1/1}
+.L .ins-lead .ph img{object-position:50% 20%}
+.L .ins-lead h3{font-size:28px;font-weight:700}
+.L .ins-lead .role{color:var(--red);font-weight:600;margin-top:6px}
+.L .ins-lead dl{margin:22px 0 0;display:grid;gap:12px}
+.L .ins-lead dt{font-size:13px;color:var(--muted)}
+.L .ins-lead dd{margin:0;font-size:15.5px}
+.L .ins-mini{display:flex;flex-wrap:wrap;gap:18px 26px;margin-top:28px}
+.L .ins-mini > div{display:flex;gap:12px;align-items:center;font-size:14px;color:var(--ink-2)}
+.L .ins-mini b{color:var(--ink)}
+.L .ins-mini .ph{width:52px;height:52px;border-radius:50%}
+.L .ins-mini .ph::before{content:""}
+@container L (min-width:760px){ .L .ins-lead{grid-template-columns:360px 1fr;gap:56px} }
+.L .mosaic{display:grid;gap:10px;grid-template-columns:repeat(2,1fr);grid-auto-rows:150px}
+.L .mosaic .ph:nth-child(1){grid-column:span 2;grid-row:span 2}
+@container L (min-width:760px){ .L .mosaic{grid-template-columns:repeat(4,1fr);grid-auto-rows:220px;gap:0} .L .mosaic .ph:nth-child(4){grid-row:span 2} }
+.L .strip-g{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px}
+.L .strip-g .ph{flex:none;width:78%;max-width:440px;aspect-ratio:4/3;border-radius:16px;scroll-snap-align:start}
+
+/* Расписание, цены */
+.L .sched{display:grid;gap:12px}
+.L .srow{display:grid;gap:10px;background:var(--soft);border-radius:16px;padding:20px 24px;align-items:center}
+.L .srow .d{font-size:20px;font-weight:700}
+.L .srow .m{color:var(--ink-2);font-size:15px}
+.L .srow .seats{font-size:14px;font-weight:600;color:var(--red)}
+.L .srow .btn{min-height:44px;padding:0 26px}
+@container L (min-width:760px){ .L .srow{grid-template-columns:190px 1fr auto auto;gap:28px} }
+.L .center-box{text-align:center;max-width:680px;margin:0 auto}
+.L .center-box p{color:var(--ink-2);font-weight:300;font-size:clamp(17px,2cqi,20px);margin-top:16px}
+.L .center-box .btns{justify-content:center;margin-top:32px}
+.L .prices{display:grid;gap:24px;align-items:center}
+@container L (min-width:760px){ .L .prices{grid-template-columns:repeat(3,1fr);gap:28px} }
+.L .price{background:#fff;border-radius:20px;padding:40px 28px;text-align:center;display:grid;gap:14px;box-shadow:0 2px 24px rgba(17,19,23,.07)}
+.L .price.hl{box-shadow:0 10px 40px rgba(17,19,23,.13);padding:52px 28px}
+.L .price h3{font-size:21px;font-weight:700}
+.L .price .p{font-size:clamp(24px,3cqi,30px);font-weight:700;color:var(--red);line-height:1.2}
+.L .price .p small{display:block;font-size:13px;font-weight:400;color:var(--muted);margin-top:4px}
+.L .price ul{list-style:none;margin:0;padding:0;display:grid;gap:10px;color:var(--ink-2);font-size:15px}
+.L .price .btn{justify-self:center;margin-top:8px}
+
+/* Отзывы, вопросы */
+.L .rev{border-radius:20px;padding:26px;display:grid;gap:12px;background:repeating-linear-gradient(-45deg,#F6F7F9 0 10px,#F0F2F5 10px 20px)}
+.L .rev .who{display:flex;gap:12px;align-items:center}
+.L .rev .av{width:44px;height:44px;border-radius:50%;background:#D6DAE0}
+.L .rev p{color:var(--ink-2);font-size:15px}
+.L .rev small{color:var(--muted);font-size:13px}
+.L .rev.video{aspect-ratio:9/12;align-content:end;background:#2A2D33;color:#fff;position:relative}
+.L .rev.video .play{position:absolute;inset:0;display:grid;place-items:center}
+.L .rev.video .play span{width:64px;height:64px;border-radius:50%;background:var(--red);display:grid;place-items:center}
+.L .rev.video .play .ic{color:#fff}
+.L .rev.video p,.L .rev.video small{color:rgba(255,255,255,.85);position:relative}
+.L .faq{max-width:840px;margin:0 auto}
+.L .faq details{padding:6px 0}
+.L .faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:20px;align-items:center;padding:14px 0;font-weight:700;font-size:17px}
+.L .faq summary::-webkit-details-marker{display:none}
+.L .faq summary .pm{flex:none;width:30px;height:30px;border-radius:50%;background:var(--red-50);color:var(--red);display:grid;place-items:center;transition:transform .2s}
+.L .faq summary .pm .ic{width:16px;height:16px}
+.L .faq details[open] summary .pm{transform:rotate(45deg)}
+.L .faq .a{padding:0 50px 14px 0;color:var(--ink-2)}
+.L .faq-cols{display:grid;gap:30px 56px}
+.L .faq-cols h4{font-size:17px;margin-bottom:8px}
+.L .faq-cols p{color:var(--ink-2);font-size:15px}
+@container L (min-width:760px){ .L .faq-cols{grid-template-columns:1fr 1fr} }
+
+/* Заявка — как «Обучение первой помощи для организаций» на globalccm.com */
+.L .lead-grid{display:grid;gap:36px;align-items:start;max-width:920px;margin:0 auto}
+@container L (min-width:760px){ .L .lead-grid{grid-template-columns:.8fr 1.2fr;gap:64px} }
+.L .contacts b{display:block;font-size:19px;margin-bottom:8px}
+.L .contacts div,.L .contacts a{display:block;font-size:17px;line-height:1.6}
+.L .contacts .grey{color:var(--ink-2);font-size:15px;margin-top:14px}
+.L .contacts .ms{display:flex;gap:10px;margin-top:18px}
+.L .contacts .ms a{width:40px;height:40px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center}
+.L .contacts .ms .ic{width:18px;height:18px}
+.L .lead-form{display:grid;gap:14px;container-type:inline-size;container-name:F}
+.L .lead-form .btn{justify-self:start;margin-top:6px}
+
+/* Подвал — как на globalccm.com */
+.L .ftr{background:var(--foot);padding:40px 0 56px;font-size:14.5px}
+.L .ftr-grid{display:grid;gap:32px}
+.L .ftr h4{font-size:15px;font-weight:600;letter-spacing:.04em;margin-bottom:16px}
+.L .ftr .col div{margin-bottom:6px;color:#3A3E45}
+.L .ftr .col a{display:block;color:var(--red);margin-bottom:12px;line-height:1.35}
+.L .ftr .col a:hover{text-decoration:underline}
+.L .ftr .logo-big{height:84px;width:auto}
+.L .ftr .soc{display:flex;gap:8px;margin-top:24px}
+.L .ftr .soc a{width:26px;height:26px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center}
+.L .ftr .soc .ic{width:13px;height:13px}
+.L .ftr .copy{margin-top:28px;font-size:12px;color:#8B9099}
+@container L (min-width:760px){ .L .ftr-grid{grid-template-columns:repeat(4,1fr)} }
+.L .ftr-min{background:var(--foot);padding:22px 0;font-size:13.5px;color:#5A5F68}
+.L .ftr-min .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-between}
+.L .ftr-min a{color:var(--red)}
+.L .sticky{position:sticky;bottom:0;z-index:5;background:rgba(255,255,255,.97);backdrop-filter:blur(8px);padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px;box-shadow:0 -6px 20px rgba(17,19,23,.08)}
+.L .sticky .btn{flex:1;min-height:50px;font-size:15px;padding:0 12px}
+.L .sticky .btn-line{flex:none;width:50px;padding:0}
+@container L (min-width:760px){ .L .sticky{display:none} }
+</style>
+</head>
+<body>
+
+<div class="T-top" id="top"></div>
+<main class="T-main"><div class="stage" id="stage"></div></main>
+<aside class="T-drawer" id="drawer"></aside>
+<div class="T-tip" id="tip"></div>
+<div class="T-toast" id="toast"></div>
+<input type="file" id="importFile" accept="application/json" hidden>
+
+<script>
+/* ============================================================
+   ДАННЫЕ
+   Пометка [[текст|вопрос]] — факт, который нужно уточнить у ЦКМ.
+   Всё содержимое страниц живёт здесь; блоки ниже только рисуют.
+   ============================================================ */
+
+const CONTACT = {
+  phone: '+998 94 878 51 28', phoneHref: 'tel:+998948785128',
+  email: 'ccm@globalccm.com',
+  address: 'Ташкент, ул. Айбека 18/1, БЦ «ATRIUM»',
+  tg: '#', wa: '#', ig: '#'
+};
+
+const T = 'https://static.tildacdn.com/';
+const IMG = {
+  logo:     {src:T+'tild3934-6130-4338-b035-316134326232/CCM___SVG.svg', label:'Логотип ЦКМ'},
+  manikin:  {src:T+'tild3862-3834-4932-a364-643732623139/_ZIM0011.jpg', label:'Фото: отработка СЛР на манекене'},
+  scenario: {src:T+'tild6663-3534-4266-a265-386239653935/_ZIM0018.jpg', label:'Фото: сценарий ДТП'},
+  team:     {src:T+'tild3332-6663-4864-a131-653131643931/_ZIM0023.jpg', label:'Фото: инструкторы с манекеном'},
+  aed:      {src:T+'tild3937-6533-4636-b633-613764316363/_ZIM0096.jpg', label:'Фото: дефибриллятор'},
+  airway:   {src:T+'tild6531-3331-4364-b662-393639646435/_ZIM0451.jpg', label:'Фото: помощь человеку без сознания'},
+  bag:      {src:T+'tild3964-3332-4133-a135-613532363461/_ZIM0553.jpg', label:'Фото: укладка первой помощи'},
+  clinical: {src:T+'tild6666-3535-4466-b033-383165313164/photo_2018-10-03_13-.jpg', label:'Фото: реанимация с мешком Амбу'},
+  workers:  {src:T+'tild3939-6532-4464-b734-626266333731/Screenshot_1.jpg', label:'Фото: сотрудники предприятия на курсе'},
+  bandage:  {src:T+'tild3536-6333-4261-a539-303664653333/DSC04086_.jpg', label:'Фото: наложение повязки на объекте'},
+  company:  {src:'https://thb.tildacdn.com/tild3564-6134-4534-a634-313263326338/-/resize/900x/db00c6ca-36d4-49e4-a.png', label:'Флаги Центра корпоративной медицины на фоне карты'},
+  event:    {src:T+'tild6265-6666-4134-b266-613934616263/IMG_0160.jpg', label:'Фото: показ СЛР на мероприятии'},
+  choking:  {src:T+'tild6562-3533-4134-b835-333562646336/IMG_3326.jpg', label:'Фото: приём при удушье'},
+};
+
+/* Данные инструкторов — с alfamedtraining.com/instructors */
+const INSTR = {
+  kologrivova:    {name:'Лариса Кологривова', role:'Кардиолог, к.м.н.', crs:'Первая помощь, BLS, ITLS, ALS', edu:'Сибирский государственный медицинский университет, 1994', spec:'Лечебное дело, кардиология', img:T+'tild6562-3533-4134-b835-333562646336/IMG_3326.jpg'},
+  sorokozherdiev: {name:'Владислав Сорокожердиев', role:'Анестезиолог-реаниматолог', crs:'BLS, ALS, ILS, ITLS', edu:'Сибирский государственный медицинский университет, 1999', spec:'Лечебное дело, анестезиология и реаниматология', img:T+'tild3634-3639-4338-b031-316463633061/f0fc297f-f312-495e-a.jpg'},
+  fomina:         {name:'Елена Фомина', role:'Стоматолог, челюстно-лицевой хирург', crs:'BLS, ITLS, экстренная помощь в стоматологии и косметологии', edu:'Иркутский государственный медицинский университет, 2003', spec:'Стоматология, челюстно-лицевая хирургия', img:T+'tild6434-3230-4965-b638-376532303432/WhatsApp_Image_2025-.jpeg'},
+  sharifulin:     {name:'Александр Шарифулин', role:'Педиатр, анестезиолог-реаниматолог', crs:'BLS, ACLS, ITLS', edu:'Сибирский государственный медицинский университет, 2018', spec:'Педиатрия, анестезиология и реаниматология', img:T+'tild3538-6336-4662-a336-623338663633/noroot.png'},
+  mumber:         {name:'Владислав Мумбер', role:'Фельдшер', crs:'BLS, ALS, ITLS, REM, остановка кровотечений', edu:'Колпашевское областное медицинское училище, 2003', spec:'Лечебное дело', img:T+'tild6663-6534-4339-b661-346461666535/_ZIM0198.jpg'},
+};
+
+const COURSES = [
+  ['bls','Базовая реанимация BLS (ERC)'],
+  ['firstaid','Первая помощь'],
+  ['dental','Экстренная помощь в стоматологии'],
+  ['cosmo','Экстренная помощь в косметологии'],
+  ['kids','Первая помощь детям'],
+  ['org','Обучение для организаций'],
+];
+
+/* Список курсов для блока «Курсы» — в стиле «Мы проводим курсы» */
+const LINEUP = [
+  ['bls','BLS','Базовая реанимация с сертификатом ERC','Курс Европейского совета по реанимации для людей с медицинским и немедицинским образованием: сердечно-лёгочная реанимация, работа с автоматическим наружным дефибриллятором, помощь при удушье. По итогам — международный сертификат.'],
+  ['firstaid','Первая помощь','Практический курс первой помощи','Кровотечения, травмы, ожоги, обморожения, переохлаждение, отравления, реанимация и транспортировка пострадавших.'],
+  ['dental','Стоматологам','Экстренная помощь в стоматологии','Анафилаксия, реакция на местную анестезию, обморок и остановка сердца на приёме. Курс для врачей, ассистентов и администраторов.'],
+  ['cosmo','Косметологам','Экстренная помощь в косметологии','Аллергические реакции на препараты, реакции на анестетики, обморок во время процедуры, реанимация.'],
+  ['kids','Родителям','Первая помощь детям','Удушье, реанимация ребёнка и младенца, судороги, ожоги и травмы. Для родителей, нянь и воспитателей.'],
+  ['org','Организациям','Обучение сотрудников','В учебном центре или на объекте заказчика, с программой под специфику отрасли.'],
+];
+
+const STEPS_DAY = [
+  ['Демонстрация','Инструктор показывает алгоритм целиком, в реальном темпе'],
+  ['Отработка','В малых группах, у каждого своё время на манекене'],
+  ['Сценарии','Ситуации, приближенные к реальным'],
+  ['Оценка навыков','Практический экзамен и разбор с инструктором'],
+];
+
+const FAQ_COMMON = {
+  edu:   ['Нужно ли медицинское образование?','Нет. Курс рассчитан на людей без медицинской подготовки. Медикам он тоже полезен: навыки реанимации без регулярной практики быстро забываются.'],
+  lang:  ['На каком языке проходит курс?','[[На русском и узбекском языках|На каких языках проводятся курсы в Ташкенте?]]'],
+  group: ['Сколько человек в группе?','[[До 8 человек|Размер группы в Ташкенте? У «Альфамедтренинга» — 6–8]], чтобы у каждого было достаточно времени на манекене.'],
+  pay:   ['Можно ли оплатить от организации?','Да, по договору и счёту. Для групп от [[5 человек|С какого размера группы корпоративные условия и выезд?]] инструкторы могут провести занятие у вас.'],
+};
+
+const PAGES = {
+  hub: {
+    name:'Хаб: все курсы', course:'bls',
+    blocks:['header','hero','trust','lineup','format','cert','instructors','gallery','b2b','reviews','faq','lead','footer'],
+    def:{cert:{v:'erc'}, trust:{v:'numbers'}, instructors:{v:'grid'}},
+    hero:{img:'team', line:'Учебный центр Центра корпоративной медицины',
+      a:{t:'Курсы первой помощи и реанимации', s:'в Ташкенте — для частных лиц, медицинских специалистов и организаций'},
+      b:{t:'Обучение первой помощи', s:'курсы Европейского совета по реанимации и практические программы'},
+      facts:[['award','Сертификат ERC по курсу BLS'],['users','Занятия в малых группах'],['building','Для частных лиц и организаций']]},
+    faq:['edu','lang','group','pay'],
+    faqX:[['Какой курс выбрать?','Если нужен международный сертификат для работы или учёбы — BLS. Если важно уметь помогать в разных ситуациях — первая помощь. Для стоматологов, косметологов и родителей есть курсы с разбором их типичных ситуаций.']],
+    instr:['kologrivova','sorokozherdiev','fomina','sharifulin'],
+  },
+  bls: {
+    name:'BLS — сертификат ERC', course:'bls',
+    blocks:['header','hero','trust','outcomes','program','format','cert','instructors','schedule','pricing','b2b','reviews','faq','lead','footer'],
+    def:{cert:{v:'erc'}, trust:{v:'strip'}},
+    hero:{img:'manikin', line:'Учебный центр ЦКМ, Ташкент',
+      a:{t:'Курс базовой реанимации BLS', s:'с международным сертификатом Европейского совета по реанимации (ERC)'},
+      b:{t:'Сертификат ERC по базовой реанимации', s:'обучение за [[один день|Длительность BLS в Ташкенте? У «Альфамедтренинга» 8 часов, у ERC очная часть — 4 часа]] в Ташкенте'},
+      facts:[['clock','[[1 день|Длительность BLS?]]'],['users','Группа [[до 8 человек|Размер группы?]]'],['award','Сертификат ERC, действует [[2 года|В брифе — 2 года, на сайте ERC для BLS указано 3 года. Какой срок писать?]]']]},
+    outTitle:'Чему вы научитесь',
+    outcomes:[
+      ['Распознавать остановку сердца','Оценивать сознание и дыхание не дольше 10 секунд'],
+      ['Выполнять компрессии грудной клетки','Глубина 5–6 см, частота 100–120 в минуту'],
+      ['Работать с дефибриллятором','Включать АНД, накладывать электроды, безопасно проводить разряд'],
+      ['Помогать при удушье','Освобождать дыхательные пути у взрослого и ребёнка'],
+      ['Проводить реанимацию ребёнку','Чем помощь ребёнку и младенцу отличается от помощи взрослому'],
+      ['Укладывать в безопасное положение','Что делать с человеком без сознания, который дышит'],
+    ],
+    program:{title:'Программа курса', sub:'Basic Life Support', items:[
+      'Оценка признаков жизни','Первая помощь при остановке сердца','Компрессии грудной клетки и искусственное дыхание','Работа с автоматическим наружным дефибриллятором',
+      'Безопасное боковое положение','Помощь подавившемуся','Первая помощь при судорогах','Помощь детям при остановке сердца и дыхания',
+      'Помощь детям при асфиксии','Другие причины остановки дыхания и кровообращения','Ответы на вопросы по первой помощи']},
+    side:{title:'Особенности курса', items:[
+      ['Международный сертификат','Сертификат ERC, подлинность которого можно проверить на сайте Европейского совета по реанимации.'],
+      ['Практика на манекенах','Большая часть курса — отработка навыков в малых группах на манекенах взрослого, ребёнка и младенца.'],
+      ['Без медицинского образования','Курс рассчитан на любой уровень подготовки.']]},
+    faq:['edu','lang','group','pay'],
+    faqX:[
+      ['Сколько действует сертификат?','[[2 года|2 или 3 года? ERC указывает 3 года для BLS]]. Затем курс проходят повторно, чтобы подтвердить навык.'],
+      ['Как проверить подлинность сертификата?','[[Сертификат регистрируется в системе ERC, его подлинность можно проверить на сайте erc.edu|Как именно проверяется: по номеру, по QR-коду, через CoSy?]]'],
+      ['Что будет, если не сдать экзамен?','[[|Условия пересдачи?]]'],
+      ['Нужно ли готовиться заранее?','Перед курсом вы получите [[учебные материалы|Выдаются ли материалы ERC или онлайн-модуль CoSy заранее?]]. Прочитать их полезно, но основное вы освоите на практике.'],
+    ],
+    instr:['sorokozherdiev','kologrivova','sharifulin','mumber'],
+    price:{unit:'за участника', cards:[['Индивидуально','[[— сум|Цена BLS для физлица в Узбекистане?]]',['Полный курс BLS','Практический экзамен','Сертификат ERC']],['Группа','[[— сум|Есть ли групповая скидка?]]',['От 3 человек','Одна дата для всех','Скидка каждому участнику'],true],['Организациям','По договору',['Выезд к заказчику','Документы на каждого','Оплата по счёту']]]},
+  },
+  firstaid: {
+    name:'Первая помощь', course:'firstaid',
+    blocks:['header','hero','outcomes','program','gallery','format','cert','instructors','schedule','pricing','b2b','reviews','faq','lead','footer'],
+    def:{cert:{v:'center'}, outcomes:{v:'photo'}},
+    hero:{img:'airway', line:'Учебный центр ЦКМ, Ташкент',
+      a:{t:'Курс первой помощи', s:'практическое обучение на манекенах и в сценариях, приближенных к реальным'},
+      b:{t:'Первая помощь до приезда скорой', s:'кровотечения, травмы, ожоги, переохлаждение, реанимация'},
+      facts:[['clock','[[1–2 дня|Длительность курса первой помощи?]]'],['hands','Практика на манекенах'],['mountain','Сценарии: дорога, горы, производство']]},
+    outTitle:'Чему вы научитесь',
+    outcomes:[
+      ['Осматривать пострадавшего','Понимать, что угрожает жизни, и действовать по приоритетам'],
+      ['Останавливать кровотечение','Прямое давление, давящая повязка, жгут'],
+      ['Помогать при травмах','Фиксировать повреждённую конечность и не навредить'],
+      ['Помогать при ожогах и холоде','Ожоги, обморожение, переохлаждение, тепловой удар'],
+      ['Проводить реанимацию','Базовая сердечно-лёгочная реанимация и работа с АНД'],
+      ['Перемещать пострадавшего','Если оставаться на месте опасно'],
+    ],
+    program:{title:'Программа курса', sub:'Первая помощь', items:[
+      'Проверка исходного уровня знаний','Порядок осмотра и оценка состояния пострадавшего','Остановка сердца и дыхания: утопление, электротравма, ДТП. СЛР и АНД',
+      'Инородное тело в дыхательных путях','Первая помощь при судорогах','Острая кровопотеря: остановка кровотечения и повязки','Первая помощь при травмах',
+      'Ожоги, обморожение, переохлаждение, перегревание','Острые отравления','Транспортировка пострадавших','Политравма','Безопасное боковое положение']},
+    side:{title:'Особенности курса', items:[
+      ['Широкий охват ситуаций','От кровотечений и травм до переохлаждения и отравлений.'],
+      ['Сценарии под вашу группу','Для инструкторов по альпинизму — упор на травмы и холод, для производства — на характерные риски.'],
+      ['Практика на манекенах','Каждое действие отрабатывается руками.']]},
+    faq:['edu','lang','group','pay'],
+    faqX:[
+      ['Чем курс отличается от BLS?','BLS сосредоточен на реанимации и завершается международным сертификатом ERC. Курс первой помощи шире: кровотечения, травмы, ожоги, холод, отравления, транспортировка. Нужен сертификат — выбирайте BLS, нужна подготовка к разным ситуациям — первую помощь.'],
+      ['Подойдёт ли курс для походов и гор?','Да. Сценарии адаптируются под группу: для инструкторов по альпинизму, например, упор делается на травмы, переохлаждение и обморожения.'],
+      ['Какой документ выдаётся по окончании?','[[|Какой документ выдаётся по курсу первой помощи в Узбекистане?]]'],
+    ],
+    instr:['mumber','kologrivova','sorokozherdiev'],
+    price:{unit:'за участника', cards:[['Индивидуально','[[— сум|Цена?]]',['Полный курс','Практика на манекенах','Документ об окончании']],['Группа','[[— сум|Условия для групп?]]',['Походы, спорт, туризм','От 5 человек','Сценарии под вашу группу'],true],['Организациям','По договору',['Выезд к заказчику','Программа под риски','Документы на каждого']]]},
+  },
+  dental: {
+    name:'Стоматологи', course:'dental',
+    blocks:['header','hero','outcomes','program','instructors','format','cert','process','pricing','reviews','faq','lead','footer'],
+    def:{cert:{v:'center'}, instructors:{v:'lead'}},
+    hero:{img:'clinical', line:'Учебный центр ЦКМ, Ташкент',
+      a:{t:'Экстренная помощь в стоматологии', s:'курс для врачей, ассистентов и администраторов стоматологических клиник'},
+      b:{t:'Неотложные состояния на стоматологическом приёме', s:'алгоритмы действий, препараты и отработка сценариев командой'},
+      facts:[['tooth','Ситуации стоматологического приёма'],['users','Врач, ассистент, администратор'],['building','[[Возможно проведение в клинике|Выездной формат для клиник?]]']]},
+    outTitle:'Чему вы научитесь',
+    outcomes:[
+      ['Распознавать анафилаксию','И сразу начинать помощь: адреналин, положение, вызов скорой'],
+      ['Действовать при реакции на анестетик','Отличать токсическую реакцию от аллергической и от обморока'],
+      ['Работать командой','Кто вызывает скорую, кто несёт укладку, кто начинает СЛР'],
+      ['Помогать при аспирации','Коронка, вкладка или инструмент в дыхательных путях'],
+      ['Проводить реанимацию','СЛР и дефибриллятор по алгоритму BLS, в том числе в кресле'],
+      ['Комплектовать укладку кабинета','Что должно быть под рукой и как этим пользоваться'],
+    ],
+    program:{title:'Программа курса', sub:'Экстренная помощь в стоматологии', draft:true, items:[
+      'Оценка состояния пациента в кресле','Обморок и вазовагальная реакция','Анафилаксия: распознавание, адреналин, дозы и путь введения','Токсическая реакция на местный анестетик',
+      'Гипогликемия, судороги, приступ бронхиальной астмы','Инородное тело в дыхательных путях','Остановка сердца: СЛР и АНД по алгоритму BLS','Укладка экстренной помощи кабинета','Разбор сценариев командой: врач, ассистент, администратор']},
+    side:{title:'Особенности курса', items:[
+      ['Ситуации из практики стоматолога','Алгоритмы разбираются на примерах стоматологического приёма.'],
+      ['Препараты и дозировки','Состав укладки кабинета и порядок введения препаратов.'],
+      ['Обучение командой','Врач, ассистент и администратор отрабатывают сценарии вместе.']]},
+    faq:['lang','pay'],
+    faqX:[
+      ['Кому из команды нужно пройти курс?','Всем, кто работает с пациентами: врачам, ассистентам и администраторам. В экстренной ситуации всё решает слаженность, поэтому учиться эффективнее вместе.'],
+      ['Разбираются ли препараты и дозировки?','Да: состав укладки, введение адреналина при анафилаксии, помощь при реакции на анестетик [[|По каким протоколам: ERC или Минздрава Узбекистана?]]'],
+      ['Можно ли провести курс в клинике?','[[Да, инструктор приезжает со всем оборудованием|Есть ли выездной формат для клиник?]]'],
+      ['Какой документ получат сотрудники?','[[|Какой документ выдаётся по курсу для стоматологов? Можно ли совместить с сертификатом BLS?]]'],
+    ],
+    instr:['fomina','sorokozherdiev','kologrivova'],
+    price:{unit:'', cards:[['Для специалиста','[[— сум|Цена для одного специалиста?]]',['Курс в учебном центре','Сценарии стоматологического приёма','Документ об окончании']],['Команда клиники','[[— сум|Цена за команду?]]',['До 8 сотрудников','Занятие в вашей клинике','Отработка в вашем кабинете'],true],['Сеть клиник','По договору',['Обучение по графику','Повторная аттестация','Отчёт для руководства']]]},
+  },
+  cosmo: {
+    name:'Косметологи', course:'cosmo',
+    blocks:['header','hero','outcomes','program','instructors','format','cert','process','pricing','reviews','faq','lead','footer'],
+    def:{cert:{v:'center'}, instructors:{v:'lead'}},
+    hero:{img:'team', line:'Учебный центр ЦКМ, Ташкент',
+      a:{t:'Экстренная помощь в косметологии', s:'курс для косметологов и администраторов клиник'},
+      b:{t:'Неотложные состояния во время процедур', s:'алгоритмы действий, препараты и укладка кабинета'},
+      facts:[['sparkle','Ситуации косметологического приёма'],['pill','Препараты и укладка'],['award','[[Документ об окончании|Какой документ по курсу для косметологов?]]']]},
+    outTitle:'Чему вы научитесь',
+    outcomes:[
+      ['Распознавать анафилаксию','На инъекционный препарат или анестетик'],
+      ['Помогать при обмороке','Отличать обморок от угрожающего состояния'],
+      ['Действовать при реакции на анестетик','Токсическая реакция на местную анестезию'],
+      ['Проводить реанимацию','СЛР и дефибриллятор по алгоритму BLS'],
+      ['Комплектовать укладку кабинета','Что должно быть под рукой'],
+      ['Распределять роли','Что делает косметолог, а что администратор'],
+    ],
+    program:{title:'Программа курса', sub:'Экстренная помощь в косметологии', draft:true, items:[
+      'Оценка состояния пациента во время процедуры','Обморок, гипервентиляция, паническая реакция','Аллергические реакции и анафилаксия: распознавание и адреналин','Токсическая реакция на местный анестетик',
+      'Судороги','Остановка сердца: СЛР и АНД','Укладка экстренной помощи кабинета','Разбор сценариев: косметолог и администратор']},
+    side:{title:'Особенности курса', items:[
+      ['Ситуации из практики косметолога','Разбор на примерах процедур и препаратов.'],
+      ['Укладка кабинета','Что должно быть в кабинете и как этим пользоваться.'],
+      ['Для всей команды','Косметологи и администраторы.']]},
+    faq:['lang','pay'],
+    faqX:[
+      ['Нужен ли курс, если я не делаю инъекции?','Да. Обморок, аллергическая реакция или судороги возможны и при аппаратных процедурах.'],
+      ['Разбираются ли препараты?','Да: состав укладки кабинета и введение адреналина при анафилаксии.'],
+      ['Какой документ выдаётся?','[[|Какой документ выдаётся?]]'],
+    ],
+    instr:['fomina','kologrivova','sorokozherdiev'],
+    price:{unit:'', cards:[['Для специалиста','[[— сум|Цена?]]',['Курс в учебном центре','Сценарии косметологии','Документ об окончании']],['Команда клиники','[[— сум|Цена за команду?]]',['До 8 сотрудников','Занятие в вашей клинике','Отработка в вашем кабинете'],true],['Сеть клиник','По договору',['Обучение по графику','Повторная аттестация','Отчёт для руководства']]]},
+  },
+  kids: {
+    name:'Первая помощь детям', course:'kids',
+    blocks:['header','hero','outcomes','program','gallery','instructors','format','cert','schedule','pricing','reviews','faq','lead','footer'],
+    def:{cert:{v:'center'}, outcomes:{v:'photo'}},
+    hero:{img:'choking', line:'Учебный центр ЦКМ, Ташкент',
+      a:{t:'Первая помощь детям', s:'курс для родителей, бабушек и дедушек, нянь и воспитателей'},
+      b:{t:'Первая помощь ребёнку и младенцу', s:'удушье, реанимация, судороги, травмы и ожоги'},
+      facts:[['baby','Ребёнок и младенец'],['hands','Манекены детей и младенцев'],['clock','[[Один день|Длительность детского курса?]]']]},
+    outTitle:'Чему вы научитесь',
+    outcomes:[
+      ['Помогать при удушье','Приёмы для младенца и ребёнка постарше различаются'],
+      ['Проводить реанимацию ребёнку','СЛР ребёнку и младенцу: глубина, ритм, дыхание'],
+      ['Действовать при судорогах','Во время приступа и после него'],
+      ['Помогать при ожогах и травмах','Горячая вода, падения, травмы головы'],
+      ['Помогать при отравлениях','Лекарства и бытовая химия'],
+      ['Понимать, когда вызывать скорую','Признаки, которые нельзя пропустить'],
+    ],
+    program:{title:'Программа курса', sub:'Первая помощь детям', draft:true, items:[
+      'Отличия помощи ребёнку и младенцу от помощи взрослому','Инородное тело в дыхательных путях у младенца','Инородное тело в дыхательных путях у ребёнка','Сердечно-лёгочная реанимация ребёнку и младенцу',
+      'Судороги, в том числе на фоне температуры','Ожоги','Падения и травмы головы','Отравления лекарствами и бытовой химией','Утопление','Когда вызывать скорую']},
+    side:{title:'Особенности курса', items:[
+      ['Манекены детей и младенцев','Приёмы отрабатываются на манекенах нужного возраста.'],
+      ['Без медицинской подготовки','Всё объясняется простым языком.'],
+      ['Ситуации, которые волнуют родителей','Удушье, падения, ожоги, отравления.']]},
+    faq:['edu','lang','group'],
+    faqX:[
+      ['Подойдёт ли курс будущим родителям?','Да, курс подходит и тем, кто только готовится стать родителем.'],
+      ['Можно ли прийти вдвоём?','[[|Есть ли условия для пары?]]'],
+      ['Можно ли прийти с ребёнком?','[[|Можно ли приходить с детьми?]]'],
+    ],
+    instr:['sharifulin','kologrivova','mumber'],
+    price:{unit:'', cards:[['Один участник','[[— сум|Цена?]]',['Полный курс','Манекены ребёнка и младенца','Памятка с алгоритмами']],['Вдвоём','[[— сум|Есть ли цена для пары?]]',['Для двух участников','Одна дата','Скидка'],true],['Детские сады и школы','По договору',['Обучение воспитателей','Выезд к заказчику','Документы на каждого']]]},
+  },
+  org: {
+    name:'Организации', course:'org', b2b:true,
+    blocks:['header','hero','b2b','program','trust','cert','process','instructors','gallery','pricing','reviews','faq','lead','footer'],
+    def:{hero:{v:'cover'}, trust:{v:'story'}, b2b:{v:'formats'}, cert:{v:'package'}, pricing:{v:'request'}, lead:{v:'b2b'}},
+    hero:{img:'bandage', line:'Центр корпоративной медицины',
+      a:{t:'Обучение первой помощи сотрудников предприятия', s:'в учебном центре или на объекте заказчика'},
+      b:{t:'Корпоративное обучение первой помощи и реанимации', s:'программы под специфику отрасли'},
+      facts:[['truck','Выезд на объект'],['file','Документы на каждого'],['building','Программа под отрасль']]},
+    program:{title:'Доступные программы курсов', sub:'в зависимости от ваших задач подберём подходящую программу', modules:true, items:[
+      ['Базовая','[[8 часов|Длительность?]]',['Сердечно-лёгочная реанимация и АНД','Помощь подавившемуся','Остановка кровотечения']],
+      ['BLS','[[1 день|Длительность?]]',['Сертификат ERC','Для медпунктов, HSE, руководителей','Международный документ']],
+      ['Расширенная','[[16 часов|Длительность?]]',['Травмы и ожоги','Переохлаждение и отравления','Транспортировка пострадавших']]]},
+    faq:['group','lang'],
+    faqX:[
+      ['Какие документы получат сотрудники?','По курсу BLS — международный сертификат ERC. По остальным программам — [[|Какой документ в Узбекистане? Нужна ли образовательная лицензия?]]. Компания получает программу курса и список обученных.'],
+      ['Можно ли провести обучение на объекте?','Да. Инструкторы приезжают с манекенами, дефибриллятором и расходными материалами.'],
+      ['Можно ли адаптировать программу?','Да, под риски производства: работа на высоте, электротравма, химические ожоги, удалённые объекты.'],
+      ['Как часто нужно проходить обучение повторно?','Сертификат ERC по BLS действует [[2 года|2 или 3 года?]]. О сроке повторного обучения мы напомним заранее.'],
+    ],
+    instr:['mumber','sorokozherdiev','kologrivova'],
+  },
+  clinic: {
+    name:'Клиники и аккредитация', course:'bls', b2b:true,
+    blocks:['header','hero','iso','outcomes','program','cert','process','instructors','pricing','faq','lead','footer'],
+    def:{cert:{v:'erc'}, pricing:{v:'request'}, lead:{v:'b2b'}},
+    hero:{img:'clinical', line:'Учебный центр ЦКМ, Ташкент',
+      a:{t:'Обучение персонала клиник', s:'курс BLS с сертификатом ERC для системы качества и подготовки к аккредитации'},
+      b:{t:'Подготовка персонала к экстренным ситуациям', s:'для клиник и медицинских организаций'},
+      facts:[['award','Сертификат ERC каждому сотруднику'],['file','Документы для системы качества'],['building','Обучение в клинике']]},
+    outTitle:'Клиника получает',
+    outcomes:[
+      ['Единый алгоритм действий','Врачи, медсёстры и администраторы действуют согласованно'],
+      ['Сертификат ERC каждому','Подлинность проверяется онлайн'],
+      ['Задокументированное обучение','Программа, список обученных, сертификаты'],
+      ['Контроль сроков','Напоминание о повторном обучении'],
+    ],
+    program:{title:'Программа курса', sub:'BLS для персонала клиники', items:[
+      'Оценка признаков жизни','Остановка сердца: компрессии, дыхание, дефибриллятор','Безопасное положение и помощь подавившемуся','Реанимация детей',
+      'Анафилаксия и реакции на препараты','Отработка сценариев командой клиники']},
+    side:{title:'Особенности курса', items:[
+      ['Для всего персонала','Врачи, медсёстры, администраторы и младший персонал.'],
+      ['Обучение в клинике','Группы по графику, без остановки работы.'],
+      ['Документы','Сертификаты ERC и список обученных для системы качества.']]},
+    faq:['lang','group'],
+    faqX:[
+      ['Требует ли ISO 7101 именно сертификат BLS?','Нет, стандарт не предписывает конкретный курс. Он требует, чтобы персонал был компетентен и подготовлен к экстренным ситуациям, а обучение было задокументировано. Курс BLS с сертификатом ERC — один из способов это подтвердить.'],
+      ['Подходит ли курс немедицинскому персоналу?','Да. Администраторы часто первыми видят пациента, которому стало плохо, и курс BLS рассчитан в том числе на них.'],
+      ['Можно ли обучить персонал без остановки работы?','Да, обучение проводится группами [[до 8 человек|Размер группы?]] по согласованному графику.'],
+    ],
+    instr:['sorokozherdiev','kologrivova','fomina'],
+  },
+};
+
+/* ============================================================
+   ИКОНКИ
+   ============================================================ */
+const ICONS = {
+  check:'<path d="M20 6 9 17l-5-5"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  heart:'<path d="M19 14c1.5-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  award:'<circle cx="12" cy="8" r="6"/><path d="M15.5 12.9 17 22l-5-3-5 3 1.5-9.1"/>',
+  shield:'<path d="M20 13c0 5-3.5 7.5-7.7 9a1 1 0 0 1-.6 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.2-2.7a1.2 1.2 0 0 1 1.6 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z"/>',
+  phone:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.96.36 1.9.7 2.8a2 2 0 0 1-.45 2.1L8.1 9.9a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.1-.45c.9.34 1.84.6 2.8.7A2 2 0 0 1 22 16.9z"/>',
+  send:'<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+  wa:'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+  ig:'<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/>',
+  pin:'<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+  zap:'<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>',
+  building:'<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/>',
+  baby:'<circle cx="12" cy="7" r="4"/><path d="M5 21a7 7 0 0 1 14 0"/>',
+  tooth:'<path d="M7 3C4.5 3 3 5 3 7.5c0 3 1.5 4.5 2 7 .6 3 1 6.5 2.5 6.5S9.5 17 12 17s2.5 4 4.5 4 1.9-3.5 2.5-6.5c.5-2.5 2-4 2-7C21 5 19.5 3 17 3c-2 0-3 1-5 1S9 3 7 3Z"/>',
+  sparkle:'<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/>',
+  mountain:'<path d="m8 3 4 8 5-5 5 15H2L8 3z"/>',
+  file:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M16 13H8M16 17H8M10 9H8"/>',
+  calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  monitor:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  blend:'<rect x="2" y="4" width="12" height="9" rx="1.5"/><path d="M5 17h6"/><circle cx="18" cy="9" r="2.5"/><path d="M14.5 20a3.5 3.5 0 0 1 7 0"/>',
+  arrow:'<path d="M5 12h14M12 5l7 7-7 7"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  comment:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  truck:'<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2m10 0H9m10 0h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>',
+  hands:'<path d="M18 11V6a2 2 0 0 0-4 0v1M14 10V4a2 2 0 0 0-4 0v2M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>',
+  pill:'<path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7ZM8.5 8.5l7 7"/>',
+  repeat:'<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+  play:'<polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/>',
+};
+const ic = (n, cls='') => `<svg class="ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;
+
+/* ============================================================
+   СОСТОЯНИЕ
+   ============================================================ */
+const LS_STATE='ccm-maket-state-v2', LS_COMM='ccm-maket-comments-v1', LS_AUTHOR='ccm-maket-author';
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+};
+const S = Object.assign({
+  page:'bls', cta:'form', format:'offline', view:'landing', device:'desktop',
+  marks:true, bars:true, sticky:true, variants:{},
+}, store.get(LS_STATE, {}));
+S.drawer = null; S.target = null;
+let COMMENTS = store.get(LS_COMM, []);
+const save = () => store.set(LS_STATE, {page:S.page, cta:S.cta, format:S.format, view:S.view, device:S.device, marks:S.marks, bars:S.bars, sticky:S.sticky, variants:S.variants});
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* [[текст|вопрос]] → подсвеченный фрагмент с вопросом */
+const t = s => String(s ?? '').replace(/\[\[([^|\]]*)\|([^\]]+)\]\]/g, (_, a, q) =>
+  `<span class="q${a ? '' : ' empty'}" tabindex="0" data-q="${esc(q)}">${a || '?'}</span>`);
+
+const ph = (key, cls='', extra='') => {
+  const im = IMG[key] || {src:key, label:'Фото'};
+  return `<div class="ph ${cls}" data-label="${esc(im.label)}" ${extra}><img src="${im.src}" alt="${esc(im.label)}" loading="lazy" onerror="this.remove()"></div>`;
+};
+const pageId = P => Object.keys(PAGES).find(k => PAGES[k] === P);
+
+/* ============================================================
+   ЦЕЛЕВЫЕ ДЕЙСТВИЯ
+   ============================================================ */
+const CTA = {form:'Заявка на сайте', telegram:'Telegram', whatsapp:'WhatsApp', call:'Звонок', date:'Выбор даты'};
+function ctaButtons(P, opts={}){
+  const leadTxt = P.b2b ? 'Оставить заявку' : 'Записаться на курс';
+  const b = {
+    form:     [`<a class="btn btn-red" href="#lead">${leadTxt}</a>`, `<a class="btn btn-line" href="${CONTACT.phoneHref}">Позвонить</a>`],
+    telegram: [`<a class="btn btn-red" href="${CONTACT.tg}">${ic('send')}Написать в Telegram</a>`, `<a class="btn btn-line" href="#lead">Оставить заявку</a>`],
+    whatsapp: [`<a class="btn btn-red" href="${CONTACT.wa}">${ic('wa')}Написать в WhatsApp</a>`, `<a class="btn btn-line" href="#lead">Оставить заявку</a>`],
+    call:     [`<a class="btn btn-red" href="${CONTACT.phoneHref}">${ic('phone')}${CONTACT.phone}</a>`, `<a class="btn btn-line" href="#lead">Заказать звонок</a>`],
+    date:     [`<a class="btn btn-red" href="#schedule">Выбрать дату</a>`, `<a class="btn btn-line" href="#lead">Задать вопрос</a>`],
+  }[S.cta];
+  return opts.primaryOnly ? b[0] : b.join('');
+}
+const ctaShort = P => ({form: P.b2b ? 'Оставить заявку' : 'Записаться', telegram:'Telegram', whatsapp:'WhatsApp', call:'Позвонить', date:'Выбрать дату'}[S.cta]);
+const ctaHref = () => ({form:'#lead', telegram:CONTACT.tg, whatsapp:CONTACT.wa, call:CONTACT.phoneHref, date:'#schedule'}[S.cta]);
+const ctaIcon = () => ({form:'', telegram:'send', whatsapp:'wa', call:'phone', date:'calendar'}[S.cta]);
+
+/* ============================================================
+   БЛОКИ
+   Каждый блок: название, группы вариантов, render(o, P).
+   ============================================================ */
+const sec = (inner, cls='', id='', wide=false) => `<section class="sec ${cls}" ${id ? `id="${id}"` : ''}><div class="wrap ${wide?'wide':''}">${t(inner)}</div></section>`;
+/* Заголовок секции: title, sub — светлый подзаголовок, opt: {c:по центру, red, bold:жирный подзаголовок} */
+const head = (title, sub, opt={}) => `<div class="head ${opt.c ? 'c' : ''}"><h2 class="h2 ${opt.red ? 'red' : ''}">${title}</h2>${sub ? `<p class="${opt.bold ? 'sub-bold' : 'sub-light'}">${sub}</p>` : ''}</div>`;
+const courseName = id => (COURSES.find(c => c[0] === id) || COURSES[0])[1];
+
+function formShort(P, title='Запись на курс', sub='Перезвоним в течение [[рабочего дня|Как быстро менеджер отвечает на заявку?]] и подберём дату.'){
+  return `<form class="form" onsubmit="return fakeSubmit(this)">
+    <h3>${title}</h3><p class="fsub">${t(sub)}</p>${fieldsShort(P)}</form>`;
+}
+function fieldsShort(P){
+  return `<input class="inp" placeholder="Как вас зовут?" required>
+    <input class="inp" type="tel" placeholder="Ваш телефон" required>
+    <select class="inp">${COURSES.filter(c=>c[0]!=='org').map(c => `<option ${c[0]===P.course?'selected':''}>${c[1]}</option>`).join('')}</select>
+    <button class="btn btn-red" type="submit">Оставить заявку</button>
+    <p class="consent">Нажимая кнопку, вы соглашаетесь с ${t('[[политикой обработки персональных данных|Нужна политика обработки персональных данных по законодательству Узбекистана]]')}.</p>`;
+}
+function fieldsB2B(){
+  return `<div class="frow two"><input class="inp" placeholder="Как вас зовут?" required><input class="inp" placeholder="Ваша компания" required></div>
+    <div class="frow two"><input class="inp" placeholder="Ваша должность"><input class="inp" type="tel" placeholder="Ваш телефон" required></div>
+    <div class="frow two"><input class="inp" type="email" placeholder="Ваш email"><select class="inp"><option>Сколько сотрудников?</option><option>До 10</option><option>10–30</option><option>30–100</option><option>Больше 100</option></select></div>
+    <button class="btn btn-red" type="submit">Оставить заявку</button>
+    <p class="consent">Нажимая кнопку, вы соглашаетесь с политикой обработки персональных данных.</p>`;
+}
+
+const BLOCKS = {
+  header: {
+    label:'Шапка', groups:[{id:'v', label:'Вид', opts:[['full','Полная'],['ad','Для рекламы'],['msgr','С мессенджерами']]}],
+    render(o, P){
+      const nav = `<nav class="nav"><a href="#program">Программа</a><a href="#format">Формат</a><a href="#cert">Документы</a><a href="#pricing">Стоимость</a><a href="#faq">Вопросы</a></nav>`;
+      const logo = `<a class="logo" href="#"><img src="${IMG.logo.src}" alt="ЦКМ" onerror="this.outerHTML='<b style=&quot;font-size:22px;color:#DA2A2F&quot;>CCM</b>'"><span>Учебный центр</span></a>`;
+      const ci = ctaIcon();
+      const btn = `<a class="btn btn-red" href="${ctaHref()}">${ci ? ic(ci) : ''}<span class="btn-text">${ctaShort(P)}</span>${ci ? '' : `<span class="btn-mob" style="display:none"></span>`}</a>`;
+      const langs = `<div class="langs"><a href="#">RU</a><a href="#">UZ</a><a href="#">EN</a></div>`;
+      if (o.v === 'ad') return `<div class="wrap wide hdr">${logo}<div class="hdr-r">${btn}</div></div>`;
+      if (o.v === 'msgr') return `<div class="wrap wide hdr">${logo}${nav}<div class="hdr-r"><div class="msgr"><a href="${CONTACT.tg}" title="Telegram">${ic('send')}</a><a href="${CONTACT.wa}" title="WhatsApp">${ic('wa')}</a><a href="${CONTACT.ig}" title="Instagram">${ic('ig')}</a></div>${btn}${langs}</div></div>`;
+      return `<div class="wrap wide hdr">${logo}${nav}<div class="hdr-r"><a class="hdr-phone" href="${CONTACT.phoneHref}">${CONTACT.phone}</a>${btn}${langs}</div></div>`;
+    }
+  },
+
+  hero: {
+    label:'Первый экран',
+    groups:[{id:'v', label:'Вид', opts:[['cover','Фото фоном'],['split','Фото справа'],['form','С формой']]},{id:'copy', label:'Текст', opts:[['a','A'],['b','Б']]}],
+    note:'Два варианта текста — для A/B-теста в рекламе.',
+    render(o, P){
+      const H = P.hero, c = H[o.copy] || H.a;
+      const facts = `<ul class="facts">${H.facts.map(f => `<li>${ic(f[0])}<span>${t(f[1])}</span></li>`).join('')}</ul>`;
+      if (o.v === 'split') return `<div class="hero-split"><div class="wrap wide"><div class="hero-grid"><div><h1>${t(c.t)}</h1><p class="s">${t(c.s)}</p><div class="btns">${ctaButtons(P)}</div>${facts}</div>${ph(H.img,'hero-img')}</div></div></div>`;
+      if (o.v === 'form') return `<div class="hero-formv"><div class="wrap wide"><div class="hero-grid"><div><h1>${t(c.t)}</h1><p class="s">${t(c.s)}</p>${facts}</div>${P.b2b ? `<form class="form" onsubmit="return fakeSubmit(this)"><h3>Заявка на обучение</h3>${fieldsB2B()}</form>` : formShort(P)}</div></div></div>`;
+      return `<div class="hero-cover on-photo"><div class="bg">${ph(H.img,'','style="position:absolute;inset:0"')}</div><div class="wrap"><h1>${t(c.t)}</h1><p class="s">${t(c.s)}</p><p class="line">${H.line}</p><div class="btns">${ctaButtons(P)}</div></div></div>`;
+    }
+  },
+
+  trust: {
+    label:'О центре', groups:[{id:'v', label:'Вид', opts:[['numbers','Цифры'],['strip','Полоса фактов'],['story','О ЦКМ']]}],
+    render(o, P){
+      if (o.v === 'strip') return sec(`<div class="strip"><span>${ic('shield')}20 лет в медицине</span><span>${ic('award')}Курсы Европейского совета по реанимации</span><span>${ic('pin')}Учебные центры в 6 городах</span><span>${ic('users')}[[— обученных|Сколько человек обучено?]]</span></div>`, 'soft tight');
+      if (o.v === 'story') return sec(`<div class="story">${ph('company')}<div>
+        <h2 class="h2">Центр корпоративной медицины</h2>
+        <p>С 2006 года ЦКМ обеспечивает медицинскую помощь на промышленных объектах: здравпункты, медицинская эвакуация, дистанционные консультации. Инструкторы учебного центра — врачи и фельдшеры с опытом работы в экстренной медицине.</p>
+        <p>Учебные центры в Ташкенте, Астане, Бишкеке, Москве, Санкт-Петербурге и Томске. Под медицинским сопровождением ЦКМ — [[около 95 000 человек|Можно ли публиковать число сотрудников под сопровождением?]].</p>
+      </div></div>`);
+      return sec(`<div class="nums">
+        <div class="num"><b>20 лет</b><span>медицинского сопровождения промышленных объектов</span></div>
+        <div class="num"><b>6</b><span>учебных центров в России и Центральной Азии</span></div>
+        <div class="num"><b>[[—|Сколько человек обучено?]]</b><span>человек прошли обучение</span></div>
+        <div class="num"><b>[[—|Сколько инструкторов в Ташкенте?]]</b><span>инструкторов с международной аттестацией</span></div>
+      </div>`, 'tight');
+    }
+  },
+
+  lineup: {
+    label:'Курсы', groups:[{id:'v', label:'Вид', opts:[['timeline','Список, как на сайте ЦКМ'],['cards','Карточки'],['compare','BLS и первая помощь']]}],
+    note:'В макете ссылки курсов переключают страницу.',
+    render(o, P){
+      if (o.v === 'compare') return sec(`${head('BLS или первая помощь', 'два базовых курса, на которых строятся остальные программы', {c:true})}
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th></th><th>BLS</th><th>Первая помощь</th></tr></thead><tbody>
+        <tr><td>Основное</td><td>Остановка сердца: СЛР, дефибриллятор, удушье</td><td>Кровотечения, травмы, ожоги, холод, отравления и СЛР</td></tr>
+        <tr><td>Документ</td><td>Международный сертификат ERC</td><td>[[—|Какой документ?]]</td></tr>
+        <tr><td>Длительность</td><td>[[1 день|?]]</td><td>[[1–2 дня|?]]</td></tr>
+        <tr><td>Кому подходит</td><td>Тем, кому нужен сертификат: работа, учёба, медицина</td><td>Тем, кому важна практика: походы, спорт, производство, семья</td></tr>
+        </tbody></table></div>`);
+      if (o.v === 'cards') return sec(`${head('Курсы', 'выберите программу под свою задачу', {c:true})}<div class="grid g3">${LINEUP.map(l => `<button type="button" class="route" onclick="setPage('${l[0]}')"><h3>${l[2]}</h3><p>${l[3]}</p><span class="go">Подробнее →</span></button>`).join('')}</div>`, 'soft', '', true);
+      return sec(`${head('Мы проводим курсы', '', {})}<ol class="ctl">${LINEUP.map(l => `<li><span class="lbl">${l[1]}</span><span class="dot"></span><div class="body"><b>${l[2]}</b><p>${l[3]}</p><a onclick="setPage('${l[0]}')">Программа курса</a></div></li>`).join('')}</ol>`);
+    }
+  },
+
+  outcomes: {
+    label:'Чему вы научитесь', groups:[{id:'v', label:'Вид', opts:[['list','Список'],['photo','Список с фото']]}],
+    render(o, P){
+      const list = P.outcomes || []; if (!list.length) return '';
+      const title = P.outTitle || 'Чему вы научитесь';
+      const items = cls => `<ul class="checks ${cls}">${list.map(x => `<li>${ic('check')}<div><b>${x[0]}</b><span>${x[1]}</span></div></li>`).join('')}</ul>`;
+      if (o.v === 'photo') return sec(`<div class="split">${ph(P.hero.img === 'airway' ? 'scenario' : 'manikin')}<div>${head(title)}${items('')}</div></div>`);
+      return sec(`${head(title, '', {c:true})}${items(list.length > 4 ? 'cols3' : 'cols')}`);
+    }
+  },
+
+  program: {
+    label:'Программа', groups:[{id:'v', label:'Вид', opts:[['side','Таймлайн и особенности'],['plain','Только таймлайн'],['steps','Как проходит занятие']]}],
+    render(o, P){
+      const pr = P.program; if (!pr) return '';
+      const draft = pr.draft ? `<p class="draft">Черновик программы по брифу — согласовать с ЦКМ</p>` : '';
+      if (pr.modules) {
+        return sec(`${head(pr.title, pr.sub, {c:true})}<div class="prices">${pr.items.map((m,i) => `<div class="price ${i===1?'hl':''}"><h3>${m[0]}</h3><div class="p" style="font-size:17px;color:var(--muted);font-weight:400">Программа ${m[1]}</div><ul>${m[2].map(x => `<li>${x}</li>`).join('')}</ul></div>`).join('')}</div>`, '', 'program');
+      }
+      const tl = `<ol class="tl">${pr.items.map(i => `<li><span class="dot"></span><span>${i}</span></li>`).join('')}</ol>`;
+      const title = `<h2 class="h2">${pr.title}</h2><p class="sub-bold" style="margin-bottom:40px">${pr.sub || ''}</p>`;
+      if (o.v === 'steps') return sec(`${head('Как проходит занятие', 'большая часть времени — практика', {c:true})}<div class="day">${STEPS_DAY.map((s,i) => `<div><i>0${i+1}</i><b>${s[0]}</b><span>${s[1]}</span></div>`).join('')}</div><h3 style="margin-top:64px;font-size:22px">Темы курса</h3><ul class="topics" style="margin-top:20px">${pr.items.map(i => `<li>${i}</li>`).join('')}</ul>`, '', 'program');
+      if (o.v === 'plain' || !P.side) return sec(`${draft}${title}${tl}`, '', 'program');
+      return sec(`${draft}<div class="prog with-side"><div>${title}${tl}</div><div class="side"><h3>${P.side.title}</h3>${P.side.items.map(s => `<div class="it"><b>${s[0]}</b><p>${s[1]}</p></div>`).join('')}</div></div>`, '', 'program', true);
+    }
+  },
+
+  format: {
+    label:'Формат обучения', groups:[{id:'v', label:'Вид', opts:[['compare','Три формата'],['single','Только выбранный']]}],
+    note:'Какой формат выбран — задаётся в верхней панели.',
+    render(o, P){
+      const isBLS = ['bls','clinic','hub'].includes(pageId(P));
+      const F = {
+        offline:{icon:'building', t:'Очно', pts:['[[8 часов, один день|Длительность?]]','Группа [[до 8 человек|?]]','Манекены взрослого, ребёнка и младенца','Учебный дефибриллятор','Практический экзамен'], addr:true},
+        blended:{icon:'blend', t:'Смешанный формат', pts:['Теория онлайн, в удобное время','[[Очный практический день|Длительность очной части? У ERC — 4 часа]]','Экзамен и документ по итогам очной части']},
+        online:{icon:'monitor', t:'Онлайн', pts:['Видеоуроки и разборы ситуаций','Занятия с инструктором в прямом эфире','Итоговый тест'], warn: isBLS ? 'Практические навыки и сертификат ERC онлайн не получить: экзамен по BLS сдаётся только очно.' : '[[Подходит для теории и повторения, но не заменяет отработку на манекене|Есть ли онлайн-курсы вообще?]]'},
+      };
+      const card = k => { const f = F[k], on = k === S.format && o.v === 'compare'; return `<div class="fmt">${on ? '<span class="sel">выбран в макете</span>' : ''}${ic(f.icon)}<h3>${f.t}</h3><ul>${f.pts.map(p => `<li>${p}</li>`).join('')}</ul>${f.warn ? `<p class="warn">${f.warn}</p>` : ''}${f.addr && o.v === 'single' ? `<p class="consent">${CONTACT.address}</p>` : ''}</div>`; };
+      if (o.v === 'single') {
+        if (S.format === 'blended') return sec(`${head('Формат обучения', 'теория онлайн, практика в учебном центре', {c:true})}<div class="day" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))"><div><i>01</i><b>Теория онлайн</b><span>Видео и тесты в своём темпе, [[за 1–2 недели до занятия|Сроки онлайн-части?]]</span></div><div><i>02</i><b>Практика в классе</b><span>Отработка на манекенах в малой группе</span></div><div><i>03</i><b>Экзамен и документ</b><span>Оценка навыков и выдача документа</span></div></div>`, '', 'format');
+        return sec(`${head('Формат обучения', '', {c:true})}<div style="max-width:520px;margin:0 auto">${card(S.format)}</div>`, '', 'format');
+      }
+      return sec(`${head('Формат обучения', '', {c:true})}<div class="grid g3">${['offline','blended','online'].map(card).join('')}</div>`, '', 'format');
+    }
+  },
+
+  cert: {
+    label:'Документы', groups:[{id:'v', label:'Вид', opts:[['erc','Сертификат ERC'],['center','Документ центра'],['package','Для организации']]}],
+    render(o, P){
+      if (o.v === 'package') return sec(`${head('Заказчик получает', '', {c:true})}<div class="grid g2" style="max-width:900px;margin:0 auto"><ul class="checks">${[
+          ['Сертификат ERC','По курсу BLS — на каждого участника'],
+          ['[[Документ об окончании курса|Какой документ по остальным курсам в Узбекистане?]]','По курсам первой помощи и отраслевым программам'],
+        ].map(d => `<li>${ic('check')}<div><b>${d[0]}</b><span>${d[1]}</span></div></li>`).join('')}</ul><ul class="checks">${[
+          ['Список обученных','С датами, программой и результатами'],
+          ['Контроль сроков','Напоминание о повторном обучении'],
+        ].map(d => `<li>${ic('check')}<div><b>${d[0]}</b><span>${d[1]}</span></div></li>`).join('')}</ul></div>`, 'soft', 'cert');
+      const erc = o.v === 'erc';
+      const card = `<div class="cert"><span class="stamp">ОБРАЗЕЦ</span><span class="ct">${erc ? 'Certificate · Basic Life Support' : 'Документ об окончании курса'}</span><span class="cn">${erc ? 'BLS / AED Provider' : courseName(P.course)}</span><span class="cl" style="width:70%"></span><span class="cl" style="width:45%"></span><div class="row"><div style="display:grid;gap:6px;flex:1"><span class="ct">${erc ? 'Действителен до' : 'Дата выдачи'}</span><span class="cl" style="width:60%"></span></div><div class="qr"></div></div></div>`;
+      const steps = erc ? [
+        ['Обучение','Практика на манекенах в малой группе'],
+        ['Практический экзамен','Инструктор оценивает навыки по стандартам ERC'],
+        ['Сертификат ERC','Действует [[2 года|2 или 3 года?]]'],
+        ['Проверка подлинности','[[На сайте Европейского совета по реанимации|Как именно проверяется сертификат?]] — в том числе работодателем'],
+      ] : [
+        ['Обучение','Практика на манекенах в малой группе'],
+        ['Итоговая оценка','Инструктор проверяет каждый навык'],
+        ['Документ','[[Свидетельство учебного центра|Какой документ выдаётся и есть ли образовательная лицензия?]]'],
+        ['Проверка по QR-коду','[[Код на документе ведёт на страницу подтверждения|QR-проверка — в планах ЦКМ; показывать сейчас или после запуска?]]'],
+      ];
+      return sec(`<div class="cert-grid"><div>${card}</div><div>${head(erc ? 'Международный сертификат ERC' : 'Документ об окончании курса')}<ol class="num-steps">${steps.map(s => `<li><div><b>${s[0]}</b><span>${s[1]}</span></div></li>`).join('')}</ol></div></div>`, 'soft', 'cert');
+    }
+  },
+
+  iso: {
+    label:'Аккредитация и ISO 7101', groups:[{id:'v', label:'Вид', opts:[['text','Текст и пояснение'],['checklist','Список']]}],
+    note:'Формулировки согласовать: нельзя утверждать, что ISO 7101 требует BLS.',
+    render(o, P){
+      if (o.v === 'checklist') return sec(`${head('Обучение персонала для аккредитации', 'и развития системы качества клиники', {c:true})}<ul class="checks cols" style="max-width:900px;margin:0 auto">${[
+        ['Обученный персонал','Врачи, медсёстры и администраторы действуют по единому алгоритму'],
+        ['Подтверждение компетентности','Международный сертификат ERC у каждого сотрудника'],
+        ['Документы для системы качества','Программа, список обученных, сроки действия сертификатов'],
+        ['Регулярность','План повторного обучения'],
+      ].map(x => `<li>${ic('check')}<div><b>${x[0]}</b><span>${x[1]}</span></div></li>`).join('')}</ul>`);
+      return sec(`<div class="iso"><div>${head('Аккредитация и ISO 7101')}<p>В Узбекистане развивается аккредитация медицинских организаций, клиники внедряют стандарты качества, в том числе ISO 7101. Среди требований — компетентность персонала, безопасность пациентов и готовность сотрудников к экстренным ситуациям.</p></div>
+        <div class="note-box">Стандарт ISO 7101 не предписывает конкретный курс. Курсы BLS и первой помощи могут входить в систему подготовки персонала и подтверждать компетентность сотрудников. Для этого особенно подходит BLS: сотрудники получают международный сертификат, подлинность которого можно проверить.</div></div>`);
+    }
+  },
+
+  b2b: {
+    label:'Для организаций', groups:[{id:'v', label:'Вид', opts:[['banner','Плашка'],['formats','Обучение на объекте']]}],
+    render(o, P){
+      if (o.v === 'formats') return sec(`${head('Обучение на объекте заказчика', 'экономия времени и ресурсов', {c:true, red:true, bold:true})}<div class="fcards two">${[
+        ['Обучение на объекте','Инструкторы приезжают на площадку с манекенами и дефибриллятором, сотрудникам не нужно уезжать с производства.'],
+        ['Обучение в учебном центре','Сотрудники приходят в центр в Ташкенте, даты подбираются под график компании.'],
+        ['[[Предвахтовое обучение|Есть ли предвахтовый формат в Узбекистане?]]','Обучение при заезде на промышленный объект.'],
+        ['Программа под отрасль','Модули под риски производства: высота, электротравма, химические ожоги.'],
+      ].map(x => `<div class="shadow-card"><h3>${x[0]}</h3><p>${x[1]}</p></div>`).join('')}</div>`, 'soft');
+      return sec(`<div class="banner"><div><h3>Обучение сотрудников</h3><p>Проводим курсы в учебном центре или на объекте заказчика, выдаём документы на каждого сотрудника, работаем по договору.</p></div><a class="btn btn-red" href="#" onclick="setPage('org');return false">Условия для организаций</a></div>`, 'tight');
+    }
+  },
+
+  process: {
+    label:'Порядок работы', groups:[{id:'v', label:'Вид', opts:[['steps','В строку'],['timeline','Таймлайн']]}],
+    render(o, P){
+      const st = [['Заявка','Уточняем число участников, место и сроки'],['Программа','Подбираем курс под задачи'],['Обучение','В учебном центре или у заказчика'],['Документы','Сертификаты и список обученных'],['Повторное обучение','Напоминаем, когда подходит срок']];
+      if (o.v === 'timeline') return sec(`<h2 class="h2" style="margin-bottom:40px">Порядок работы</h2><ol class="tl">${st.map(s => `<li><span class="dot"></span><span><b>${s[0]}</b><br><span style="color:var(--ink-2);font-size:15px">${s[1]}</span></span></li>`).join('')}</ol>`, 'soft');
+      return sec(`${head('Порядок работы', '', {c:true})}<div class="proc">${st.map(s => `<div><b>${s[0]}</b><span>${s[1]}</span></div>`).join('')}</div>`, 'soft', '', true);
+    }
+  },
+
+  instructors: {
+    label:'Инструкторы', groups:[{id:'v', label:'Вид', opts:[['grid','Все инструкторы'],['lead','Ведущий инструктор']]}],
+    note:'Сейчас стоят инструкторы «Альфамедтренинга» (Россия) — заменить на ташкентскую команду.',
+    render(o, P){
+      const list = (P.instr || []).map(k => INSTR[k]);
+      const warn = `<p class="draft">Пример: инструкторы «Альфамедтренинга». Заменить на команду Ташкента</p>`;
+      if (o.v === 'lead') { const L0 = list[0];
+        return sec(`${warn}<div class="ins-lead">${ph(L0.img)}<div><h2 class="h2" style="font-size:clamp(22px,2.4cqi,26px);color:var(--muted);font-weight:600;margin-bottom:18px">Курс ведёт</h2><h3>${L0.name}</h3><p class="role">${L0.role}</p>
+          <dl><div><dt>Образование</dt><dd>${L0.edu}</dd></div><div><dt>Специальность</dt><dd>${L0.spec}</dd></div><div><dt>Инструктор курсов</dt><dd>${L0.crs}</dd></div></dl>
+          <div class="ins-mini">${list.slice(1).map(i => `<div>${ph(i.img)}<span><b>${i.name}</b><br>${i.role}</span></div>`).join('')}</div></div></div>`); }
+      return sec(`${head('Инструкторы', 'врачи и фельдшеры с международной аттестацией [[ERC|Какие аттестации у инструкторов в Ташкенте?]]', {c:true})}${warn}
+        <div class="grid g4">${list.map(i => `<div class="ins">${ph(i.img)}<b>${i.name}</b><span class="role">${i.role}</span><span class="crs">${i.crs}</span></div>`).join('')}</div>`);
+    }
+  },
+
+  gallery: {
+    label:'Фотографии', groups:[{id:'v', label:'Вид', opts:[['mosaic','Мозаика'],['strip','Лента']]}],
+    render(o, P){
+      const pics = P.b2b ? ['workers','bandage','scenario','aed','team','bag','manikin'] : ['manikin','scenario','airway','team','aed','clinical','event'];
+      if (o.v === 'strip') return sec(`${head('Фотографии с занятий', '', {c:true})}<div class="strip-g">${pics.map(k => ph(k)).join('')}</div>`);
+      return `<section class="sec" style="padding-bottom:0"><div class="wrap">${head('Фотографии с занятий', '', {c:true})}</div><div class="mosaic">${pics.map(k => ph(k)).join('')}</div></section>`;
+    }
+  },
+
+  schedule: {
+    label:'Расписание', groups:[{id:'v', label:'Вид', opts:[['dates','Ближайшие даты'],['ondemand','По мере набора']]}],
+    render(o, P){
+      if (o.v === 'ondemand') return sec(`<div class="center-box"><h2 class="h2">Курс проводится по мере набора группы</h2><p>Оставьте заявку, и мы сообщим ближайшую дату. Обычно группа набирается за [[1–2 недели|Как быстро набирается группа?]].</p><div class="btns">${ctaButtons(P)}</div></div>`, '', 'schedule');
+      const rows = [['[[12 октября|Реальные даты курсов и время занятий]]','Суббота, 09:00–17:00','3 места'],['[[26 октября|?]]','Суббота, 09:00–17:00','6 мест'],['[[9 ноября|?]]','Суббота, 09:00–17:00','8 мест']];
+      /* Число свободных мест — пример; показывать, только если менеджер будет его обновлять */
+      return sec(`${head('Расписание', CONTACT.address, {c:true})}<div class="sched">${rows.map(r => `<div class="srow"><span class="d">${r[0]}</span><span class="m">${r[1]}</span><span class="seats">Осталось ${r[2]}</span><a class="btn btn-red" href="#lead">Записаться</a></div>`).join('')}</div>`, '', 'schedule');
+    }
+  },
+
+  pricing: {
+    label:'Стоимость', groups:[{id:'v', label:'Вид', opts:[['cards','Тарифы'],['single','Одна цена'],['request','По запросу']]}],
+    render(o, P){
+      if (o.v === 'request' || !P.price) return sec(`<div class="center-box"><h2 class="h2">Стоимость обучения</h2><p>Зависит от числа сотрудников, программы и места проведения. Рассчитаем в течение [[одного рабочего дня|Срок ответа на запрос?]].</p><div class="btns"><a class="btn btn-red" href="#lead">Рассчитать стоимость</a></div></div>`, 'soft', 'pricing');
+      const c = P.price.cards;
+      if (o.v === 'single') { const x = c[0];
+        return sec(`<div style="max-width:460px;margin:0 auto"><div class="price hl"><h3>${courseName(P.course)}</h3><div class="p">${x[1]}${P.price.unit ? `<small>${P.price.unit}</small>` : ''}</div><ul>${x[2].map(i => `<li>${i}</li>`).join('')}</ul>${ctaButtons(P,{primaryOnly:true})}</div></div>`, '', 'pricing'); }
+      return sec(`${head('Стоимость обучения', 'выберите подходящий вариант', {c:true})}<div class="prices">${c.map(x => `<div class="price ${x[3] ? 'hl' : ''}"><h3>${x[0]}</h3><div class="p">${x[1]}${x[1].includes('сум') && P.price.unit ? `<small>${P.price.unit}</small>` : ''}</div><ul>${x[2].map(i => `<li>${i}</li>`).join('')}</ul><a class="btn btn-red" href="#lead">${x[1] === 'По договору' ? 'Запросить условия' : 'Записаться'}</a></div>`).join('')}</div>`, '', 'pricing');
+    }
+  },
+
+  reviews: {
+    label:'Отзывы', groups:[{id:'v', label:'Вид', opts:[['text','Текстовые'],['video','Видео']]}],
+    note:'Отзывы не придумываем: нужны реальные тексты, имена и согласие на публикацию.',
+    render(o, P){
+      const who = P.b2b ? ['Специалист по охране труда','HR-директор','Главный врач'] : ['Участник курса BLS','Родитель','Врач-стоматолог'];
+      if (o.v === 'video') return sec(`${head('Отзывы', '', {c:true})}<div class="grid g3">${who.map(w => `<div class="rev video"><div class="play"><span>${ic('play')}</span></div><p><b>Видеоотзыв</b></p><small>${w} · до 60 секунд, вертикальное видео</small></div>`).join('')}</div>`);
+      return sec(`${head('Отзывы', '', {c:true})}<div class="grid g3">${who.map(w => `<div class="rev"><div class="who"><span class="av"></span><div><b>Имя Фамилия</b><br><small>${w}</small></div></div><p>Место для реального отзыва. Лучше всего работают конкретные истории: какая была ситуация и что изменилось после курса.</p></div>`).join('')}</div>`);
+    }
+  },
+
+  faq: {
+    label:'Вопросы и ответы', groups:[{id:'v', label:'Вид', opts:[['accordion','Раскрывающиеся'],['columns','Две колонки']]}],
+    render(o, P){
+      const items = [...(P.faqX || []), ...(P.faq || []).map(k => FAQ_COMMON[k])];
+      if (o.v === 'columns') return sec(`${head('Частые вопросы', '', {c:true})}<div class="faq-cols">${items.map(q => `<div><h4>${q[0]}</h4><p>${q[1]}</p></div>`).join('')}</div>`, 'soft', 'faq');
+      return sec(`${head('Частые вопросы', '', {c:true})}<div class="faq">${items.map((q,i) => `<details ${i===0?'open':''}><summary>${q[0]}<span class="pm">${ic('plus')}</span></summary><div class="a">${q[1]}</div></details>`).join('')}</div>`, 'soft', 'faq');
+    }
+  },
+
+  lead: {
+    label:'Заявка', groups:[{id:'v', label:'Вид', opts:[['short','Короткая'],['b2b','Для организаций'],['quiz','Пошаговая']]}],
+    note:'В форме скрытые поля: utm_source, utm_campaign, страница. Заявка уходит в amoCRM.',
+    render(o, P){
+      const title = P.b2b || o.v === 'b2b' ? 'Обучение первой помощи для организаций' : 'Запись на курс';
+      const contacts = `<div class="contacts"><b>Учебный центр:</b><a href="${CONTACT.phoneHref}">${CONTACT.phone}</a><a href="mailto:${CONTACT.email}">${CONTACT.email}</a><p class="grey">${CONTACT.address}</p><div class="ms"><a href="${CONTACT.tg}" title="Telegram">${ic('send')}</a><a href="${CONTACT.wa}" title="WhatsApp">${ic('wa')}</a><a href="${CONTACT.ig}" title="Instagram">${ic('ig')}</a></div></div>`;
+      let form;
+      if (o.v === 'b2b') form = `<form class="lead-form" onsubmit="return fakeSubmit(this)">${fieldsB2B()}</form>`;
+      else if (o.v === 'quiz') form = `<div class="lead-form" data-quiz="1">${quizStep(P, 0)}</div>`;
+      else form = `<form class="lead-form" onsubmit="return fakeSubmit(this)">${fieldsShort(P)}</form>`;
+      return `<section class="sec soft" id="lead"><div class="wrap">${head(title, 'Оставьте заявку или свяжитесь по указанным ниже контактам', {c:true})}<div class="lead-grid">${contacts}${form}</div></div></section>`;
+    }
+  },
+
+  footer: {
+    label:'Подвал', groups:[{id:'v', label:'Вид', opts:[['full','Как на сайте ЦКМ'],['minimal','Минимальный']]}],
+    render(o, P){
+      if (o.v === 'minimal') return `<footer class="ftr-min"><div class="wrap wide"><span>© 2006–2026 Центр корпоративной медицины</span><span>${CONTACT.phone} · ${CONTACT.email}</span><a href="#">${t('[[Политика конфиденциальности|Нужна политика для Узбекистана]]')}</a></div></footer>`;
+      return `<footer class="ftr"><div class="wrap wide"><div class="ftr-grid">
+        <div><img class="logo-big" src="${IMG.logo.src}" alt="ЦКМ" onerror="this.remove()"><div class="soc"><a href="${CONTACT.tg}">${ic('send')}</a><a href="${CONTACT.ig}">${ic('ig')}</a></div><p class="copy">© 2006–2026 CCM</p></div>
+        <div class="col"><h4>Связаться с нами</h4><div>Учебный центр ЦКМ</div><div style="margin-bottom:14px">${CONTACT.address}</div><div>${CONTACT.phone}</div><div>${CONTACT.email}</div></div>
+        <div class="col"><h4>Курсы</h4>${COURSES.map(c => `<a href="#" onclick="setPage('${c[0]}');return false">${c[1]}</a>`).join('')}</div>
+        <div class="col"><h4>Правовые документы</h4><a href="#">Политика конфиденциальности</a><a href="#">Договор-оферта</a><a href="#">${t('[[Лицензия|Есть ли образовательная лицензия в Узбекистане?]]')}</a><a href="https://globalccm.com" target="_blank">Центр корпоративной медицины</a></div>
+      </div></div></footer>`;
+    }
+  },
+};
+
+/* Пошаговая форма */
+const QUIZ = [
+  {q:'Кого нужно обучить?', a:[['users','Себя'],['users','Себя и близких'],['building','Сотрудников организации']]},
+  {q:'Когда хотите пройти курс?', a:[['calendar','В ближайшие 2 недели'],['calendar','В течение месяца'],['clock','Пока выбираю']]},
+];
+function quizStep(P, i){
+  const dots = `<div class="steps-dots">${[0,1,2].map(k => `<i class="${k<=i?'on':''}"></i>`).join('')}</div>`;
+  if (i < QUIZ.length) return `${dots}<h3 style="font-size:20px">${QUIZ[i].q}</h3><div class="choice">${QUIZ[i].a.map(a => `<button type="button" onclick="quizNext(this,${i+1})">${ic(a[0])}${a[1]}</button>`).join('')}</div><p class="consent">Шаг ${i+1} из 3</p>`;
+  return `${dots}<h3 style="font-size:20px">Куда прислать ближайшие даты?</h3><input class="inp" placeholder="Как вас зовут?"><input class="inp" type="tel" placeholder="Ваш телефон"><button class="btn btn-red" type="button" style="justify-self:start" onclick="fakeSubmit(this.closest('.lead-form'))">Получить даты</button><p class="consent">Шаг 3 из 3</p>`;
+}
+function quizNext(btn, i){ const f = btn.closest('.lead-form'); f.innerHTML = quizStep(PAGES[S.page], i); }
+function fakeSubmit(form){
+  form.innerHTML = `<div class="ok">${ic('check')}<h3>Заявка отправлена</h3><p class="consent">В макете заявка никуда не уходит. На сайте она попадёт в amoCRM вместе с UTM-метками.</p></div>`;
+  return false;
+}
+
+/* ============================================================
+   СБОРКА
+   ============================================================ */
+function opts(pid, blockId, override){
+  const B = BLOCKS[blockId], P = PAGES[pid];
+  const o = {};
+  B.groups.forEach(g => {
+    const saved = S.variants?.[pid]?.[blockId]?.[g.id];
+    const valid = v => v && g.opts.some(x => x[0] === v);
+    o[g.id] = (override && override[g.id]) || (valid(saved) ? saved : null) || P.def?.[blockId]?.[g.id] || g.opts[0][0];
+  });
+  return o;
+}
+const optKey = (blockId, o) => BLOCKS[blockId].groups.map(g => o[g.id]).join('/');
+const optLabel = (blockId, o) => BLOCKS[blockId].groups.map(g => (g.opts.find(x => x[0] === o[g.id]) || [,''])[1]).join(' · ');
+const countFor = (blockId, key) => COMMENTS.filter(c => c.block === blockId && (!key || c.variant === key)).length;
+
+function bar(blockId, o, lib){
+  const B = BLOCKS[blockId];
+  const groups = B.groups.map(g => {
+    if (lib && g.id === 'v') return '';
+    return `<span class="grp">${B.groups.length > 1 || lib ? `<span>${g.label}:</span>` : ''}${g.opts.map(x => `<button class="T-pill ${o[g.id] === x[0] ? 'on' : ''}" onclick="setVar('${blockId}','${g.id}','${x[0]}')">${x[1]}</button>`).join('')}</span>`;
+  }).join('');
+  const key = optKey(blockId, o), n = countFor(blockId, key);
+  const title = lib ? `${B.label} · ${(B.groups[0].opts.find(x => x[0] === o.v) || [,''])[1]}` : B.label;
+  return `<div class="T-bar"><b>${title}</b>${groups}${B.note ? `<span class="T-note">${B.note}</span>` : ''}<button class="T-cbtn ${n ? 'has' : ''}" onclick='openComments(${JSON.stringify(blockId)}, ${JSON.stringify(o)})'>${ic('comment')}${n || ''} Комментарий</button></div>`;
+}
+
+function renderLanding(){
+  const P = PAGES[S.page];
+  const html = P.blocks.map(id => {
+    const o = opts(S.page, id);
+    return `<div class="blk" data-block="${id}">${bar(id, o)}${BLOCKS[id].render(o, P)}</div>`;
+  }).join('');
+  const ci = ctaIcon();
+  const sticky = S.sticky ? `<div class="sticky"><a class="btn btn-red" href="${ctaHref()}">${ci ? ic(ci) : ''}${ctaShort(P)}</a><a class="btn btn-line" href="${CONTACT.phoneHref}" aria-label="Позвонить">${ic('phone')}</a></div>` : '';
+  return `<div class="L">${html}${sticky}</div>`;
+}
+function renderLibrary(){
+  const P = PAGES[S.page];
+  const order = ['header','hero','trust','lineup','outcomes','program','format','cert','iso','b2b','process','instructors','gallery','schedule','pricing','reviews','faq','lead','footer'];
+  return `<div class="L">${order.map(id => {
+    const B = BLOCKS[id];
+    return `<div class="T-libhead">${B.label}<small>${B.groups[0].opts.length} вариант(а) · контекст страницы «${P.name}»</small></div>` +
+      B.groups[0].opts.map(x => { const o = opts(S.page, id, {v:x[0]}); return `<div class="blk">${bar(id, o, true)}${B.render(o, P) || `<div class="wrap sec tight T-note">Для этой страницы блок пустой</div>`}</div>`; }).join('');
+  }).join('')}</div>`;
+}
+
+function renderTop(){
+  const qn = collectQuestions().length, cn = COMMENTS.length;
+  document.getElementById('top').innerHTML = `
+    <div class="T-brand">Макет лендингов ЦКМ<small>черновик для обсуждения</small></div>
+    <label class="T-field">Страница<select onchange="setPage(this.value)">${Object.entries(PAGES).map(([k,p]) => `<option value="${k}" ${k===S.page?'selected':''}>${p.name}</option>`).join('')}</select></label>
+    <label class="T-field">Действие<select onchange="S.cta=this.value;rerender()">${Object.entries(CTA).map(([k,c]) => `<option value="${k}" ${k===S.cta?'selected':''}>${c}</option>`).join('')}</select></label>
+    <label class="T-field">Формат<select onchange="S.format=this.value;rerender()"><option value="offline" ${S.format==='offline'?'selected':''}>Очно</option><option value="blended" ${S.format==='blended'?'selected':''}>Смешанный</option><option value="online" ${S.format==='online'?'selected':''}>Онлайн</option></select></label>
+    <div class="T-seg"><button class="${S.view==='landing'?'on':''}" onclick="S.view='landing';rerender(true)">Лендинг</button><button class="${S.view==='library'?'on':''}" onclick="S.view='library';rerender(true)">Все варианты</button></div>
+    <div class="T-seg"><button class="${S.device==='desktop'?'on':''}" onclick="S.device='desktop';rerender()">Компьютер</button><button class="${S.device==='mobile'?'on':''}" onclick="S.device='mobile';rerender()">Телефон</button></div>
+    <span class="T-spacer"></span>
+    <label class="T-chk"><input type="checkbox" ${S.bars?'checked':''} onchange="S.bars=this.checked;rerender()">Панели блоков</label>
+    <label class="T-chk"><input type="checkbox" ${S.marks?'checked':''} onchange="S.marks=this.checked;rerender()">Пометки</label>
+    <label class="T-chk"><input type="checkbox" ${S.sticky?'checked':''} onchange="S.sticky=this.checked;rerender()">Липкая кнопка</label>
+    <button class="T-btn" onclick="openDrawer('questions')">Вопросы к ЦКМ <span class="n">${qn}</span></button>
+    <button class="T-btn" onclick="openDrawer('comments')">Комментарии <span class="n c">${cn}</span></button>`;
+  document.body.style.setProperty('--topbar-h', document.getElementById('top').offsetHeight + 'px');
+}
+
+function rerender(toTop){
+  document.body.classList.toggle('dev-mobile', S.device === 'mobile');
+  document.body.classList.toggle('no-bars', !S.bars);
+  document.body.classList.toggle('no-marks', !S.marks);
+  document.body.classList.toggle('drawer-open', !!S.drawer);
+  renderTop();
+  document.getElementById('stage').innerHTML = S.view === 'library' ? renderLibrary() : renderLanding();
+  renderDrawer();
+  save();
+  if (toTop) window.scrollTo({top:0});
+}
+function setPage(p){ S.page = p; S.view = 'landing'; rerender(true); }
+function setVar(block, group, val){
+  S.variants[S.page] = S.variants[S.page] || {};
+  S.variants[S.page][block] = S.variants[S.page][block] || {};
+  S.variants[S.page][block][group] = val;
+  if (S.view === 'library') S.view = 'landing';
+  const y = window.scrollY; rerender(); window.scrollTo({top:y});
+}
+
+/* ============================================================
+   ВОПРОСЫ К ЦКМ — собираются из всех текстов макета
+   ============================================================ */
+const BLOCKS_SRC = Object.values(BLOCKS).map(b => b.render.toString());
+function collectQuestions(){
+  const src = JSON.stringify([PAGES, BLOCKS_SRC, FAQ_COMMON, LINEUP]) + fieldsShort.toString();
+  const map = new Map();
+  src.replace(/\[\[([^|\]]*)\|([^\]]+)\]\]/g, (_, a, q) => {
+    q = q.trim(); if (q === '?') return;
+    if (!map.has(q)) map.set(q, a);
+  });
+  return [...map.entries()];
+}
+
+/* ============================================================
+   КОММЕНТАРИИ
+   ============================================================ */
+function openDrawer(tab){ S.drawer = (S.drawer === tab) ? null : tab; rerender(); }
+function openComments(block, o){ S.target = {block, o}; S.drawer = 'comments'; rerender(); setTimeout(() => document.getElementById('cmText')?.focus(), 50); }
+function renderDrawer(){
+  const d = document.getElementById('drawer');
+  if (!S.drawer){ d.innerHTML = ''; return; }
+  const tabs = `<div class="T-dtabs"><button class="${S.drawer==='comments'?'on':''}" onclick="S.drawer='comments';rerender()">Комментарии</button><button class="${S.drawer==='questions'?'on':''}" onclick="S.drawer='questions';rerender()">Вопросы к ЦКМ</button><button style="flex:none;width:40px" onclick="S.drawer=null;rerender()" title="Закрыть">✕</button></div>`;
+  if (S.drawer === 'questions'){
+    const qs = collectQuestions();
+    d.innerHTML = tabs + `<div class="T-dbody"><p class="T-help">Всё, что в макете подсвечено жёлтым: факты, которые мы не знаем и не должны выдумывать. Список собирается автоматически из текстов.</p><ol class="T-qlist">${qs.map(([q,a]) => `<li>${esc(q)}${a ? `<small>В макете сейчас: «${esc(a)}»</small>` : ''}</li>`).join('')}</ol></div>
+      <div class="T-dfoot"><button onclick="copyQuestions()">Скопировать списком</button></div>`;
+    return;
+  }
+  const author = store.get(LS_AUTHOR, '');
+  const tg = S.target;
+  const key = tg ? optKey(tg.block, tg.o) : null;
+  const list = COMMENTS.filter(c => !tg || (c.block === tg.block && c.variant === key)).sort((a,b) => b.ts - a.ts);
+  const ctx = tg ? `<div class="T-ctx"><button class="x" onclick="S.target=null;rerender()">показать все</button><b>${BLOCKS[tg.block].label}</b><br>Вариант: ${optLabel(tg.block, tg.o)}</div>
+      <input class="T-in" id="cmAuthor" placeholder="Ваше имя" value="${esc(author)}" style="margin-bottom:8px">
+      <textarea class="T-in" id="cmText" placeholder="Что поменять, что нравится, какие вопросы"></textarea>
+      <button class="T-add" onclick="addComment()">Добавить</button>`
+    : `<p class="T-help">Чтобы оставить комментарий, нажмите «Комментарий» на панели нужного блока. Комментарии хранятся в этом браузере. Чтобы передать их, используйте «Экспорт», а полученный файл загрузите через «Импорт».</p>`;
+  const items = list.length ? list.map(c => `<div class="T-cm"><div class="meta"><b>${esc(c.author || 'Без имени')}</b><span>${new Date(c.ts).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span>${!tg ? `<span class="tag">${esc(BLOCKS[c.block]?.label || c.block)} · ${esc(c.variantLabel || c.variant)}</span><span class="tag">${esc(PAGES[c.page]?.name || c.page)}</span>` : ''}<button class="del" onclick="delComment('${c.id}')">удалить</button></div><div class="txt">${esc(c.text)}</div></div>`).join('') : `<div class="T-empty">Комментариев пока нет</div>`;
+  d.innerHTML = tabs + `<div class="T-dbody">${ctx}${items}</div>
+    <div class="T-dfoot"><button onclick="exportComments()">Экспорт</button><button onclick="document.getElementById('importFile').click()">Импорт</button><button onclick="clearComments()">Очистить все</button></div>`;
+}
+function addComment(){
+  const text = document.getElementById('cmText').value.trim(); if (!text) return;
+  const author = document.getElementById('cmAuthor').value.trim(); store.set(LS_AUTHOR, author);
+  const tg = S.target;
+  COMMENTS.push({id: Date.now().toString(36) + Math.random().toString(36).slice(2,6), block: tg.block, variant: optKey(tg.block, tg.o), variantLabel: optLabel(tg.block, tg.o), page: S.page, author, text, ts: Date.now()});
+  store.set(LS_COMM, COMMENTS); const y = window.scrollY; rerender(); window.scrollTo({top:y});
+}
+function delComment(id){ if (!confirm('Удалить комментарий?')) return; COMMENTS = COMMENTS.filter(c => c.id !== id); store.set(LS_COMM, COMMENTS); const y = window.scrollY; rerender(); window.scrollTo({top:y}); }
+function clearComments(){ if (!confirm('Удалить все комментарии в этом браузере? Сначала сделайте экспорт, если они нужны.')) return; COMMENTS = []; store.set(LS_COMM, COMMENTS); rerender(); }
+function exportComments(){
+  const blob = new Blob([JSON.stringify({kind:'ccm-maket-comments', exported:new Date().toISOString(), comments:COMMENTS}, null, 2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  const who = (store.get(LS_AUTHOR,'') || 'comments').replace(/[^\p{L}\p{N}_-]+/gu,'_');
+  a.download = `ccm-maket-${who}-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href);
+}
+document.getElementById('importFile').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  f.text().then(txt => {
+    const data = JSON.parse(txt); const inc = Array.isArray(data) ? data : (data.comments || []);
+    const ids = new Set(COMMENTS.map(c => c.id)); let n = 0;
+    inc.forEach(c => { if (c && c.id && !ids.has(c.id)) { COMMENTS.push(c); n++; } });
+    store.set(LS_COMM, COMMENTS); toast(`Добавлено комментариев: ${n}`); rerender();
+  }).catch(() => toast('Не удалось прочитать файл'));
+  e.target.value = '';
+});
+function copyQuestions(){
+  const txt = collectQuestions().map(([q], i) => `${i+1}. ${q}`).join('\n');
+  const done = () => toast('Список скопирован');
+  if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, () => fallbackCopy(txt, done)); else fallbackCopy(txt, done);
+}
+function fallbackCopy(txt, cb){ const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); cb(); }catch(e){} ta.remove(); }
+function toast(m){ const el = document.getElementById('toast'); el.textContent = m; el.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => el.style.display = 'none', 2200); }
+
+/* Подсказка к пометкам */
+const tip = document.getElementById('tip');
+function showTip(el){
+  if (!S.marks) return;
+  tip.innerHTML = `<b>Уточнить у ЦКМ:</b> ${esc(el.dataset.q)}`; tip.style.display = 'block';
+  const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+  let x = Math.min(Math.max(8, r.left), window.innerWidth - w - 8), y = r.bottom + 8;
+  if (y + h > window.innerHeight - 8) y = r.top - h - 8;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+document.addEventListener('mouseover', e => { const q = e.target.closest('.q'); if (q) showTip(q); });
+document.addEventListener('mouseout', e => { if (e.target.closest('.q')) tip.style.display = 'none'; });
+document.addEventListener('focusin', e => { const q = e.target.closest('.q'); if (q) showTip(q); });
+document.addEventListener('focusout', () => tip.style.display = 'none');
+document.addEventListener('click', e => {
+  const a = e.target.closest('.L a[href^="#"]');
+  if (a && a.getAttribute('href').length > 1){ const el = document.getElementById(a.getAttribute('href').slice(1)); if (el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth'}); } }
+});
+window.addEventListener('scroll', () => tip.style.display = 'none', {passive:true});
+window.addEventListener('resize', () => document.body.style.setProperty('--topbar-h', document.getElementById('top').offsetHeight + 'px'));
+
+rerender();
+</script>
+</body>
+</html>
