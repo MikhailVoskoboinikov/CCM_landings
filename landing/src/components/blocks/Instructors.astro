@@ -1,7 +1,7 @@
 ---
 /*
  * Инструкторы. Варианты:
- *  carousel — карточки с фото, листаются пальцем
+ *  carousel — на телефоне лента, листается пальцем; на широком экране — ряд по центру
  *  lead     — один инструктор крупно и остальные списком
  * Сейчас — команда «Альфамедтренинга» как пример; для каждой страны нужен свой состав.
  */
@@ -46,9 +46,9 @@ const [first, ...rest] = instructors;
     </div>
   )}
   {variant === "carousel" && !revised && (
-    <div class="mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-5 px-5 pb-2 [scrollbar-width:none] md:scroll-px-[max(2rem,calc((100vw-1160px)/2+2rem))] md:px-[max(2rem,calc((100vw-1160px)/2+2rem))]">
+    <div class="mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-5 px-5 pb-2 [scrollbar-width:none] lg:container-l lg:grid lg:grid-cols-5 lg:gap-5 lg:overflow-visible">
       {INSTRUCTORS.map((p, i) => (
-        <article class="group w-[72%] shrink-0 snap-start sm:w-[300px]" data-reveal style={`--reveal-delay:${i * 60}ms`}>
+        <article class="group w-[72%] shrink-0 snap-start sm:w-[300px] lg:w-auto" data-reveal style={`--reveal-delay:${i * 60}ms`}>
           <div class="relative overflow-hidden rounded-3xl">
             <img src={p.img} alt={p.name} loading="lazy" class="aspect-[4/5] w-full object-cover object-top transition-transform duration-700 group-hover:scale-105" />
             <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-5 pt-16 text-white">

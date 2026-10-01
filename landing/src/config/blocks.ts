@@ -17,7 +17,7 @@ export const BLOCKS: BlockDef[] = [
   { id: "audience", label: "Для кого", variants: [["cards", "Карточки"], ["list", "Список"]] },
   { id: "certificate", label: "Сертификат", variants: [["anatomy", "Анатомия"], ["tilt", "Объёмная карточка"], ["path", "Путь к сертификату"]] },
   { id: "program", label: "Программа", variants: [["accordion", "Раскрывающийся список"], ["timeline", "Линия"], ["day", "Как проходит день"]] },
-  { id: "about", label: "О ЦКМ", variants: [["stats", "Цифры и причины"], ["map", "Схема центров"], ["story", "История"]] },
+  { id: "about", label: "О ЦКМ", variants: [["stats", "Цифры и причины"], ["photo", "Фото на весь блок"], ["map", "Схема центров"], ["story", "История"]] },
   { id: "clients", label: "Клиенты", variants: [["marquee", "Бегущая строка"], ["grid", "Сетка"]] },
   { id: "instructors", label: "Инструкторы", variants: [["carousel", "Лента"], ["lead", "Ведущий инструктор"]] },
   { id: "gallery", label: "Фотогалерея", variants: [["carousel", "Лента"], ["mosaic", "Мозаика"]] },
@@ -34,7 +34,7 @@ export const DEFAULTS: Record<string, string> = {
   audience: "cards",
   certificate: "anatomy",
   program: "accordion",
-  about: "stats",
+  about: "photo",
   clients: "marquee",
   instructors: "carousel",
   gallery: "carousel",
@@ -57,6 +57,6 @@ export function getPageLayout(country: string, course: string) {
       if (block.id === "lead") return [block, organizations];
       return [block];
     }),
-    defaults: { ...DEFAULTS, skills: "cards", organizations: "compact" } as Record<string, string>,
+    defaults: { ...DEFAULTS, about: "stats", skills: "cards", organizations: "compact" } as Record<string, string>,
   };
 }

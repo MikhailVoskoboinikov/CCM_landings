@@ -49,6 +49,7 @@
   --animate-marquee: marquee 40s linear infinite;
   --animate-float: float 6s ease-in-out infinite;
   --animate-pulse-ring: pulse-ring 2s ease-out infinite;
+  --animate-drift: drift 28s ease-in-out infinite alternate;
 }
 
 :root {
@@ -177,6 +178,10 @@
 @keyframes float {
   0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
   50% { transform: translateY(-8px) rotate(var(--r, 0deg)); }
+}
+@keyframes drift {
+  from { transform: scale(1.02) translateX(0); }
+  to { transform: scale(1.1) translateX(-2%); }
 }
 @keyframes pulse-ring {
   0% { transform: scale(0.8); opacity: 0.7; }
