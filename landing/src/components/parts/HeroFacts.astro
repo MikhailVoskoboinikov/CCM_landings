@@ -1,0 +1,41 @@
+---
+import Icon from "./Icon.astro";
+import Rich from "./Rich.astro";
+import type { Course } from "@/data";
+
+interface Props { course: Course; city: string; dark?: boolean }
+const { course, city, dark = false } = Astro.props;
+const facts = course.facts.map((fact) => ({
+  ...fact,
+  value: fact.label === "Формат" ? city
+    : fact.label === "Документ" ? "Сертификат ERC"
+    : fact.value.replace(/(\d+[–-]\d+) (часов|человек)/g, "$1\u00a0$2"),
+}));
+---
+<div class="hero-facts-wrap">
+<ul class:list={["hero-facts", { "hero-facts-dark": dark }]}>
+  {facts.map((fact) => (
+    <li class="hero-fact" style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;min-width:0;">
+      <div style="display:flex;width:100%;justify-content:center;"><Icon name={fact.icon} size={28} class="hero-fact-icon" /></div>
+      <div style="width:100%;text-align:center;"><Rich text={fact.value} class="hero-fact-value" /></div>
+    </li>
+  ))}
+</ul>
+</div>
+
+<style>
+  .hero-facts-wrap { container-type: inline-size; }
+  .hero-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 20px;
+  }
+  .hero-fact { width: 100%; }
+  .hero-facts :global(.hero-fact-icon) { color: var(--brand); flex-shrink: 0; }
+  .hero-facts :global(.hero-fact-value) { font-size: 14px; font-weight: 600; line-height: 1.45; }
+  .hero-fact:first-child :global(.hero-fact-value) { white-space: nowrap; text-align: left; }
+  .hero-facts-dark :global(.hero-fact-icon) { color: inherit; }
+  @container (min-width: 520px) {
+    .hero-facts { grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 16px; }
+  }
+</style>

@@ -8,21 +8,23 @@
  * стенде (с пометками). В боевой сборке блок с примерами не выводится.
  */
 import Icon from "@/components/parts/Icon.astro";
+import ReviewShowcase from "@/components/parts/ReviewShowcase.astro";
 import Rich from "@/components/parts/Rich.astro";
 import Marquee from "@/components/parts/Marquee.astro";
 import { REVIEWS, REVIEWS_ARE_SAMPLES } from "@/data/about";
 import { showMarks } from "@/lib/rich";
 
-interface Props { variant?: "cards" | "video" }
-const { variant = "cards" } = Astro.props;
+interface Props { variant?: "cards" | "video"; revised?: boolean }
+const { variant = "cards", revised = false } = Astro.props;
 const hidden = REVIEWS_ARE_SAMPLES && !showMarks;
 const mark = (t: string) => (REVIEWS_ARE_SAMPLES ? `[[${t}|Пример отзыва для макета — нужен реальный текст, имя и согласие автора]]` : t);
 ---
 {!hidden && (
-  <section class="bg-soft py-16 md:py-28" id="reviews">
+  <section class:list={["bg-soft", revised ? "py-12 md:py-16" : "py-16 md:py-28"]} id="reviews">
     <div class="container-l" data-reveal>
       <h2 class="h-section">Отзывы выпускников</h2>
     </div>
+    {revised && variant === "cards" ? <ReviewShowcase /> : (
     <Marquee class="mt-10 py-2" repeat={2} duration={variant === "video" ? 55 : 80}>
       {REVIEWS.map((r) =>
         variant === "video" ? (
@@ -45,5 +47,6 @@ const mark = (t: string) => (REVIEWS_ARE_SAMPLES ? `[[${t}|Пример отзы
         ),
       )}
     </Marquee>
+    )}
   </section>
 )}

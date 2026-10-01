@@ -1,0 +1,171 @@
+---
+import Icon from "@/components/parts/Icon.astro";
+import Rich from "@/components/parts/Rich.astro";
+import PuzzlePiece from "@/components/parts/PuzzlePiece.astro";
+import type { Course } from "@/data";
+interface Props { course: Course }
+const { course } = Astro.props;
+const p = course.program;
+const offsets = [[6, 6], [27, 6], [6, 27], [27, 27]];
+---
+<div class="puzzle-program" data-puzzle-program>
+  <span class="puzzle-guide" aria-hidden="true"></span>
+  {p.sections.map((_, i) => <span class="puzzle-segment" data-puzzle-segment={i} aria-hidden="true"></span>)}
+  <div class="puzzle-convoy" data-puzzle-convoy aria-hidden="true">
+    {p.sections.map((_, i) => <span class="puzzle-moving-piece" data-moving-piece={i} hidden><PuzzlePiece index={i} /></span>)}
+  </div>
+  {p.sections.map((s, i) => (
+    <div class="puzzle-row">
+      <span class="puzzle-anchor" data-puzzle-anchor={i} aria-hidden="true">
+        <span class="puzzle-source" data-puzzle-source={i}><span class="puzzle-source-piece" style={`transform:translate(${offsets[i][0]}px,${offsets[i][1]}px) scale(.75)`}><PuzzlePiece index={i} /></span></span>
+      </span>
+      <details class="puzzle-step group rounded-3xl bg-soft transition-colors duration-500 open:bg-white open:shadow-[0_8px_40px_-16px_rgba(17,19,23,.2)] open:ring-1 open:ring-black/5" data-puzzle-step open={i === 0}>
+        <summary class="flex cursor-pointer list-none items-center gap-3 p-4 md:gap-4 md:p-6 [&::-webkit-details-marker]:hidden">
+          <span class="flex-1 text-lg font-bold md:text-xl">{s.title}</span>
+          <span class="grid size-9 shrink-0 place-items-center rounded-full bg-white transition-transform group-open:rotate-45 group-open:bg-brand-50 group-open:text-brand"><Icon name="Plus" size={18} /></span>
+        </summary>
+        <ul class="grid gap-2.5 px-4 pb-5 md:px-6 md:pb-6">
+          {s.items.map((item) => <li class="flex gap-3 text-[15.5px] leading-relaxed text-ink-2"><Icon name="Check" size={18} class="mt-1 shrink-0 text-brand" />{item}</li>)}
+        </ul>
+      </details>
+    </div>
+  ))}
+  <div class="puzzle-row">
+    <span class="puzzle-anchor" data-puzzle-anchor="4" data-puzzle-dock aria-hidden="true">
+      <span class="puzzle-dock-preview">
+        {offsets.map((offset, i) => <span class="puzzle-dock-piece" style={`transform:translate(${offset[0]}px,${offset[1]}px) scale(.75)`}><PuzzlePiece index={i} /></span>)}
+      </span>
+    </span>
+    <div class="rounded-3xl border border-line bg-soft p-4 md:p-6">
+      <h3 class="text-lg font-bold md:text-xl">Экзамен</h3>
+      <p class="mt-2 text-[15.5px] leading-relaxed text-ink-2"><Rich text={p.exam} /></p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .puzzle-program { --puzzle-rail: 72px; position: relative; display: grid; gap: 12px; }
+  .puzzle-row { position: relative; display: grid; grid-template-columns: var(--puzzle-rail) minmax(0, 1fr); gap: 8px; }
+  .puzzle-anchor { position: relative; align-self: start; justify-self: center; width: 64px; height: 64px; margin-top: 7px; color: var(--brand); }
+  .puzzle-source, .puzzle-dock-preview { position: relative; width: 64px; height: 64px; border-radius: 50%; background: var(--brand-50); }
+  .puzzle-source { background: transparent; }
+  .puzzle-source::before { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: 50%; border: 1.5px solid var(--brand); background: white; }
+  .puzzle-source-piece { z-index: 5; }
+  .puzzle-dock-piece, .puzzle-moving-piece, .puzzle-source-piece { position: absolute; left: 0; top: 0; width: 42px; height: 42px; transform-origin: 0 0; }
+  .puzzle-convoy { position: absolute; top: 0; z-index: 4; display: none; width: 64px; height: 64px; border-radius: 50%; background: var(--brand-50); color: var(--brand); pointer-events: none; will-change: transform; }
+  .puzzle-convoy[data-active] { display: block; }
+  .puzzle-guide, .puzzle-segment { position: absolute; width: 4px; pointer-events: none; background: radial-gradient(circle, var(--brand) 1.5px, transparent 1.7px) center top / 4px 10px repeat-y; opacity: .4; }
+  .puzzle-guide { left: calc(var(--puzzle-rail) / 2 - 2px); top: 39px; bottom: 39px; }
+  .puzzle-segment { display: none; }
+  .is-enhanced .puzzle-guide { display: block; opacity: .14; }
+  .is-enhanced .puzzle-segment { display: block; }
+  .is-enhanced [data-collected] .puzzle-source { opacity: .35; }
+  .is-enhanced [data-collected] .puzzle-source::before { background: var(--brand-100); border-color: transparent; }
+  .is-enhanced .puzzle-dock-preview { opacity: .2; }
+  @media (min-width: 768px) { .puzzle-program { --puzzle-rail: 84px; } .puzzle-row { gap: 12px; } }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-puzzle-program]").forEach((root) => {
+    if (root.dataset.ready) return;
+    root.dataset.ready = "1";
+    const steps = [...root.querySelectorAll<HTMLDetailsElement>("[data-puzzle-step]")];
+    const anchors = [...root.querySelectorAll<HTMLElement>("[data-puzzle-anchor]")];
+    const segments = [...root.querySelectorAll<HTMLElement>("[data-puzzle-segment]")];
+    const pieces = [...root.querySelectorAll<HTMLElement>("[data-moving-piece]")];
+    const convoy = root.querySelector<HTMLElement>("[data-puzzle-convoy]")!;
+    const guide = root.querySelector<HTMLElement>(".puzzle-guide")!;
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const offsets = [[6, 6], [27, 6], [6, 27], [27, 27]];
+    const radius = 32;
+    steps.forEach((step) => step.open && (step.dataset.auto = "1"));
+    if (!reduceMotion) root.classList.add("is-enhanced");
+    let furthestFocus = -Infinity;
+    let collected = 0;
+    let queued = false;
+    let lastOpen = -Infinity;
+    let completionFlash: Animation | null = null;
+    let dockHighlighted = false;
+    const highlight = () => {
+      completionFlash?.cancel();
+      const base = getComputedStyle(convoy).backgroundColor;
+      const accent = getComputedStyle(root).getPropertyValue("--brand-100").trim() || "#f9d6d7";
+      completionFlash = convoy.animate([
+        { backgroundColor: base, boxShadow: "0 0 0 0 rgb(217 38 44 / 0)" },
+        { backgroundColor: accent, boxShadow: "0 0 0 5px rgb(217 38 44 / .16)", offset: .3 },
+        { backgroundColor: base, boxShadow: "0 0 0 0 rgb(217 38 44 / 0)" },
+      ], { duration: 900, easing: "ease-out" });
+    };
+
+    const render = () => {
+      queued = false;
+      for (let i = 1; i < steps.length; i++) {
+        if (steps[i].dataset.auto) continue;
+        if (steps[i - 1].open && steps[i - 1].getBoundingClientRect().bottom < innerHeight * .6 && performance.now() - lastOpen >= 450) {
+          steps[i].dataset.auto = "1";
+          steps[i].open = true;
+          lastOpen = performance.now();
+          setTimeout(queue, 470);
+        }
+        break;
+      }
+      if (reduceMotion) return;
+      const bounds = root.getBoundingClientRect();
+      const positions = anchors.map((anchor) => {
+        const rect = anchor.getBoundingClientRect();
+        return { x: rect.left - bounds.left, y: rect.top - bounds.top + radius };
+      });
+      // Положение напрямую зависит от прокрутки, без временной анимации и задержки.
+      // Сборку сохраняем при возвращении вверх.
+      furthestFocus = Math.max(furthestFocus, innerHeight * .56 - bounds.top);
+      // Постоянная бледная линия сохраняет связь между всеми этапами.
+      guide.style.left = positions[0].x + radius - 2 + "px";
+      guide.style.top = positions[0].y + "px";
+      guide.style.bottom = "auto";
+      guide.style.height = positions[positions.length - 1].y - positions[0].y + "px";
+      const previousCollected = collected;
+      for (let i = 0; i < pieces.length; i++) {
+        if (positions[i].y <= furthestFocus) collected = Math.max(collected, i + 1);
+      }
+      const firstY = positions[0].y - radius;
+      const finalY = positions[positions.length - 1].y - radius;
+      let y = Math.min(finalY, Math.max(firstY, furthestFocus - radius));
+      if (collected > 0) y = Math.min(finalY, Math.max(y, positions[collected - 1].y - radius));
+      convoy.style.left = positions[0].x + "px";
+      convoy.style.transform = `translateY(${y}px)`;
+      convoy.toggleAttribute("data-active", collected > 0);
+      pieces.forEach((piece, i) => {
+        if (i >= collected) return;
+        piece.hidden = false;
+        const offset = offsets[i];
+        piece.style.transform = `translate(${offset[0]}px,${offset[1]}px) scale(.75)`;
+        anchors[i].setAttribute("data-collected", "");
+      });
+      segments.forEach((segment, i) => {
+        const start = i === collected - 1 ? y + radius * 2 : positions[i].y + radius;
+        const end = positions[i + 1].y - radius;
+        segment.style.display = i >= collected - 1 && end > start ? "block" : "none";
+        segment.style.left = positions[i].x + radius - 2 + "px";
+        segment.style.top = start + "px";
+        segment.style.height = Math.max(0, end - start) + "px";
+      });
+      const complete = collected === pieces.length && y >= finalY;
+      root.toggleAttribute("data-complete", complete);
+      if (collected > previousCollected || (complete && !dockHighlighted)) highlight();
+      if (complete) dockHighlighted = true;
+    };
+    const queue = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(render);
+    };
+    steps.forEach((step) => step.addEventListener("toggle", () => {
+      step.dataset.auto = "1";
+      queue();
+    }));
+    addEventListener("scroll", queue, { passive: true });
+    addEventListener("resize", queue, { passive: true });
+    new ResizeObserver(queue).observe(root);
+    queue();
+  });
+</script>

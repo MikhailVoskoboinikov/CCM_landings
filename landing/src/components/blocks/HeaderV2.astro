@@ -1,0 +1,109 @@
+---
+/* Хедер для согласования на BLS / Узбекистан, включая оба варианта стенда. */
+import { url } from "@/lib/url";
+import HeaderMessengerIcon from "@/components/parts/HeaderMessengerIcon.astro";
+import { COUNTRIES, IMG, MESSENGER_LABEL, type Country, type Course } from "@/data";
+
+interface Props { variant?: "full" | "ad"; country: Country; course: Course; base?: string }
+const { variant = "full", country, course, base = "" } = Astro.props;
+const full = variant === "full";
+const other = Object.values(COUNTRIES).filter((c) => c.id !== country.id);
+const languages = [
+  { code: "RU", name: "Русский" },
+  country.id === "kg" ? { code: "KG", name: "Кыргыз тили" } : { code: "UZ", name: "Oʻzbekcha" },
+  { code: "EN", name: "English" },
+];
+---
+<header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md transition-shadow data-[scrolled]:shadow-[0_6px_24px_-12px_rgba(17,19,23,.18)]" data-header-v2>
+  <div class={`container-l items-center gap-x-3 gap-y-1 py-2 md:gap-4 md:py-1.5 ${full ? "grid grid-cols-[1fr_auto] md:flex" : "flex"}`}>
+    <a href={url(`${base}/${country.id}/${course.id}`)} aria-label="Учебный центр ЦКМ" class="shrink-0">
+      <img src={IMG.logo} alt="Центр корпоративной медицины" class="h-auto w-[112px] sm:w-[124px] md:w-[132px] xl:w-[140px]" width="140" height="63" />
+    </a>
+
+    <div class="flex items-center gap-1.5 md:ml-auto md:gap-3">
+      {full && (
+        <details class="relative [&_summary::-webkit-details-marker]:hidden" data-header-menu>
+          <summary aria-label="Выбрать учебный центр" class="flex min-h-10 cursor-pointer list-none items-center gap-1.5 rounded-full px-2 text-[13px] font-semibold hover:bg-soft sm:px-3">
+            {country.city}
+            <svg viewBox="0 0 24 24" class="size-3.5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+          </summary>
+          <div class="absolute right-0 top-full mt-2 min-w-44 rounded-2xl bg-white p-1.5 shadow-xl ring-1 ring-black/5">
+            {other.map((c) => <a href={url(`${base}/${c.id}/${course.id}`)} class="block rounded-xl px-3 py-2.5 text-sm hover:bg-soft">{c.city}, {c.name}</a>)}
+          </div>
+        </details>
+      )}
+      <details class="relative [&_summary::-webkit-details-marker]:hidden" data-header-menu data-language-menu>
+        <summary aria-label="Выбрать язык" class="flex min-h-10 cursor-pointer list-none items-center gap-1.5 rounded-full px-2 text-[13px] font-semibold hover:bg-soft sm:px-3">
+          <span data-language-code>RU</span>
+          <svg viewBox="0 0 24 24" class="size-3.5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+        </summary>
+        <ul class="absolute right-0 top-full mt-2 w-48 rounded-2xl bg-white p-1.5 shadow-xl ring-1 ring-black/5">
+          {languages.map((lang) => (
+            <li>
+              <button type="button" data-language-placeholder={lang.code} aria-pressed={lang.code === "RU"} class={`flex min-h-11 w-full items-center rounded-xl px-3 py-2.5 text-left text-sm hover:bg-soft focus-visible:bg-soft ${lang.code === "RU" ? "bg-brand-50 font-semibold text-brand" : "text-ink"}`}>
+                {lang.name} ({lang.code})
+              </button>
+            </li>
+          ))}
+        </ul>
+      </details>
+    </div>
+
+    <div class={`${full ? "col-span-2" : "ml-auto"} flex min-w-0 items-center gap-2 md:gap-4`}>
+      {full && (
+        <div class="flex items-center gap-0.5">
+          {country.messengers.map((m) => (
+            <a href={m.href} aria-label={`Связаться в ${MESSENGER_LABEL[m.id]}`} aria-describedby={`header-tooltip-${variant}-${m.id}`} class="group relative grid size-9 shrink-0 place-items-center rounded-full text-ink hover:bg-soft hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
+              <HeaderMessengerIcon id={m.id} />
+              <span id={`header-tooltip-${variant}-${m.id}`} role="tooltip" class="pointer-events-none invisible absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-ink px-3 py-2 text-xs font-medium text-white shadow-lg group-hover:visible group-focus-visible:visible">
+                {MESSENGER_LABEL[m.id]}
+              </span>
+            </a>
+          ))}
+        </div>
+      )}
+      {full && <a href={country.phoneHref} class="hidden whitespace-nowrap text-[15px] font-semibold lg:block">{country.phone}</a>}
+      <button data-lead-open={course.id} class="ml-auto h-11 shrink-0 rounded-full bg-brand px-5 text-[13px] font-semibold text-white transition-colors hover:bg-brand-600 md:ml-0 md:px-6 md:text-sm">Записаться</button>
+    </div>
+  </div>
+</header>
+<script>
+  document.querySelectorAll<HTMLElement>("[data-header-v2]").forEach((header) => {
+    const menus = [...header.querySelectorAll<HTMLDetailsElement>("[data-header-menu]")];
+    const onScroll = () => header.toggleAttribute("data-scrolled", scrollY > 8);
+    onScroll();
+    addEventListener("scroll", onScroll, { passive: true });
+    menus.forEach((menu) => menu.addEventListener("toggle", () => {
+      if (menu.open) menus.filter((other) => other !== menu).forEach((other) => other.open = false);
+    }));
+    document.addEventListener("click", (event) => {
+      if (!header.contains(event.target as Node)) menus.forEach((menu) => menu.open = false);
+    });
+    header.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        const open = menus.find((menu) => menu.open);
+        if (open) { open.open = false; open.querySelector<HTMLElement>("summary")?.focus(); }
+      }
+    });
+    // Меняется только выбранный код: переводы и переходы пока не подключены.
+    header.querySelectorAll<HTMLButtonElement>("[data-language-placeholder]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const menu = button.closest<HTMLDetailsElement>("details");
+        if (menu) {
+          const label = menu.querySelector<HTMLElement>("[data-language-code]");
+          if (label) label.textContent = button.dataset.languagePlaceholder ?? "RU";
+          menu.querySelectorAll<HTMLButtonElement>("[data-language-placeholder]").forEach((option) => {
+            const selected = option === button;
+            option.setAttribute("aria-pressed", String(selected));
+            option.classList.toggle("bg-brand-50", selected);
+            option.classList.toggle("font-semibold", selected);
+            option.classList.toggle("text-brand", selected);
+            option.classList.toggle("text-ink", !selected);
+          });
+          menu.open = false;
+          menu.querySelector<HTMLElement>("summary")?.focus();
+        }
+      });
+    });
+  });
+</script>

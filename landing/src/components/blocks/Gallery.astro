@@ -6,15 +6,16 @@
  * Фото центров конкретной страны добавятся, когда ЦКМ их пришлёт.
  */
 import { IMG, type Course, type ImageKey } from "@/data";
+import ClassGallery from "@/components/parts/ClassGallery.astro";
 
-interface Props { variant?: "carousel" | "mosaic"; course: Course }
-const { variant = "carousel", course } = Astro.props;
+interface Props { variant?: "carousel" | "mosaic"; course: Course; revised?: boolean }
+const { variant = "carousel", course, revised = false } = Astro.props;
 const pics = course.gallery.map((k) => IMG[k as ImageKey]);
 ---
 <section class="py-16 md:py-28">
   <div class="container-l flex items-end justify-between gap-6" data-reveal>
     <h2 class="h-section">Как проходят занятия</h2>
-    {variant === "carousel" && (
+    {variant === "carousel" && !revised && (
       <div class="hidden gap-2 md:flex">
         <button data-gal="-1" aria-label="Назад" class="grid size-12 place-items-center rounded-full bg-soft transition hover:bg-line">←</button>
         <button data-gal="1" aria-label="Вперёд" class="grid size-12 place-items-center rounded-full bg-soft transition hover:bg-line">→</button>
@@ -22,13 +23,15 @@ const pics = course.gallery.map((k) => IMG[k as ImageKey]);
     )}
   </div>
 
-  {variant === "carousel" && (
+  {variant === "carousel" && !revised && (
     <div data-gal-track class="mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-5 px-5 pb-2 [scrollbar-width:none] md:scroll-px-[max(2rem,calc((100vw-1160px)/2+2rem))] md:px-[max(2rem,calc((100vw-1160px)/2+2rem))]">
       {pics.map((src, i) => (
         <img src={src} alt="" loading="lazy" class={`h-[300px] shrink-0 snap-start rounded-3xl object-cover md:h-[440px] ${i % 3 === 0 ? "w-[85%] md:w-[620px]" : "w-[70%] md:w-[380px]"}`} />
       ))}
     </div>
   )}
+
+  {variant === "carousel" && revised && <ClassGallery />}
 
   {variant === "mosaic" && (
     <div class="container-l mt-10 grid auto-rows-[160px] grid-cols-2 gap-3 md:auto-rows-[220px] md:grid-cols-4 md:gap-4">

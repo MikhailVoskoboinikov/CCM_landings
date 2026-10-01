@@ -8,11 +8,23 @@
  */
 import Icon from "@/components/parts/Icon.astro";
 import Rich from "@/components/parts/Rich.astro";
+import ProgramPuzzle from "@/components/parts/ProgramPuzzle.astro";
 import type { Course } from "@/data";
 
-interface Props { variant?: "accordion" | "timeline" | "day"; course: Course }
-const { variant = "accordion", course } = Astro.props;
-const p = course.program;
+interface Props { variant?: "accordion" | "timeline" | "day"; course: Course; revised?: boolean }
+const { variant = "accordion", course, revised = false } = Astro.props;
+const p = revised
+  ? {
+      ...course.program,
+      lead: "Очный курс проводится за один день. Теория, практика на манекенах и экзамен под руководством опытных инструкторов.",
+      sections: course.program.sections.map((section) => ({
+        ...section,
+        title: section.title === "Остановка сердца" ? "Помощь при остановке сердца"
+          : section.title === "Неотложные ситуации" ? "Действия в неотложных ситуациях"
+          : section.title,
+      })),
+    }
+  : course.program;
 const total = p.sections.reduce((n, s) => n + s.items.length, 0);
 const day = [
   { t: "Демонстрация", d: "Инструктор показывает алгоритм целиком, в реальном темпе" },
@@ -34,7 +46,8 @@ const day = [
         </div>
       </div>
 
-      {variant === "accordion" && (
+      {variant === "accordion" && revised && <ProgramPuzzle course={{ ...course, program: p }} />}
+      {variant === "accordion" && !revised && (
         <div class="grid gap-3">
           {p.sections.map((s, i) => (
             <details data-prog-step class="prog-step group rounded-3xl bg-soft transition-colors duration-500 open:bg-white open:shadow-[0_8px_40px_-16px_rgba(17,19,23,.2)] open:ring-1 open:ring-black/5" open={i === 0} data-reveal style={`--reveal-delay:${i * 60}ms`}>

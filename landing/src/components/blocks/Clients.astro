@@ -9,15 +9,20 @@ import Rich from "@/components/parts/Rich.astro";
 import Marquee from "@/components/parts/Marquee.astro";
 import { CLIENTS } from "@/data/about";
 
-interface Props { variant?: "marquee" | "grid" }
-const { variant = "marquee" } = Astro.props;
+interface Props { variant?: "marquee" | "grid"; revised?: boolean }
+const { variant = "marquee", revised = false } = Astro.props;
+const clients = revised ? CLIENTS.map((c) => ({
+  ...c,
+  name: c.name === "Горнодобыча" ? "Горнодобывающая промышленность" : c.name === "Нефтегаз" ? "Нефтегазовая отрасль" : c.name === "Морские суда" ? "Морской транспорт" : c.name,
+  icon: c.icon === "Building2" ? "HardHat" : c.icon,
+})) : CLIENTS;
 const title = "[[Обучаем сотрудников компаний из разных отраслей|Логотипы клиентов и разрешение на их показ — сейчас вместо них отрасли]]";
 ---
 <section class="py-12 md:py-16">
   <div class="container-l">
     <Rich as="h2" class="text-xl font-bold md:text-2xl" text={title} />
   </div>
-  {variant === "marquee" && (
+  {variant === "marquee" && !revised && (
     <Marquee class="mt-8" repeat={2} duration={45}>
       {CLIENTS.map((c) => (
         <div class="mr-3 flex h-16 shrink-0 items-center gap-3 rounded-2xl bg-soft px-6 text-ink-2">
@@ -27,9 +32,25 @@ const title = "[[Обучаем сотрудников компаний из р�
       ))}
     </Marquee>
   )}
+  {variant === "marquee" && revised && (
+    <div class="industry-window mt-8 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]">
+      <div class="industry-track">
+        {[0, 1, 2].map((copy) => (
+          <div class="industry-group" aria-hidden={copy > 0 ? "true" : undefined}>
+            {clients.map((c) => (
+              <div class="flex h-16 shrink-0 items-center gap-3 rounded-2xl bg-soft px-6 text-ink-2">
+                <span class="flex size-6 shrink-0 items-center justify-center text-brand"><Icon name={c.icon} size={24} /></span>
+                <span class="whitespace-nowrap text-[15px] font-semibold tracking-tight">{c.name}</span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
   {variant === "grid" && (
     <div class="container-l mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-      {CLIENTS.map((c) => (
+      {clients.map((c) => (
         <div class="flex h-16 items-center gap-3 rounded-2xl bg-soft px-5 text-ink-2">
           <Icon name={c.icon} size={22} class="shrink-0 text-brand" />
           <span class="text-[15px] font-semibold">{c.name}</span>
@@ -38,3 +59,15 @@ const title = "[[Обучаем сотрудников компаний из р�
     </div>
   )}
 </section>
+
+<style>
+  .industry-track { display:flex; width:max-content; animation:industry-loop 45s linear infinite; }
+  .industry-group { display:flex; flex-shrink:0; gap:12px; padding-right:12px; }
+  .industry-window:hover .industry-track { animation-play-state:paused; }
+  @keyframes industry-loop { to { transform:translateX(-33.3333333333%); } }
+  @media (prefers-reduced-motion:reduce) {
+    .industry-window { overflow-x:auto; }
+    .industry-track { animation:none; }
+    .industry-group[aria-hidden="true"] { display:none; }
+  }
+</style>

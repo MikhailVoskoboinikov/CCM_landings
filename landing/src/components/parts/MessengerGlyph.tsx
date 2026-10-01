@@ -1,0 +1,22 @@
+import type { Messenger } from "@/data/types";
+
+/** Same monochrome shapes as the landing header, usable inside React forms. */
+export function MessengerGlyph({ id, className }: { id: Messenger; className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      {id === "telegram" && <>
+        <circle cx="12" cy="12" r="10" fill="currentColor" />
+        <path fill="#fff" d="M5.5 11.6 17 7.2c.5-.2 1 .1.8.9l-1.9 9.1c-.1.6-.5.8-1 .5l-2.9-2.1-1.4 1.3c-.2.2-.3.3-.6.3l.2-2.9 5.3-4.8c.2-.2 0-.3-.3-.1l-6.6 4.1-2.8-.9c-.6-.2-.6-.6.1-.9z" />
+      </>}
+      {id === "whatsapp" && <>
+        <path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Z" />
+        <path fill="#fff" transform="translate(.45 .15)" d="M9 7.6c-.2-.4-.4-.4-.6-.4H8c-.2 0-.5.1-.7.3-.3.3-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.8 2.8 4.4 3.8 2.2.9 2.6.7 3.1.6.5 0 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.2-.2-.5-.3l-1.7-.8c-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1-.3-.1-1.1-.4-2-1.2-.8-.7-1.3-1.5-1.4-1.7-.2-.3 0-.4.1-.5l.4-.5.2-.4c.1-.2 0-.3 0-.4L9 7.6Z" />
+      </>}
+      {id === "instagram" && <>
+        <rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor" />
+        <circle cx="12" cy="12" r="4.25" fill="none" stroke="#fff" strokeWidth="1.8" />
+        <circle cx="17.25" cy="6.75" r="1.1" fill="#fff" />
+      </>}
+    </svg>
+  );
+}
