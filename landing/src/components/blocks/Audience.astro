@@ -6,34 +6,36 @@
  */
 import Icon from "@/components/parts/Icon.astro";
 import Rich from "@/components/parts/Rich.astro";
+import AudienceIcon from "@/components/parts/AudienceIcon.astro";
+import { BLS_UZ_AUDIENCE } from "@/data/bls-uz";
 import type { Course } from "@/data";
 
-interface Props { variant?: "cards" | "list"; course: Course }
-const { variant = "cards", course } = Astro.props;
-const a = course.audience;
+interface Props { variant?: "cards" | "list"; course: Course; revised?: boolean }
+const { variant = "cards", course, revised = false } = Astro.props;
+const a = revised ? BLS_UZ_AUDIENCE : course.audience;
 ---
 {variant === "cards" && (
   <section class="py-16 md:py-24">
     <div class="container-l">
       <div class="max-w-2xl" data-reveal>
         <h2 class="h-section">{a.title}</h2>
-        <p class="lead-text mt-4"><Rich text={a.lead} /></p>
+        <p class="lead-text mt-4">{revised ? <>Для прохождения курса <strong class="font-semibold">медицинское образование или специальные навыки не требуются</strong> – курс подойдет всем, кто хочет <strong class="font-semibold">быть готовым к экстренной ситуации</strong>.</> : <Rich text={a.lead} />}</p>
       </div>
     </div>
     <div class="mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-5 px-5 pb-2 [scrollbar-width:none] md:container-l md:grid md:grid-cols-4 md:gap-5 md:overflow-visible">
       {a.items.map((it, i) => (
-        <article class="group relative flex w-[76%] shrink-0 snap-start flex-col overflow-hidden rounded-3xl bg-soft p-6 transition-colors hover:bg-brand-50 md:w-auto" data-reveal style={`--reveal-delay:${i * 70}ms`}>
-          <span class="grid size-12 place-items-center rounded-2xl bg-white text-brand shadow-sm transition-transform group-hover:-rotate-6"><Icon name={it.icon} size={24} /></span>
+        <article class="audience-card group relative flex w-[76%] shrink-0 snap-start flex-col overflow-hidden rounded-3xl bg-soft p-6 transition-colors hover:bg-brand-50 md:w-auto" data-reveal style={`--reveal-delay:${i * 70}ms`}>
+          <span class:list={["grid size-12 place-items-center rounded-2xl bg-white text-brand shadow-sm", { "transition-transform group-hover:-rotate-6": !revised }]}>{revised ? <AudienceIcon name={it.icon} size={24} /> : <Icon name={it.icon} size={24} />}</span>
           <h3 class="mt-8 text-lg font-bold leading-snug">{it.title}</h3>
           <p class="mt-2 text-[15px] leading-relaxed text-ink-2"><Rich text={it.text} /></p>
           <span class="pointer-events-none absolute -bottom-6 -right-2 text-[120px] font-bold leading-none text-black/[0.035]">{i + 1}</span>
         </article>
       ))}
     </div>
-    <div class="container-l mt-8 flex flex-wrap gap-2">
+    {!revised && (    <div class="container-l mt-8 flex flex-wrap gap-2">
       <span class="rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-600">{a.note}</span>
       <span class="rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-600">Группы 6–10 человек</span>
-    </div>
+    </div>)}
   </section>
 )}
 
@@ -42,16 +44,16 @@ const a = course.audience;
     <div class="container-l grid gap-10 md:grid-cols-[.9fr_1.1fr] md:gap-20">
       <div data-reveal>
         <h2 class="h-section">{a.title}</h2>
-        <p class="mt-5 text-2xl font-semibold leading-snug md:text-[30px]"><Rich text={a.lead} /></p>
-        <div class="mt-8 flex gap-6">
+        <p class="mt-5 text-2xl font-semibold leading-snug md:text-[30px]">{revised ? <>Для прохождения курса <strong class="font-semibold">медицинское образование или специальные навыки не требуются</strong> – курс подойдет всем, кто хочет <strong class="font-semibold">быть готовым к экстренной ситуации</strong>.</> : <Rich text={a.lead} />}</p>
+        {!revised && (        <div class="mt-8 flex gap-6">
           <div><p class="text-4xl font-bold text-brand">6–10</p><p class="text-sm text-ink-2">человек в группе</p></div>
           <div><p class="text-4xl font-bold text-brand">0</p><p class="text-sm text-ink-2">требований к образованию</p></div>
-        </div>
+        </div>)}
       </div>
       <ul class="grid gap-2">
         {a.items.map((it, i) => (
-          <li class="flex gap-4 rounded-2xl p-4 transition-colors hover:bg-soft md:p-5" data-reveal style={`--reveal-delay:${i * 70}ms`}>
-            <span class="grid size-11 shrink-0 place-items-center rounded-full bg-brand text-white"><Icon name={it.icon} size={20} /></span>
+          <li class="audience-card flex gap-4 rounded-2xl p-4 transition-colors hover:bg-soft md:p-5" data-reveal style={`--reveal-delay:${i * 70}ms`}>
+            <span class="grid size-11 shrink-0 place-items-center rounded-full bg-brand text-white">{revised ? <AudienceIcon name={it.icon} size={20} /> : <Icon name={it.icon} size={20} />}</span>
             <div>
               <h3 class="text-lg font-bold">{it.title}</h3>
               <p class="mt-1 text-[15px] text-ink-2"><Rich text={it.text} /></p>

@@ -43,3 +43,20 @@ export const DEFAULTS: Record<string, string> = {
   faq: "list",
   lead: "form",
 };
+
+/** Правки сначала проверяются на BLS / Узбекистан, остальные страницы сохраняют текущую схему. */
+export function getPageLayout(country: string, course: string) {
+  if (country !== "uz" || course !== "bls") return { blocks: BLOCKS, defaults: DEFAULTS };
+
+  const skills: BlockDef = { id: "skills", label: "Чему вы научитесь", variants: [["cards", "6 карточек"]] };
+  const organizations: BlockDef = { id: "organizations", label: "Для организаций", variants: [["compact", "Компактный блок"]] };
+
+  return {
+    blocks: BLOCKS.flatMap((block) => {
+      if (block.id === "program") return [skills, block];
+      if (block.id === "lead") return [block, organizations];
+      return [block];
+    }),
+    defaults: { ...DEFAULTS, skills: "cards", organizations: "compact" } as Record<string, string>,
+  };
+}

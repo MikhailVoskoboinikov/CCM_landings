@@ -6,6 +6,7 @@
  *  chat — вопросы и ответы в виде переписки
  */
 import Icon from "@/components/parts/Icon.astro";
+import FaqContact from "@/components/parts/FaqContact.astro";
 import Rich from "@/components/parts/Rich.astro";
 import { BrandIcon, MESSENGER_COLOR } from "@/components/parts/BrandIcon";
 import { MESSENGER_LABEL, type Country, type Course } from "@/data";
@@ -14,6 +15,7 @@ import { priceText } from "@/lib/price";
 
 interface Props { variant?: "list" | "chat"; course: Course; country: Country }
 const { variant = "list", course, country } = Astro.props;
+const revised = country.id === "uz" && course.id === "bls";
 const chats = country.messengers.filter((m) => m.id !== "instagram");
 const faq: [string, string][] = [
   course.faq[0],
@@ -21,7 +23,7 @@ const faq: [string, string][] = [
   ...course.faq.slice(1),
 ];
 ---
-<section class="py-16 md:py-28" id="faq">
+<section class="py-16 md:py-28" id="faq" data-faq-revised={revised ? "true" : undefined}>
   <div class="container-l">
     {variant === "list" && (
       <div class="grid gap-10 md:grid-cols-[1.4fr_.6fr] md:gap-14">
@@ -29,18 +31,19 @@ const faq: [string, string][] = [
           <h2 class="h-section" data-reveal>Частые вопросы</h2>
           <div class="mt-8">
             {faq.map(([q, a], i) => (
-              <details class="group py-1" open={i === 0}>
+              <details class="group py-1" open={i === 0} data-faq-item={revised ? "true" : undefined}>
                 <summary class="flex cursor-pointer list-none items-center justify-between gap-6 py-4 text-lg font-semibold [&::-webkit-details-marker]:hidden">
                   {q}
                   <span class="grid size-9 shrink-0 place-items-center rounded-full bg-soft transition-transform group-open:rotate-45 group-open:bg-brand-50 group-open:text-brand"><Icon name="Plus" size={18} /></span>
                 </summary>
-                <p class="pb-4 pr-12 text-[16px] leading-relaxed text-ink-2"><Rich text={a} /></p>
+                <div data-faq-answer class="overflow-hidden"><p class="pb-4 pr-12 text-[16px] leading-relaxed text-ink-2"><Rich text={a} /></p></div>
               </details>
             ))}
           </div>
         </div>
 
         <aside class="md:sticky md:top-28 md:self-start" data-reveal>
+          {revised ? <FaqContact country={country} /> : (
           <div class="overflow-hidden rounded-[28px] bg-white shadow-[0_20px_60px_-24px_rgba(17,19,23,.28)] ring-1 ring-black/5">
             <div class="bg-gradient-to-br from-brand-50 to-white p-6 pb-5">
               <div class="flex items-center gap-3">
@@ -68,6 +71,7 @@ const faq: [string, string][] = [
               </a>
             </div>
           </div>
+          )}
         </aside>
       </div>
     )}
@@ -94,3 +98,37 @@ const faq: [string, string][] = [
     )}
   </div>
 </section>
+
+<script>
+  document.querySelectorAll<HTMLDetailsElement>("[data-faq-revised] [data-faq-item]").forEach((details) => {
+    const summary = details.querySelector("summary");
+    const answer = details.querySelector<HTMLElement>("[data-faq-answer]");
+    if (!summary || !answer) return;
+    let targetOpen = details.open;
+    let animation: Animation | undefined;
+    summary.addEventListener("click", (event) => {
+      event.preventDefault();
+      targetOpen = !targetOpen;
+      const from = details.open ? answer.getBoundingClientRect().height : 0;
+      animation?.cancel();
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        details.open = targetOpen;
+        answer.style.height = "";
+        return;
+      }
+      details.open = true;
+      answer.style.height = `${from}px`;
+      const to = targetOpen ? answer.scrollHeight : 0;
+      animation = answer.animate(
+        [{ height: `${from}px` }, { height: `${to}px` }],
+        { duration: 280, easing: "cubic-bezier(.25,.1,.25,1)", fill: "forwards" },
+      );
+      animation.onfinish = () => {
+        details.open = targetOpen;
+        answer.style.height = "";
+        animation?.cancel();
+        animation = undefined;
+      };
+    });
+  });
+</script>

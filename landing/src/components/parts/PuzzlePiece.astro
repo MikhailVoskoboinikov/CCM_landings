@@ -1,0 +1,14 @@
+---
+interface Props { index: number }
+const { index } = Astro.props;
+/* Внешний контур собранного квадрата ровный, соединения только внутри. */
+const paths = [
+  "M4 0H28V8C28 8 21 6 21 12C21 18 28 16 28 16V28H20C20 28 22 35 16 35C10 35 12 28 12 28H0V4Q0 0 4 0Z",
+  "M0 0H24Q28 0 28 4V28H20C20 28 22 21 16 21C10 21 12 28 12 28H0V16C0 16 -7 18 -7 12C-7 6 0 8 0 8V0Z",
+  "M0 0H12C12 0 10 7 16 7C22 7 20 0 20 0H28V12C28 12 35 10 35 16C35 22 28 20 28 20V28H4Q0 28 0 24V0Z",
+  "M0 0H12C12 0 10 -7 16 -7C22 -7 20 0 20 0H28V24Q28 28 24 28H0V20C0 20 7 22 7 16C7 10 0 12 0 12V0Z",
+];
+---
+<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="-7 -7 42 42" fill="white" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <path d={paths[index]} />
+</svg>

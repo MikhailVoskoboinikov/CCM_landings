@@ -9,12 +9,15 @@
 import Icon from "@/components/parts/Icon.astro";
 import Rich from "@/components/parts/Rich.astro";
 import CertificateDoc from "@/components/parts/CertificateDoc.astro";
+import CertificateTemplate from "@/components/parts/CertificateTemplate.astro";
+import AudienceIcon from "@/components/parts/AudienceIcon.astro";
+import { BLS_UZ_CERTIFICATE } from "@/data/bls-uz";
 import Tilt from "@/components/parts/Tilt";
 import type { Course } from "@/data";
 
-interface Props { variant?: "anatomy" | "tilt" | "path"; course: Course }
-const { variant = "anatomy", course } = Astro.props;
-const c = course.certificate;
+interface Props { variant?: "anatomy" | "tilt" | "path"; course: Course; revised?: boolean }
+const { variant = "anatomy", course, revised = false } = Astro.props;
+const c = revised ? { ...course.certificate, ...BLS_UZ_CERTIFICATE } : course.certificate;
 const steps = [
   { icon: "Hand", title: "Курс", text: "Один день практики в малой группе" },
   { icon: "BadgeCheck", title: c.kind === "erc" ? "Экзамен по стандарту ERC" : "Итоговая оценка навыков", text: "Инструктор проверяет каждый навык на манекене" },
@@ -29,10 +32,12 @@ const steps = [
     <div class="container-l relative" data-cert-anatomy>
       <div class="max-w-2xl" data-reveal>
         <h2 class="h-section">{c.title}</h2>
-        <p class="lead-text mt-4"><Rich text={c.lead} /></p>
+        {!revised && <p class="lead-text mt-4"><Rich text={c.lead} /></p>}
       </div>
-      <div class="mt-12 grid items-center gap-10 md:grid-cols-[1.15fr_.85fr] md:gap-14">
-        <div data-reveal><CertificateDoc course={course} hotspots /></div>
+      <div class:list={["mt-12 grid gap-10 md:grid-cols-[1.15fr_.85fr] md:gap-14", revised ? "items-start" : "items-center"]}>
+        <div data-reveal>{revised ? <CertificateTemplate hotspots /> : <CertificateDoc course={course} hotspots />}</div>
+        <div>
+          {revised && <p class="lead-text mb-6" data-reveal><Rich text={c.lead} /></p>}
         <ol class="grid gap-2">
           {c.anatomy.map((a, i) => (
             <li data-anatomy={i + 1} class="flex cursor-default gap-4 rounded-2xl p-4 transition-colors hover:bg-white data-[on]:bg-white data-[on]:shadow-sm" data-reveal style={`--reveal-delay:${i * 70}ms`}>
@@ -44,9 +49,18 @@ const steps = [
             </li>
           ))}
         </ol>
+        </div>
       </div>
       <div class="mt-12 grid gap-4 sm:grid-cols-3">
-        {c.useful.map((u) => (
+        {c.useful.map((u) => revised ? (
+          <article class="audience-card flex flex-col gap-4 rounded-3xl bg-white p-6 transition-colors hover:bg-brand-50 sm:row-span-2 sm:grid sm:grid-rows-subgrid" data-reveal>
+            <div class="flex items-center gap-3">
+              <span class="grid size-12 shrink-0 place-items-center rounded-2xl bg-soft text-brand"><AudienceIcon name={u.icon} size={24} /></span>
+              <h3 class="min-w-0 text-base font-bold leading-snug">{u.title}</h3>
+            </div>
+            <p class="text-[15px] leading-relaxed text-ink-2"><Rich text={u.text} /></p>
+          </article>
+        ) : (
           <div class="flex gap-3 rounded-2xl bg-white p-5" data-reveal>
             <Icon name={u.icon} class="mt-0.5 shrink-0 text-brand" />
             <div><h3 class="font-bold">{u.title}</h3><p class="mt-1 text-[15px] text-ink-2"><Rich text={u.text} /></p></div>
@@ -59,7 +73,7 @@ const steps = [
   {variant === "tilt" && (
     <div class="container-l relative grid items-center gap-12 md:grid-cols-2 md:gap-16">
       <div class="mx-auto w-full max-w-[540px]" data-reveal>
-        <Tilt client:visible><CertificateDoc course={course} /></Tilt>
+        <Tilt client:visible>{revised ? <CertificateTemplate /> : <CertificateDoc course={course} />}</Tilt>
         <p class="mt-6 flex items-center justify-center gap-2 text-sm text-ink-2"><Icon name="ShieldCheck" size={18} class="text-brand" /><Rich text={c.verify} /></p>
       </div>
       <div>
@@ -68,8 +82,8 @@ const steps = [
         <h3 class="mt-10 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Где пригодится</h3>
         <ul class="mt-4 grid gap-3">
           {c.useful.map((u, i) => (
-            <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-[0_2px_20px_-8px_rgba(17,19,23,.12)]" data-reveal style={`--reveal-delay:${i * 80}ms`}>
-              <span class="grid size-11 shrink-0 place-items-center rounded-full bg-brand-50 text-brand"><Icon name={u.icon} size={20} /></span>
+            <li class="audience-card flex gap-4 rounded-2xl bg-white p-5 shadow-[0_2px_20px_-8px_rgba(17,19,23,.12)]" data-reveal style={`--reveal-delay:${i * 80}ms`}>
+              <span class="grid size-11 shrink-0 place-items-center rounded-full bg-brand-50 text-brand">{revised ? <AudienceIcon name={u.icon} size={24} /> : <Icon name={u.icon} size={20} />}</span>
               <div><h4 class="font-bold">{u.title}</h4><p class="mt-0.5 text-[15px] text-ink-2"><Rich text={u.text} /></p></div>
             </li>
           ))}
@@ -84,7 +98,7 @@ const steps = [
         <h2 class="h-section">{c.title}</h2>
         <p class="lead-text mt-4"><Rich text={c.lead} /></p>
       </div>
-      <div class="mx-auto mt-12 max-w-[560px]" data-reveal><CertificateDoc course={course} /></div>
+      <div class="mx-auto mt-12 max-w-[560px]" data-reveal>{revised ? <CertificateTemplate /> : <CertificateDoc course={course} />}</div>
       <ol class="relative mt-14 grid gap-8 md:grid-cols-4 md:gap-6">
         <span class="absolute left-[22px] top-2 h-[calc(100%-16px)] w-0.5 bg-brand/25 md:left-0 md:top-[22px] md:h-0.5 md:w-full" aria-hidden="true"></span>
         {steps.map((s, i) => (
@@ -114,7 +128,11 @@ const steps = [
       it.addEventListener("pointerenter", () => light(it.dataset.anatomy!));
       it.addEventListener("click", () => light(it.dataset.anatomy!));
     });
-    root.querySelectorAll<HTMLElement>("[data-spot]").forEach((s) => s.addEventListener("click", () => light(s.dataset.spot!)));
+    root.querySelectorAll<HTMLElement>("[data-spot]").forEach((s) => {
+      s.addEventListener("pointerenter", () => light(s.dataset.spot!));
+      s.addEventListener("focus", () => light(s.dataset.spot!));
+      s.addEventListener("click", () => light(s.dataset.spot!));
+    });
     root.addEventListener("pointerleave", () => light(null));
   });
 </script>

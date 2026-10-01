@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BrandIcon } from "@/components/parts/BrandIcon";
+import { MessengerGlyph } from "@/components/parts/MessengerGlyph";
 import { attributionPayload } from "@/lib/attribution";
 import { cn } from "@/lib/utils";
 import type { Country, Messenger } from "@/data/types";
@@ -39,6 +40,7 @@ function formatPhone(digits: string, mask: string) {
 const maskLength = (mask: string) => mask.split("").filter((c) => c === "_").length;
 
 export function LeadForm({ country, courses, courseId, compact, onDone }: LeadFormProps) {
+  const revised = country.id === "uz" && courseId === "bls";
   const [name, setName] = useState("");
   const [digits, setDigits] = useState("");
   const [course, setCourse] = useState(courseId);
@@ -168,7 +170,7 @@ export function LeadForm({ country, courses, courseId, compact, onDone }: LeadFo
                 contact === c.id ? "border-brand bg-brand-50 text-brand-600" : "border-input text-ink-2 hover:border-ink-2/40",
               )}
             >
-              {c.id === "call" ? <Phone className="size-5" /> : <BrandIcon id={c.id} className="size-5" />}
+              {c.id === "call" ? <Phone className="size-5" /> : revised ? <MessengerGlyph id={c.id} className="size-6 text-brand" /> : <BrandIcon id={c.id} className="size-5" />}
               {c.label}
             </button>
           ))}
@@ -178,7 +180,7 @@ export function LeadForm({ country, courses, courseId, compact, onDone }: LeadFo
         {state === "sending" ? "Отправляем…" : "Оставить заявку"}
       </Button>
       {state === "error" && <p className="text-sm text-destructive">Не получилось отправить. Позвоните нам: {country.phone}</p>}
-      <p className="text-xs leading-relaxed text-muted-foreground">Нажимая кнопку, вы соглашаетесь на обработку персональных данных.</p>
+      <p className="text-xs leading-relaxed text-muted-foreground">Нажимая кнопку, вы соглашаетесь на обработку {revised ? <a href="#" onClick={(event) => event.preventDefault()} className="underline underline-offset-2 transition-colors hover:text-brand">персональных данных</a> : "персональных данных"}.</p>
     </form>
   );
 }

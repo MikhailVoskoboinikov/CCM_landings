@@ -1,0 +1,53 @@
+---
+import { IMG, type ImageKey } from "@/data";
+import Icon from "./Icon.astro";
+const keys: ImageKey[] = ["manikin", "aed", "team", "scenario", "airway", "bag", "clinical", "event", "bandage", "choking"];
+const pics = keys.map((key) => IMG[key]);
+---
+<div class="container-l mt-10" data-timed-carousel>
+  <div class="class-gallery-layout">
+    <div class="min-w-0">
+      <div data-carousel-main class="relative aspect-[4/3] overflow-hidden rounded-3xl">
+        {pics.map((src, i) => (
+          <img data-carousel-panel hidden={i !== 0} src={src} alt={`Фотография с занятия — ${i + 1}`} loading={i === 0 ? "eager" : "lazy"} class="absolute inset-0 size-full object-cover" />
+        ))}
+      </div>
+      <div class="mt-4 h-1.5 overflow-hidden rounded-full bg-line" aria-hidden="true">
+        <div data-carousel-progress class="h-full origin-left rounded-full bg-brand" style="transform:scaleX(0)"></div>
+      </div>
+      <div class="mt-4 flex items-center justify-end gap-4">
+        <div class="flex gap-2">
+          <button type="button" data-carousel-step="-1" aria-label="Предыдущая фотография" class="grid size-11 place-items-center rounded-full bg-soft text-ink transition hover:bg-brand-50 hover:text-brand"><Icon name="ChevronLeft" size={22} /></button>
+          <button type="button" data-carousel-step="1" aria-label="Следующая фотография" class="grid size-11 place-items-center rounded-full bg-soft text-ink transition hover:bg-brand-50 hover:text-brand"><Icon name="ChevronRight" size={22} /></button>
+        </div>
+      </div>
+    </div>
+    <div class="class-gallery-previews" aria-label="Выберите фотографию">
+      {pics.map((src, i) => (
+        <button type="button" data-carousel-choice data-active={String(i === 0)} aria-pressed={String(i === 0)} aria-label={`Показать фотографию ${i + 1}`} class="class-gallery-preview">
+          <img src={src} alt="" loading="lazy" class="size-full object-cover" />
+        </button>
+      ))}
+    </div>
+  </div>
+</div>
+<style>
+  .class-gallery-layout { display:grid; gap:24px; }
+  .class-gallery-previews { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; align-content:start; }
+  .class-gallery-preview { aspect-ratio:4/3; min-width:0; overflow:hidden; border-radius:14px; border:2px solid transparent; padding:3px; background:var(--soft); transition:border-color .2s,opacity .2s; }
+  .class-gallery-preview img { border-radius:9px; }
+  .class-gallery-preview[data-active="true"] { border-color:var(--brand); }
+  .class-gallery-preview:hover { border-color:var(--brand); }
+  .class-gallery-preview:focus-visible { outline:2px solid var(--brand); outline-offset:3px; }
+  [data-carousel-panel][hidden] { display:none; }
+  @media (min-width:768px) {
+    .class-gallery-layout { grid-template-columns:minmax(0,2.2fr) minmax(0,1fr); }
+    .class-gallery-previews { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .class-gallery-preview { aspect-ratio:16/9; }
+  }
+</style>
+<script>
+  import { initTimedCarousels } from "@/lib/timed-carousel";
+  initTimedCarousels();
+  document.addEventListener("astro:page-load", initTimedCarousels);
+</script>

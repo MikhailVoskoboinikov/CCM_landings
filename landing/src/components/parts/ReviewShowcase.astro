@@ -1,0 +1,53 @@
+---
+import Icon from "./Icon.astro";
+import Rich from "./Rich.astro";
+import { REVIEWS, REVIEWS_ARE_SAMPLES } from "@/data/about";
+const mark = (text: string) => REVIEWS_ARE_SAMPLES ? `[[${text}|Пример отзыва для макета — нужен реальный текст, имя и согласие автора]]` : text;
+---
+<div class="container-l mt-7">
+  <div data-timed-carousel class="review-showcase mx-auto max-w-[960px] overflow-hidden rounded-3xl border border-line bg-white p-5 md:p-7">
+    <div data-carousel-main class="review-stage">
+      <span class="block h-8 text-[56px] leading-none font-bold text-brand" aria-hidden="true">“</span>
+      <div class="review-panels mt-3">
+        {REVIEWS.map((review, i) => (
+          <article data-carousel-panel hidden={i !== 0}>
+            <blockquote><Rich as="p" class="text-base leading-relaxed font-normal text-ink md:text-lg" text={mark(review.text)} /></blockquote>
+            <div class="mt-5 flex items-center gap-3">
+              <span class="grid size-12 shrink-0 place-items-center rounded-full bg-brand-50 text-lg font-bold text-brand" aria-hidden="true">{review.name[0]}</span>
+              <div class="min-w-0">
+                <Rich as="p" class="font-bold text-ink" text={mark(review.name)} />
+                <Rich as="p" class="mt-1 text-sm leading-relaxed text-ink-2" text={mark(review.who)} />
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+    <div class="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-4">
+      <div class="flex items-center gap-2" aria-label="Выберите отзыв">
+        {REVIEWS.map((review, i) => (
+          <button type="button" data-carousel-choice data-active={String(i === 0)} aria-pressed={String(i === 0)} aria-label={`Отзыв ${i + 1}: ${review.name}`} class="review-author grid size-10 place-items-center rounded-full bg-soft text-sm font-semibold text-ink-2">{review.name[0]}</button>
+        ))}
+      </div>
+      <div class="flex items-center gap-2">
+        <button type="button" data-carousel-step="-1" aria-label="Предыдущий отзыв" class="grid size-10 place-items-center rounded-full bg-soft transition hover:bg-brand-50 hover:text-brand"><Icon name="ChevronLeft" size={20} /></button>
+        <button type="button" data-carousel-step="1" aria-label="Следующий отзыв" class="grid size-10 place-items-center rounded-full bg-soft transition hover:bg-brand-50 hover:text-brand"><Icon name="ChevronRight" size={20} /></button>
+      </div>
+    </div>
+    <div class="mt-4 h-1 overflow-hidden rounded-full bg-line" aria-hidden="true"><div data-carousel-progress class="h-full origin-left rounded-full bg-brand" style="transform:scaleX(0)"></div></div>
+  </div>
+</div>
+<style>
+  .review-panels { display:grid; }
+  [data-carousel-panel] { grid-area:1 / 1; }
+  [data-carousel-panel][hidden] { display:block; visibility:hidden; pointer-events:none; }
+  .review-author { border:2px solid transparent; transition:border-color .2s,color .2s,background .2s; }
+  .review-author[data-active="true"] { border-color:var(--brand); background:var(--brand-50); color:var(--brand); }
+  .review-author:hover { color:var(--brand); }
+  .review-author:focus-visible { outline:2px solid var(--brand); outline-offset:3px; }
+</style>
+<script>
+  import { initTimedCarousels } from "@/lib/timed-carousel";
+  initTimedCarousels();
+  document.addEventListener("astro:page-load", initTimedCarousels);
+</script>
