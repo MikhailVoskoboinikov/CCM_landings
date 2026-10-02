@@ -9,7 +9,6 @@ const p = course.program;
 const offsets = [[6, 6], [27, 6], [6, 27], [27, 27]];
 ---
 <div class="puzzle-program" data-puzzle-program>
-  <span class="puzzle-guide" aria-hidden="true"></span>
   {p.sections.map((_, i) => <span class="puzzle-segment" data-puzzle-segment={i} aria-hidden="true"></span>)}
   <div class="puzzle-convoy" data-puzzle-convoy aria-hidden="true">
     {p.sections.map((_, i) => <span class="puzzle-moving-piece" data-moving-piece={i} hidden><PuzzlePiece index={i} /></span>)}
@@ -19,15 +18,12 @@ const offsets = [[6, 6], [27, 6], [6, 27], [27, 27]];
       <span class="puzzle-anchor" data-puzzle-anchor={i} aria-hidden="true">
         <span class="puzzle-source" data-puzzle-source={i}><span class="puzzle-source-piece" style={`transform:translate(${offsets[i][0]}px,${offsets[i][1]}px) scale(.75)`}><PuzzlePiece index={i} /></span></span>
       </span>
-      <details class="puzzle-step group rounded-3xl bg-soft transition-colors duration-500 open:bg-white open:shadow-[0_8px_40px_-16px_rgba(17,19,23,.2)] open:ring-1 open:ring-black/5" data-puzzle-step open={i === 0}>
-        <summary class="flex cursor-pointer list-none items-center gap-3 p-4 md:gap-4 md:p-6 [&::-webkit-details-marker]:hidden">
-          <span class="flex-1 text-lg font-bold md:text-xl">{s.title}</span>
-          <span class="grid size-9 shrink-0 place-items-center rounded-full bg-white transition-transform group-open:rotate-45 group-open:bg-brand-50 group-open:text-brand"><Icon name="Plus" size={18} /></span>
-        </summary>
-        <ul class="grid gap-2.5 px-4 pb-5 md:px-6 md:pb-6">
+      <article class="puzzle-step rounded-3xl bg-white p-4 shadow-[0_8px_40px_-16px_rgba(17,19,23,.2)] ring-1 ring-black/5 md:p-6">
+        <h3 class="text-lg font-bold md:text-xl">{s.title}</h3>
+        <ul class="mt-5 grid gap-2.5">
           {s.items.map((item) => <li class="flex gap-3 text-[15.5px] leading-relaxed text-ink-2"><Icon name="Check" size={18} class="mt-1 shrink-0 text-brand" />{item}</li>)}
         </ul>
-      </details>
+      </article>
     </div>
   ))}
   <div class="puzzle-row">
@@ -54,11 +50,8 @@ const offsets = [[6, 6], [27, 6], [6, 27], [27, 27]];
   .puzzle-dock-piece, .puzzle-moving-piece, .puzzle-source-piece { position: absolute; left: 0; top: 0; width: 42px; height: 42px; transform-origin: 0 0; }
   .puzzle-convoy { position: absolute; top: 0; z-index: 4; display: none; width: 64px; height: 64px; border-radius: 50%; background: var(--brand-50); color: var(--brand); pointer-events: none; will-change: transform; }
   .puzzle-convoy[data-active] { display: block; }
-  .puzzle-guide, .puzzle-segment { position: absolute; width: 4px; pointer-events: none; background: radial-gradient(circle, var(--brand) 1.5px, transparent 1.7px) center top / 4px 10px repeat-y; opacity: .4; }
-  .puzzle-guide { left: calc(var(--puzzle-rail) / 2 - 2px); top: 39px; bottom: 39px; }
+  .puzzle-segment { position: absolute; width: 4px; pointer-events: none; background: radial-gradient(circle, var(--brand) 1.5px, transparent 1.7px) center top / 4px 10px repeat-y; opacity: .4; }
   .puzzle-segment { display: none; }
-  .is-enhanced .puzzle-guide { display: block; opacity: .14; }
-  .is-enhanced .puzzle-segment { display: block; }
   .is-enhanced [data-collected] .puzzle-source { opacity: .35; }
   .is-enhanced [data-collected] .puzzle-source::before { background: var(--brand-100); border-color: transparent; }
   .is-enhanced .puzzle-dock-preview { opacity: .2; }
@@ -69,21 +62,17 @@ const offsets = [[6, 6], [27, 6], [6, 27], [27, 27]];
   document.querySelectorAll<HTMLElement>("[data-puzzle-program]").forEach((root) => {
     if (root.dataset.ready) return;
     root.dataset.ready = "1";
-    const steps = [...root.querySelectorAll<HTMLDetailsElement>("[data-puzzle-step]")];
     const anchors = [...root.querySelectorAll<HTMLElement>("[data-puzzle-anchor]")];
     const segments = [...root.querySelectorAll<HTMLElement>("[data-puzzle-segment]")];
     const pieces = [...root.querySelectorAll<HTMLElement>("[data-moving-piece]")];
     const convoy = root.querySelector<HTMLElement>("[data-puzzle-convoy]")!;
-    const guide = root.querySelector<HTMLElement>(".puzzle-guide")!;
     const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const offsets = [[6, 6], [27, 6], [6, 27], [27, 27]];
     const radius = 32;
-    steps.forEach((step) => step.open && (step.dataset.auto = "1"));
     if (!reduceMotion) root.classList.add("is-enhanced");
     let furthestFocus = -Infinity;
     let collected = 0;
     let queued = false;
-    let lastOpen = -Infinity;
     let completionFlash: Animation | null = null;
     let dockHighlighted = false;
     const highlight = () => {
@@ -99,16 +88,6 @@ const offsets = [[6, 6], [27, 6], [6, 27], [27, 27]];
 
     const render = () => {
       queued = false;
-      for (let i = 1; i < steps.length; i++) {
-        if (steps[i].dataset.auto) continue;
-        if (steps[i - 1].open && steps[i - 1].getBoundingClientRect().bottom < innerHeight * .6 && performance.now() - lastOpen >= 450) {
-          steps[i].dataset.auto = "1";
-          steps[i].open = true;
-          lastOpen = performance.now();
-          setTimeout(queue, 470);
-        }
-        break;
-      }
       if (reduceMotion) return;
       const bounds = root.getBoundingClientRect();
       const positions = anchors.map((anchor) => {
@@ -118,11 +97,6 @@ const offsets = [[6, 6], [27, 6], [6, 27], [27, 27]];
       // Положение напрямую зависит от прокрутки, без временной анимации и задержки.
       // Сборку сохраняем при возвращении вверх.
       furthestFocus = Math.max(furthestFocus, innerHeight * .56 - bounds.top);
-      // Постоянная бледная линия сохраняет связь между всеми этапами.
-      guide.style.left = positions[0].x + radius - 2 + "px";
-      guide.style.top = positions[0].y + "px";
-      guide.style.bottom = "auto";
-      guide.style.height = positions[positions.length - 1].y - positions[0].y + "px";
       const previousCollected = collected;
       for (let i = 0; i < pieces.length; i++) {
         if (positions[i].y <= furthestFocus) collected = Math.max(collected, i + 1);
@@ -144,7 +118,8 @@ const offsets = [[6, 6], [27, 6], [6, 27], [27, 27]];
       segments.forEach((segment, i) => {
         const start = i === collected - 1 ? y + radius * 2 : positions[i].y + radius;
         const end = positions[i + 1].y - radius;
-        segment.style.display = i >= collected - 1 && end > start ? "block" : "none";
+        segment.style.display = end > start ? "block" : "none";
+        segment.style.opacity = i < collected - 1 ? ".14" : ".4";
         segment.style.left = positions[i].x + radius - 2 + "px";
         segment.style.top = start + "px";
         segment.style.height = Math.max(0, end - start) + "px";
@@ -159,10 +134,6 @@ const offsets = [[6, 6], [27, 6], [6, 27], [27, 27]];
       queued = true;
       requestAnimationFrame(render);
     };
-    steps.forEach((step) => step.addEventListener("toggle", () => {
-      step.dataset.auto = "1";
-      queue();
-    }));
     addEventListener("scroll", queue, { passive: true });
     addEventListener("resize", queue, { passive: true });
     new ResizeObserver(queue).observe(root);
