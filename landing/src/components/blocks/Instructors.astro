@@ -1,89 +1,80 @@
 ---
 /*
  * Инструкторы. Варианты:
- *  carousel — на телефоне лента, листается пальцем; на широком экране — ряд по центру
- *  lead     — один инструктор крупно и остальные списком
- * Сейчас — команда «Альфамедтренинга» как пример; для каждой страны нужен свой состав.
+ *  lead — ведущий инструктор курса крупно, остальные компактным списком
+ *  grid — все инструкторы сеткой: 2 в ряд на телефоне, без горизонтальной прокрутки
+ * Состав — data/about.ts: в Бишкеке реальные инструкторы, для Ташкента пока пример
+ * команды «Альфамедтренинга» с пометкой.
  */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
 import Rich from "@/components/parts/Rich.astro";
-import { INSTRUCTORS } from "@/data/about";
+import { instructorsFor, type Instructor } from "@/data/about";
+import type { Country, Course } from "@/data";
 
-interface Props { variant?: "carousel" | "lead"; revised?: boolean }
-const { variant = "carousel", revised = false } = Astro.props;
-const instructors = revised ? INSTRUCTORS.slice(0, 4) : INSTRUCTORS;
-const topics = [
-  "Распознавание остановки сердца, компрессии грудной клетки",
-  "Работа с AED, последовательность действий при остановке сердца",
-  "Базовая реанимация детей и младенцев",
-  "Помощь при удушье, безопасное боковое положение",
-];
-const sampleTopics = (index: number) => `[[${topics[index]}|Пример тем для макета. Подтвердить распределение тем между инструкторами и состав команды Ташкента]]`;
-const [first, ...rest] = instructors;
+interface Props { variant?: "lead" | "grid"; course: Course; country: Country }
+const { variant = "lead", course, country } = Astro.props;
+const { list, sample } = instructorsFor(country.id, course.id);
+const [first, ...rest] = list;
+const lead = sample
+  ? `[[Врачи и фельдшеры, которые сами работают в экстренной медицине|Показана команда «Альфамедтренинга» (Россия) как пример. Нужен состав инструкторов ${country.city === "Ташкент" ? "Ташкента" : "Бишкека"} для курса «${course.name}» с фото]]`
+  : "Врачи, которые сами работают в экстренной медицине";
+const src = (p: Instructor) => p.img;
 ---
-<section class="py-16 md:py-28" id="instructors">
+<section class="py-14 md:py-24" id="instructors">
   <div class="container-l">
     <div class="max-w-2xl" data-reveal>
-      <h2 class="h-section">Инструкторы</h2>
-      <Rich as="p" class="lead-text mt-4" text="[[Врачи и фельдшеры, которые сами работают в экстренной медицине и прошли аттестацию инструкторов|Сейчас показана команда «Альфамедтренинга» (Россия). Нужен состав инструкторов Ташкента и Бишкека с фото]]." />
+      <h2 class="h-section">{sample ? "Инструкторы" : list.length > 1 ? "Курс ведут врачи" : "Курс ведёт врач"}</h2>
+      <Rich as="p" class="lead-text mt-3" text={lead} />
     </div>
-  </div>
 
-  {variant === "carousel" && revised && (
-    <div class="container-l mt-10 grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
-      {instructors.map((p, i) => (
-        <article class="instructor-card grid min-w-0 grid-rows-[auto_auto_auto_auto] gap-3 sm:row-span-4 sm:grid-rows-subgrid">
-          <div class="overflow-hidden rounded-3xl">
-            <img src={p.img} alt={p.name} loading="lazy" class="aspect-[4/5] w-full object-cover object-top" />
-          </div>
-          <h3 class="text-base font-bold leading-snug">{p.name}</h3>
-          <p class="text-sm font-medium leading-relaxed text-brand">{p.role}</p>
-          <div class="text-sm leading-relaxed text-ink-2">
-            <p class="mb-1 font-semibold text-ink">Темы на курсе</p>
-            <Rich as="p" text={sampleTopics(i)} />
-          </div>
-        </article>
-      ))}
-    </div>
-  )}
-  {variant === "carousel" && !revised && (
-    <div class="mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-5 px-5 pb-2 [scrollbar-width:none] lg:container-l lg:grid lg:grid-cols-5 lg:gap-5 lg:overflow-visible">
-      {INSTRUCTORS.map((p, i) => (
-        <article class="group w-[72%] shrink-0 snap-start sm:w-[300px] lg:w-auto" data-reveal style={`--reveal-delay:${i * 60}ms`}>
-          <div class="relative overflow-hidden rounded-3xl">
-            <img src={p.img} alt={p.name} loading="lazy" class="aspect-[4/5] w-full object-cover object-top transition-transform duration-700 group-hover:scale-105" />
-            <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-5 pt-16 text-white">
-              <p class="text-xs font-medium text-white/75">Курсы: {p.courses}</p>
-            </div>
-          </div>
-          <h3 class="mt-4 text-lg font-bold leading-snug">{p.name}</h3>
-          <p class="text-[15px] font-medium text-brand">{p.role}</p>
-          <p class="text-sm text-muted-foreground">{p.edu}</p>
-        </article>
-      ))}
-    </div>
-  )}
-
-  {variant === "lead" && (
-    <div class="container-l mt-10 grid items-center gap-8 md:grid-cols-[360px_1fr] md:gap-14">
-      <img src={first.img} alt={first.name} loading="lazy" class="aspect-square w-full rounded-[28px] object-cover object-top" data-reveal />
-      <div data-reveal>
-        <p class="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Ведущий инструктор</p>
-        <h3 class="mt-2 text-3xl font-bold">{first.name}</h3>
-        <p class="mt-1 text-lg font-medium text-brand">{first.role}</p>
-        <dl class="mt-6 grid gap-3 text-[15.5px]">
-          {!revised && <div><dt class="text-sm text-muted-foreground">Образование</dt><dd>{first.edu}</dd></div>}
-                    {!revised && <div><dt class="text-sm text-muted-foreground">Инструктор курсов</dt><dd>{first.courses}</dd></div>}
-          {revised && <div><dt class="text-sm text-muted-foreground">Темы на курсе</dt><dd><Rich text={sampleTopics(0)} /></dd></div>}
-        </dl>
-        <div class="mt-8 flex flex-wrap gap-3">
-          {rest.map((p) => (
-            <div class="flex items-center gap-3 rounded-full bg-soft py-1.5 pl-1.5 pr-4">
-              <img src={p.img} alt="" loading="lazy" class="size-10 rounded-full object-cover object-top" />
-              <span class="text-sm leading-tight"><b class="block">{p.name}</b><span class="text-ink-2">{p.role}</span></span>
-            </div>
-          ))}
+    {variant === "lead" && (
+      <div class="mt-8 grid gap-6 md:mt-12 md:grid-cols-[.9fr_1.1fr] md:items-center md:gap-14">
+        <figure class="relative overflow-hidden rounded-[28px] bg-soft" data-reveal>
+          {typeof src(first) === "string"
+            ? <img src={src(first) as string} alt={first.name} loading="lazy" class="aspect-[4/5] w-full object-cover object-top" />
+            : <Image src={src(first) as ImageMetadata} alt={first.name} widths={[400, 700]} sizes="(min-width: 768px) 460px, 100vw" class="aspect-[4/5] w-full object-cover object-top" />}
+          <figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-5 pt-20 text-white md:p-7">
+            <p class="text-[22px] font-bold leading-tight md:text-[28px]">{first.name}</p>
+            <p class="mt-1 text-[15px] text-white/85">{first.role}</p>
+          </figcaption>
+        </figure>
+        <div data-reveal>
+          {first.bio && <p class="text-[19px] font-medium leading-snug md:text-[24px]">{first.bio}</p>}
+          {!first.bio && <p class="text-[17px] text-ink-2">Курсы: {first.courses}{first.edu && ` · ${first.edu}`}</p>}
+          {rest.length > 0 && (
+            <ul class="mt-6 grid gap-3 md:mt-10">
+              {rest.map((p) => (
+                <li class="flex items-center gap-4 rounded-2xl bg-soft p-3 pr-4">
+                  {typeof p.img === "string"
+                    ? <img src={p.img} alt="" loading="lazy" class="size-16 shrink-0 rounded-xl object-cover object-top" />
+                    : <Image src={p.img} alt="" widths={[128]} sizes="64px" class="size-16 shrink-0 rounded-xl object-cover object-top" />}
+                  <div class="min-w-0">
+                    <p class="font-bold leading-snug">{p.name}</p>
+                    <p class="text-[14px] leading-snug text-ink-2">{p.role}{p.bio ? "" : ` · ${p.courses}`}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
-    </div>
-  )}
+    )}
+
+    {variant === "grid" && (
+      <div class="mt-8 grid grid-cols-2 gap-x-3 gap-y-6 md:mt-12 md:gap-x-5 lg:grid-cols-4">
+        {list.map((p, i) => (
+          <article class="min-w-0" data-reveal style={`--reveal-delay:${i * 50}ms`}>
+            <div class="overflow-hidden rounded-3xl bg-soft">
+              {typeof p.img === "string"
+                ? <img src={p.img} alt={p.name} loading="lazy" class="aspect-[4/5] w-full object-cover object-top" />
+                : <Image src={p.img} alt={p.name} widths={[300, 500]} sizes="(min-width: 1024px) 260px, 50vw" class="aspect-[4/5] w-full object-cover object-top" />}
+            </div>
+            <h3 class="mt-3 text-[15.5px] font-bold leading-snug md:text-lg">{p.name}</h3>
+            <p class="mt-0.5 text-[13.5px] font-medium leading-snug text-brand md:text-[15px]">{p.role}</p>
+          </article>
+        ))}
+      </div>
+    )}
+  </div>
 </section>

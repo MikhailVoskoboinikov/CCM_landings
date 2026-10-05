@@ -1,0 +1,29 @@
+---
+/*
+ * Переключатель «Для себя / Для организации» для курсов с режимом организаций.
+ * Режим ставится на <html data-mode>, блоки показывают свою версию через [data-mode].
+ * ?for=org в ссылке открывает режим организаций сразу — для отдельной рекламы.
+ */
+interface Props { dark?: boolean; class?: string }
+const { dark = false, class: cls = "" } = Astro.props;
+---
+<div role="tablist" aria-label="Кому нужен курс" class={`inline-flex rounded-full p-1 ${dark ? "bg-white/15 ring-1 ring-white/20 backdrop-blur-md" : "bg-soft"} ${cls}`} data-mode-switch>
+  {[["self", "Для себя"], ["org", "Для организации"]].map(([id, label]) => (
+    <button type="button" role="tab" data-mode-pick={id} class={`h-9 rounded-full px-4 text-[14px] font-semibold transition-colors ${dark ? "text-white/80 aria-selected:bg-white aria-selected:text-ink" : "text-ink-2 aria-selected:bg-white aria-selected:text-ink aria-selected:shadow-sm"}`}>{label}</button>
+  ))}
+</div>
+<script>
+  const root = document.documentElement;
+  const set = (mode: string, push = false) => {
+    root.dataset.mode = mode;
+    document.querySelectorAll<HTMLElement>("[data-mode-pick]").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.modePick === mode)));
+    if (push) {
+      const u = new URL(location.href);
+      mode === "org" ? u.searchParams.set("for", "org") : u.searchParams.delete("for");
+      history.replaceState(null, "", u);
+    }
+    document.dispatchEvent(new CustomEvent("ccm:mode", { detail: mode }));
+  };
+  set(new URL(location.href).searchParams.get("for") === "org" ? "org" : "self");
+  document.querySelectorAll<HTMLElement>("[data-mode-pick]").forEach((b) => b.addEventListener("click", () => set(b.dataset.modePick!, true)));
+</script>

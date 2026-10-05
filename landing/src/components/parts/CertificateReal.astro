@@ -1,0 +1,152 @@
+---
+/*
+ * Образец настоящего сертификата. Основа — картинка из PDF-образцов ЦКМ, с которой
+ * сняты имя, номер, дата и QR-код реальных выпускников. Эти поля рисуются поверх в SVG
+ * в тех же координатах (пиксели картинки), поэтому всё масштабируется вместе с ней.
+ * editable — посетитель вписывает своё имя, кириллица переводится в латиницу.
+ */
+import { Picture } from "astro:assets";
+import QRCode from "qrcode";
+import "@fontsource/pt-serif/latin-400.css";
+import "@fontsource/pt-serif/latin-700.css";
+import "@fontsource/pt-serif/latin-ext-700.css";
+import "@fontsource/source-sans-3/latin-400.css";
+import "@fontsource/source-sans-3/latin-700.css";
+import blsUz from "@/assets/certificates/bls-uz.png";
+import blsKg from "@/assets/certificates/bls-kg.png";
+import firstAid from "@/assets/certificates/first-aid.png";
+import firstAidKids from "@/assets/certificates/first-aid-kids.png";
+import type { CertSampleId, CountryId } from "@/data";
+
+interface Props { sample: CertSampleId; country: CountryId; editable?: boolean; class?: string }
+const { sample, country, editable = false, class: cls = "" } = Astro.props;
+
+type Field = { text: string; x: number; y: number; size: number; font: "serif" | "sans" | "erc"; weight?: number; fill: string; anchor?: "start" | "middle"; spacing?: number };
+interface Layout {
+  img: typeof blsUz;
+  w: number;
+  h: number;
+  /** Имя: поле и максимальная ширина */
+  name: Omit<Field, "text"> & { max: number };
+  fields: Field[];
+  qr: { x: number; y: number; s: number; url: string };
+}
+
+const VERIFY_CCM = "https://verify.medicaltraining.center";
+const venue = country === "kg" ? "Bishkek, Kyrgyz Republic" : "Tashkent, Republic of Uzbekistan";
+const ccmFooter = (number: string): Field[] => [
+  { text: `Certificate No. • ${number}`, x: 375, y: 1492, size: 21.5, font: "sans", fill: "#4b4f58", anchor: "start" },
+  { text: "Completion date • 12 October 2026", x: 375, y: 1523, size: 21, font: "sans", weight: 600, fill: "#23262e", anchor: "start" },
+];
+
+const LAYOUTS: Record<CertSampleId, Layout> = {
+  "bls-uz": {
+    img: blsUz, w: 2339, h: 1653,
+    name: { x: 1169.5, y: 639, size: 86, font: "serif", weight: 700, fill: "#143264", max: 1500 },
+    fields: [
+      { text: "Tashkent, Republic of Uzbekistan", x: 1169.5, y: 1016, size: 32, font: "serif", weight: 700, fill: "#143264" },
+      ...ccmFooter("ERC-359-XXXXXX"),
+    ],
+    qr: { x: 190, y: 1394, s: 141, url: VERIFY_CCM },
+  },
+  "first-aid": {
+    img: firstAid, w: 2339, h: 1653,
+    name: { x: 1169.5, y: 642, size: 86, font: "serif", weight: 700, fill: "#761d23", max: 1500 },
+    fields: [
+      { text: "FIRST AID", x: 1890, y: 190, size: 57.5, font: "serif", weight: 700, fill: "#761d23", anchor: "start" },
+      { text: "Basic First Aid", x: 1890, y: 230, size: 22.5, font: "sans", fill: "#545861", anchor: "start" },
+      { text: "and CPR", x: 1890, y: 259, size: 22.5, font: "sans", fill: "#545861", anchor: "start" },
+      { text: "First Aid Provider", x: 1169.5, y: 857, size: 76, font: "serif", weight: 700, fill: "#761d23" },
+      { text: "Basic First Aid and Cardiopulmonary Resuscitation", x: 1169.5, y: 916, size: 31, font: "sans", fill: "#545861" },
+      { text: venue, x: 1169.5, y: 991, size: 32, font: "serif", weight: 700, fill: "#761d23" },
+      ...ccmFooter("CCM-XXXXXXXX"),
+    ],
+    qr: { x: 190, y: 1394, s: 141, url: VERIFY_CCM },
+  },
+  "first-aid-kids": {
+    img: firstAidKids, w: 2339, h: 1653,
+    name: { x: 1169.5, y: 640, size: 86, font: "serif", weight: 700, fill: "#134850", max: 1500 },
+    fields: [
+      { text: "FIRST AID", x: 1975, y: 209, size: 48, font: "serif", weight: 700, fill: "#134850", anchor: "start" },
+      { text: "for Children", x: 1976, y: 242, size: 19.5, font: "sans", fill: "#7a3e9d", anchor: "start" },
+      { text: "and Infants", x: 1976, y: 266, size: 19.5, font: "sans", fill: "#7a3e9d", anchor: "start" },
+      { text: "Paediatric First Aid", x: 1169.5, y: 857, size: 76, font: "serif", weight: 700, fill: "#134850" },
+      { text: "First Aid for Children and Infants", x: 1169.5, y: 920, size: 36, font: "serif", fill: "#37636a" },
+      { text: venue, x: 1169.5, y: 999, size: 32, font: "serif", weight: 700, fill: "#134850" },
+      ...ccmFooter("CCM-XXXXXXXX"),
+    ],
+    qr: { x: 190, y: 1394, s: 141, url: VERIFY_CCM },
+  },
+  "bls-kg": {
+    img: blsKg, w: 1684, h: 1190,
+    name: { x: 846.5, y: 308, size: 100, font: "erc", weight: 700, fill: "#1d4489", max: 1400 },
+    fields: [
+      { text: "12/10/2026", x: 449, y: 1010, size: 20, font: "erc", fill: "#1a1a1a", anchor: "start" },
+      { text: "ERC-315-XXXXXX", x: 1047, y: 1097, size: 19.5, font: "erc", fill: "#1a1a1a", anchor: "start" },
+    ],
+    qr: { x: 55, y: 991, s: 150, url: "https://cosy.erc.edu/en/verify-certificate" },
+  },
+};
+
+const L = LAYOUTS[sample];
+const FONT = { serif: "'PT Serif', Georgia, serif", sans: "var(--font-sans)", erc: "'Source Sans 3', var(--font-sans)" };
+
+/* QR-код рисуем сами одним path: так он чёткий при любом масштабе */
+const qr = QRCode.create(L.qr.url, { errorCorrectionLevel: "M" });
+const n = qr.modules.size;
+const cell = L.qr.s / n;
+let qrPath = "";
+for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.modules.get(r, c)) qrPath += `M${(L.qr.x + c * cell).toFixed(2)} ${(L.qr.y + r * cell).toFixed(2)}h${cell.toFixed(2)}v${cell.toFixed(2)}h-${cell.toFixed(2)}z`;
+---
+<figure class={`cert-real relative ${cls}`} data-cert data-cert-max={L.name.max} data-cert-size={L.name.size}>
+  <div class="relative overflow-hidden rounded-[10px] bg-white shadow-[0_24px_60px_-24px_rgba(17,19,23,.45)] ring-1 ring-black/5" style={`aspect-ratio:${L.w}/${L.h}`}>
+    <Picture src={L.img} formats={["avif", "webp"]} widths={[700, 1100, 1600]} sizes="(min-width: 1024px) 620px, (min-width: 768px) 80vw, 100vw" alt="Образец сертификата" loading="lazy" class="absolute inset-0 size-full" />
+    <svg viewBox={`0 0 ${L.w} ${L.h}`} class="absolute inset-0 size-full" aria-hidden="true">
+      <text data-cert-name x={L.name.x} y={L.name.y} font-size={L.name.size} font-family={FONT[L.name.font]} font-weight={L.name.weight ?? 400} fill={L.name.fill} text-anchor="middle">Your Name</text>
+      {L.fields.map((f) => (
+        <text x={f.x} y={f.y} font-size={f.size} font-family={FONT[f.font]} font-weight={f.weight ?? 400} fill={f.fill} text-anchor={f.anchor ?? "middle"} letter-spacing={f.spacing ?? 0}>{f.text}</text>
+      ))}
+      <path d={qrPath} fill="#111317" />
+    </svg>
+  </div>
+  {editable && (
+    <label class="mt-4 flex items-center gap-3 rounded-2xl bg-soft px-4 py-2.5 focus-within:ring-2 focus-within:ring-brand/40">
+      <span class="shrink-0 text-[14px] text-ink-2">Ваше имя:</span>
+      <input data-cert-input type="text" maxlength="40" autocomplete="name" placeholder="впишите, и оно появится выше" class="h-9 min-w-0 flex-1 bg-transparent text-[16px] font-medium outline-none placeholder:text-muted-foreground/80" />
+    </label>
+  )}
+</figure>
+
+<script>
+  // Латиница для имени на сертификате: сертификат англоязычный
+  const MAP: Record<string, string> = {
+    а: "a", б: "b", в: "v", г: "g", д: "d", е: "e", ё: "yo", ж: "zh", з: "z", и: "i", й: "y", к: "k", л: "l", м: "m", н: "n",
+    о: "o", п: "p", р: "r", с: "s", т: "t", у: "u", ф: "f", х: "kh", ц: "ts", ч: "ch", ш: "sh", щ: "shch", ъ: "", ы: "y", ь: "",
+    э: "e", ю: "yu", я: "ya", ў: "oʻ", қ: "q", ғ: "gʻ", ҳ: "h", ң: "ng", ө: "ö", ү: "ü",
+  };
+  const latin = (s: string) =>
+    [...s].map((ch) => {
+      const low = ch.toLowerCase();
+      const t = MAP[low];
+      if (t === undefined) return ch;
+      return ch === low ? t : t.charAt(0).toUpperCase() + t.slice(1);
+    }).join("");
+
+  document.querySelectorAll<HTMLElement>("[data-cert]").forEach((fig) => {
+    const name = fig.querySelector<SVGTextElement>("[data-cert-name]")!;
+    const input = fig.querySelector<HTMLInputElement>("[data-cert-input]");
+    const max = Number(fig.dataset.certMax);
+    const size = Number(fig.dataset.certSize);
+    // Длинное имя уменьшаем, чтобы оно не вылезало за поля сертификата
+    const fit = () => {
+      name.setAttribute("font-size", String(size));
+      const w = name.getComputedTextLength();
+      if (w > max) name.setAttribute("font-size", String(Math.floor((size * max) / w)));
+    };
+    input?.addEventListener("input", () => {
+      name.textContent = latin(input.value.trim()) || "Your Name";
+      fit();
+    });
+    document.fonts?.ready.then(fit);
+  });
+</script>

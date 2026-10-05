@@ -12,13 +12,15 @@ interface Props {
   country: Country;
   courseId: CourseId;
   noindex?: boolean;
+  /** Блоки-«экраны»: прилипают и наезжают друг на друга, мягкий доводчик к началу блока */
+  screens?: boolean;
 }
-const { title, description = "", country, courseId, noindex } = Astro.props;
+const { title, description = "", country, courseId, noindex, screens } = Astro.props;
 const courses = COURSE_LIST.map((c) => ({ id: c.id, name: c.name }));
 const prices = Object.fromEntries(COURSE_LIST.map((c) => [c.id, priceText(c, country)]));
 ---
 <!doctype html>
-<html lang="ru">
+<html lang="ru" class:list={{ screens }}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -36,6 +38,37 @@ const prices = Object.fromEntries(COURSE_LIST.map((c) => [c.id, priceText(c, cou
     <script>
       import { captureAttribution } from "@/lib/attribution";
       captureAttribution();
+
+      // Экраны: высокий блок прилипает так, чтобы сначала дочитали его низ;
+      // блок, на который наезжает следующий, чуть уменьшается и темнеет (--cover 0…1)
+      const screens = [...document.querySelectorAll<HTMLElement>("html.screens [data-screen]")];
+      if (screens.length) {
+        const hdr = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--hdr")) || 56;
+        const layout = () => {
+          const h = hdr();
+          screens.forEach((el) => el.style.setProperty("--stick", `${Math.min(h, innerHeight - el.offsetHeight)}px`));
+          cover();
+        };
+        let raf = 0;
+        const cover = () => {
+          raf = 0;
+          const h = hdr();
+          screens.forEach((el, i) => {
+            const next = screens[i + 1];
+            const top = next ? next.getBoundingClientRect().top : innerHeight;
+            const k = Math.min(1, Math.max(0, (innerHeight - top) / (innerHeight - h)));
+            el.style.setProperty("--cover", k.toFixed(3));
+          });
+        };
+        new ResizeObserver(layout).observe(document.body);
+        addEventListener("resize", layout);
+        addEventListener("scroll", () => (raf ||= requestAnimationFrame(cover)), { passive: true });
+        // После загрузки и при возврате на страницу браузер может восстановить прокрутку без события scroll
+        addEventListener("load", layout);
+        addEventListener("pageshow", layout);
+        addEventListener("scrollend", cover);
+        layout();
+      }
 
       // Появление блоков при прокрутке
       const io = new IntersectionObserver(

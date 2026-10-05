@@ -1,7 +1,7 @@
 ---
-/* Текст с пометками «уточнить у ЦКМ», см. lib/rich.ts */
+/* Текст с пометками «уточнить у ЦКМ» и **выделением**, см. lib/rich.ts. Прочие атрибуты передаются тегу */
 import { rich } from "@/lib/rich";
-interface Props { text: string; as?: string; class?: string }
-const { text, as: Tag = "span", class: cls } = Astro.props;
+interface Props { text: string; as?: string; class?: string; [attr: string]: unknown }
+const { text, as: Tag = "span", class: cls, ...rest } = Astro.props;
 ---
-<Tag class={cls} set:html={rich(text)} />
+<Tag class={cls} {...rest} set:html={rich(text)} />

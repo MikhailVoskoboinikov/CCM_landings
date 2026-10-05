@@ -1,122 +1,133 @@
 ---
 /*
  * Первый экран. Варианты:
- *  ecg   — белый фон, бегущая кардиограмма, фото и плавающая карточка сертификата
- *  photo — фото на всю ширину, текст поверх
- *  cert  — в центре внимания образец сертификата
- * copy: a | b — два текста для A/B-теста в рекламе
+ *  screen — фото на весь экран телефона, поверх образец сертификата, заголовок, факты и кнопки
+ *  ecg    — белый фон: текст, фото с сертификатом и бегущая кардиограмма
+ *  cert   — в центре внимания образец сертификата
+ * copy: a | b — два текста для A/B-теста в рекламе.
+ * Курс с режимом организаций показывает переключатель и второй заголовок (data-mode).
  */
 import Icon from "@/components/parts/Icon.astro";
 import Rich from "@/components/parts/Rich.astro";
 import Ecg from "@/components/parts/Ecg.astro";
-import CertificateDoc from "@/components/parts/CertificateDoc.astro";
-import CertificateTemplate from "@/components/parts/CertificateTemplate.astro";
-import HeroFacts from "@/components/parts/HeroFacts.astro";
-import { BrandIcon } from "@/components/parts/BrandIcon";
+import CertificateReal from "@/components/parts/CertificateReal.astro";
+import ModeSwitch from "@/components/parts/ModeSwitch.astro";
+import HeaderMessengerIcon from "@/components/parts/HeaderMessengerIcon.astro";
 import { IMG, MESSENGER_LABEL, type Country, type Course, type ImageKey } from "@/data";
 
 interface Props {
-  variant?: "ecg" | "photo" | "cert";
+  variant?: "screen" | "ecg" | "cert";
   copy?: "a" | "b";
   course: Course;
   country: Country;
 }
-const { variant = "ecg", copy = "a", course, country } = Astro.props;
-const t = course.hero[copy];
-const isBlsUz = course.id === "bls" && country.id === "uz";
+const { variant = "screen", copy = "a", course, country } = Astro.props;
+const modes = course.org.modes;
+const texts = [{ mode: modes ? "self" : undefined, ...course.hero[copy] }, ...(modes ? [{ mode: "org", ...modes.hero }] : [])];
 const img = IMG[course.hero.image as ImageKey];
 const m = country.messengers[0];
+const cert = course.certificate.sample;
+/* Три коротких факта для первого экрана: длительность, группа, документ */
+const chips = course.facts.slice(0, 3);
 ---
-{variant === "ecg" && (
-  <section class="relative overflow-hidden pb-8 pt-6 md:pb-10 md:pt-14">
-    <div class="container-l relative grid items-center gap-10 md:grid-cols-[1.1fr_.9fr] md:gap-16">
-      <div>
-        <h1 class="text-[34px] font-bold leading-[1.05] md:text-[60px]" data-reveal><Rich text={t.title} /></h1>
-        <p class="lead-text mt-5 max-w-xl" data-reveal style="--reveal-delay:80ms">{isBlsUz ? <>Пройди курс Basic Life Support <strong class="font-semibold">за 1 день</strong> и получи <strong class="font-semibold">международный сертификат</strong> Европейского совета по реанимации.</> : <Rich text={t.sub} />}</p>
-        <div class="mt-8 flex flex-wrap gap-3" data-reveal style="--reveal-delay:160ms">
-          <button data-lead-open={course.id} class="h-14 flex-1 rounded-full bg-brand px-8 text-base font-semibold text-white shadow-[0_12px_30px_-10px_var(--brand)] transition hover:bg-brand-600 sm:flex-none">Записаться на курс</button>
-          <a href={m.href} class="flex h-14 items-center gap-2 rounded-full bg-soft px-6 font-semibold transition hover:bg-line">
-            <BrandIcon id={m.id} className="size-5 text-brand" />{MESSENGER_LABEL[m.id]}
+{variant === "screen" && (
+  <section class="relative isolate flex min-h-[calc(100svh-var(--hdr))] flex-col justify-end overflow-hidden bg-ink text-white md:min-h-[min(calc(100svh-var(--hdr)),860px)]" data-hero>
+    <img src={img} alt="" class="absolute inset-0 -z-20 size-full object-cover" loading="eager" fetchpriority="high" />
+    <div class="absolute inset-0 -z-10 bg-[linear-gradient(to_top,rgba(10,11,14,.92)_0%,rgba(10,11,14,.7)_38%,rgba(10,11,14,.15)_70%,rgba(10,11,14,.05)_100%)] md:bg-[linear-gradient(100deg,rgba(10,11,14,.88)_0%,rgba(10,11,14,.6)_45%,rgba(10,11,14,.1)_80%)]"></div>
+
+    <div class="absolute right-4 top-5 w-[48%] max-w-[300px] rotate-[4deg] md:right-[5%] md:top-1/2 md:w-[38%] md:max-w-[520px] md:-translate-y-1/2" data-hero-cert>
+      <div class="animate-float" style="--r:0deg"><CertificateReal sample={cert} country={country.id} /></div>
+    </div>
+
+    <div class="container-l pb-7 pt-48 md:pb-20 md:pt-24">
+      <div class="md:max-w-[52%]">
+        {modes && <ModeSwitch dark class="mb-5" />}
+        {texts.map((t) => (
+          <div data-mode={t.mode}>
+            <h1 class="text-[34px] font-bold leading-[1.04] md:text-[60px]" data-reveal><Rich text={t.title} /></h1>
+            <Rich as="p" class="mt-3 text-[16.5px] leading-snug text-white/85 md:mt-5 md:text-xl" text={t.sub} data-reveal />
+          </div>
+        ))}
+        <ul class="mt-5 flex flex-wrap gap-2 md:mt-8" data-reveal style="--reveal-delay:120ms">
+          {chips.map((f) => (
+            <li class="flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-[13.5px] font-medium ring-1 ring-white/20 backdrop-blur-md">
+              <Icon name={f.icon} size={15} class="text-sun" /><Rich text={f.value} />
+            </li>
+          ))}
+        </ul>
+        <div class="mt-6 flex gap-2 md:mt-10 md:gap-3" data-reveal style="--reveal-delay:200ms">
+          <button data-lead-open={course.id} class="h-14 flex-1 rounded-full bg-brand px-8 text-base font-semibold text-white shadow-[0_12px_30px_-10px_var(--brand)] transition hover:bg-brand-600 md:flex-none">Записаться на курс</button>
+          <a href={m.href} aria-label={`Написать в ${MESSENGER_LABEL[m.id]}`} class="flex h-14 shrink-0 items-center gap-2 rounded-full bg-white/15 px-[18px] [--glyph:#111317] font-semibold ring-1 ring-white/20 backdrop-blur-md transition hover:bg-white/25 md:px-6">
+            <HeaderMessengerIcon id={m.id} /><span class="hidden md:inline">{MESSENGER_LABEL[m.id]}</span>
           </a>
         </div>
-        {isBlsUz ? <div class="mt-10" data-reveal style="--reveal-delay:240ms"><HeroFacts course={course} city={country.city} /></div> : (        <dl class="mt-10 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-4" data-reveal style="--reveal-delay:240ms">
+      </div>
+    </div>
+  </section>
+)}
+
+{variant === "ecg" && (
+  <section class="relative overflow-hidden pb-8 pt-6 md:pb-10 md:pt-14">
+    <div class="container-l relative grid items-center gap-8 md:grid-cols-[1.1fr_.9fr] md:gap-16">
+      <div class="relative order-1 md:order-2" data-reveal>
+        <img src={img} alt="" class="aspect-[4/3] w-full rounded-[28px] object-cover md:aspect-[4/5] md:rounded-[36px]" loading="eager" fetchpriority="high" />
+        <div class="absolute -bottom-6 -left-2 w-[58%] max-w-[300px] animate-float md:-left-10" style="--r:-4deg">
+          <CertificateReal sample={cert} country={country.id} />
+        </div>
+      </div>
+      <div class="order-2 pt-4 md:order-1 md:pt-0">
+        {modes && <ModeSwitch class="mb-5" />}
+        {texts.map((t) => (
+          <div data-mode={t.mode}>
+            <h1 class="text-[32px] font-bold leading-[1.05] md:text-[60px]" data-reveal><Rich text={t.title} /></h1>
+            <Rich as="p" class="lead-text mt-4 max-w-xl md:mt-5" text={t.sub} data-reveal />
+          </div>
+        ))}
+        <div class="mt-7 flex gap-2 md:mt-8 md:gap-3" data-reveal style="--reveal-delay:160ms">
+          <button data-lead-open={course.id} class="h-14 flex-1 rounded-full bg-brand px-8 text-base font-semibold text-white shadow-[0_12px_30px_-10px_var(--brand)] transition hover:bg-brand-600 sm:flex-none">Записаться на курс</button>
+          <a href={m.href} aria-label={`Написать в ${MESSENGER_LABEL[m.id]}`} class="flex h-14 shrink-0 items-center gap-2 rounded-full bg-soft px-[18px] font-semibold text-brand transition hover:bg-line md:px-6">
+            <HeaderMessengerIcon id={m.id} /><span class="hidden text-ink md:inline">{MESSENGER_LABEL[m.id]}</span>
+          </a>
+        </div>
+        <dl class="mt-8 grid grid-cols-2 gap-x-6 gap-y-5 md:mt-10" data-reveal style="--reveal-delay:240ms">
           {course.facts.map((f) => (
             <div class="flex flex-col gap-1">
               <dt class="flex items-center gap-1.5 text-[13px] text-muted-foreground"><Icon name={f.icon} size={15} class="text-brand" />{f.label}</dt>
               <dd class="text-[15px] font-semibold leading-snug"><Rich text={f.value} /></dd>
             </div>
           ))}
-        </dl>)}
-      </div>
-      <div class="relative" data-reveal style="--reveal-delay:120ms">
-        <img src={img} alt="" class="aspect-[4/5] w-full rounded-[28px] object-cover md:rounded-[36px]" loading="eager" />
-        <div class="absolute -bottom-6 -left-3 w-[62%] max-w-[300px] animate-float md:-left-10" style="--r:-4deg">
-          {isBlsUz ? <CertificateTemplate /> : <CertificateDoc course={course} />}
-        </div>
+        </dl>
       </div>
     </div>
-    <Ecg class="mt-16 block h-20 w-full text-brand md:mt-20 md:h-24" />
-  </section>
-)}
-
-{variant === "photo" && (
-  <section class="relative">
-    <div class="relative h-[58vh] min-h-[380px] md:h-[88vh] md:max-h-[820px]">
-      <img src={img} alt="" class="absolute inset-0 size-full object-cover" loading="eager" />
-      <div class="absolute inset-0 bg-gradient-to-t from-white via-white/10 to-transparent md:bg-gradient-to-r md:from-black/75 md:via-black/35 md:to-transparent"></div>
-      <div class="container-l relative hidden h-full flex-col justify-center text-white md:flex">
-        <h1 class="max-w-2xl text-[64px] font-bold leading-[1.02]"><Rich text={t.title} /></h1>
-        <p class="mt-6 max-w-xl text-xl text-white/85">{isBlsUz ? <>Пройди курс Basic Life Support <strong class="font-semibold">за 1 день</strong> и получи <strong class="font-semibold">международный сертификат</strong> Европейского совета по реанимации.</> : <Rich text={t.sub} />}</p>
-        <div class="mt-10 flex gap-3">
-          <button data-lead-open={course.id} class="h-14 rounded-full bg-brand px-9 font-semibold text-white transition hover:bg-brand-600">Записаться на курс</button>
-          <a href={m.href} class="flex h-14 items-center gap-2 rounded-full bg-white/15 px-6 font-semibold backdrop-blur-md transition hover:bg-white/25"><BrandIcon id={m.id} tone="glyph" className="size-5" />{MESSENGER_LABEL[m.id]}</a>
-        </div>
-        {isBlsUz ? <div class="mt-14"><HeroFacts course={course} city={country.city} dark /></div> : (        <div class="mt-14 flex gap-3">
-          {course.facts.map((f) => (
-            <div class="rounded-2xl bg-white/12 px-4 py-3 backdrop-blur-md ring-1 ring-white/20">
-              <p class="text-xs text-white/70">{f.label}</p>
-              <p class="text-[15px] font-semibold"><Rich text={f.value} /></p>
-            </div>
-          ))}
-        </div>)}
-      </div>
-    </div>
-    <div class="container-l relative -mt-24 pb-12 md:hidden">
-      <h1 class="text-[34px] font-bold leading-[1.05]"><Rich text={t.title} /></h1>
-      <p class="lead-text mt-4">{isBlsUz ? <>Пройди курс Basic Life Support <strong class="font-semibold">за 1 день</strong> и получи <strong class="font-semibold">международный сертификат</strong> Европейского совета по реанимации.</> : <Rich text={t.sub} />}</p>
-      <button data-lead-open={course.id} class="mt-7 h-14 w-full rounded-full bg-brand font-semibold text-white">Записаться на курс</button>
-      {isBlsUz ? <div class="mt-6"><HeroFacts course={course} city={country.city} /></div> : (      <div class="mt-6 grid grid-cols-2 gap-2.5">
-        {course.facts.map((f) => (
-          <div class="rounded-2xl bg-soft px-4 py-3">
-            <p class="text-xs text-muted-foreground">{f.label}</p>
-            <p class="text-[15px] font-semibold leading-snug"><Rich text={f.value} /></p>
-          </div>
-        ))}
-      </div>)}
-    </div>
+    <Ecg class="mt-12 block h-20 w-full text-brand md:mt-20 md:h-24" />
   </section>
 )}
 
 {variant === "cert" && (
-  <section class="relative overflow-hidden bg-gradient-to-b from-brand-50/70 to-white pb-14 pt-8 md:pb-24 md:pt-16">
+  <section class="relative overflow-hidden bg-gradient-to-b from-brand-50/70 to-white pb-14 pt-6 md:pb-24 md:pt-16">
     <div class="pointer-events-none absolute -right-40 -top-40 size-[520px] rounded-full bg-brand/10 blur-3xl"></div>
-    <div class="container-l relative grid items-center gap-12 md:grid-cols-2 md:gap-16">
+    <div class="container-l relative grid items-center gap-8 md:grid-cols-2 md:gap-16">
       <div class="order-2 md:order-1">
-        <h1 class="text-[34px] font-bold leading-[1.05] md:text-[56px]" data-reveal><Rich text={t.title} /></h1>
-        <p class="lead-text mt-5" data-reveal style="--reveal-delay:80ms">{isBlsUz ? <>Пройди курс Basic Life Support <strong class="font-semibold">за 1 день</strong> и получи <strong class="font-semibold">международный сертификат</strong> Европейского совета по реанимации.</> : <Rich text={t.sub} />}</p>
-        {isBlsUz ? <div class="mt-7" data-reveal style="--reveal-delay:160ms"><HeroFacts course={course} city={country.city} /></div> : (        <ul class="mt-7 grid gap-3" data-reveal style="--reveal-delay:160ms">
+        {modes && <ModeSwitch class="mb-5" />}
+        {texts.map((t) => (
+          <div data-mode={t.mode}>
+            <h1 class="text-[32px] font-bold leading-[1.05] md:text-[56px]" data-reveal><Rich text={t.title} /></h1>
+            <Rich as="p" class="lead-text mt-4 md:mt-5" text={t.sub} data-reveal />
+          </div>
+        ))}
+        <ul class="mt-6 grid gap-2.5 md:mt-7" data-reveal style="--reveal-delay:160ms">
           {course.facts.map((f) => (
             <li class="flex items-center gap-3 text-[15px]">
               <span class="grid size-9 shrink-0 place-items-center rounded-full bg-white text-brand shadow-sm"><Icon name={f.icon} size={18} /></span>
               <span><span class="text-muted-foreground">{f.label}:</span> <b class="font-semibold"><Rich text={f.value} /></b></span>
             </li>
           ))}
-        </ul>)}
-        <button data-lead-open={course.id} class="mt-9 h-14 w-full rounded-full bg-brand px-9 font-semibold text-white transition hover:bg-brand-600 sm:w-auto" data-reveal style="--reveal-delay:220ms">Записаться на курс</button>
+        </ul>
+        <button data-lead-open={course.id} class="mt-8 h-14 w-full rounded-full bg-brand px-9 font-semibold text-white transition hover:bg-brand-600 sm:w-auto" data-reveal style="--reveal-delay:220ms">Записаться на курс</button>
       </div>
       <div class="order-1 md:order-2" data-reveal>
         <div class="mx-auto max-w-[520px] rotate-[-3deg] transition-transform duration-700 hover:rotate-0">
-          {isBlsUz ? <CertificateTemplate /> : <CertificateDoc course={course} />}
+          <CertificateReal sample={cert} country={country.id} editable />
         </div>
       </div>
     </div>

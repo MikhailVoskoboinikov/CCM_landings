@@ -1,14 +1,20 @@
 ---
-/* Иконка lucide по имени — рендерится в статичный SVG, без JS на клиенте */
+/*
+ * Иконка lucide по имени — рендерится в статичный SVG, без JS на клиенте.
+ * animated — для части иконок есть живая версия (AudienceIcon): шевелится при наведении на карточку.
+ */
 import { icons } from "lucide-react";
+import AudienceIcon from "./AudienceIcon.astro";
+import { ANIMATED } from "@/lib/icons";
 
 interface Props {
   name: string;
   class?: string;
   size?: number;
   strokeWidth?: number;
+  animated?: boolean;
 }
-const { name, class: cls, size = 22, strokeWidth = 1.8 } = Astro.props;
+const { name, class: cls, size = 22, strokeWidth = 1.8, animated = false } = Astro.props;
 const C = icons[name as keyof typeof icons];
 ---
-{C && <C className={cls} size={size} strokeWidth={strokeWidth} aria-hidden="true" />}
+{animated && ANIMATED.has(name) ? <AudienceIcon name={name} size={size} /> : C && <C className={cls} size={size} strokeWidth={strokeWidth} aria-hidden="true" />}

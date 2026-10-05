@@ -6,7 +6,6 @@
  * Стоимость живёт здесь, а не отдельным блоком: цена — часть решения записаться.
  */
 import { LeadForm } from "@/components/lead/LeadForm";
-import { BrandIcon } from "@/components/parts/BrandIcon";
 import HeaderMessengerIcon from "@/components/parts/HeaderMessengerIcon.astro";
 import Ecg from "@/components/parts/Ecg.astro";
 import Icon from "@/components/parts/Icon.astro";
@@ -16,17 +15,17 @@ import { COURSE_LIST, MESSENGER_LABEL, type Country, type Course } from "@/data"
 
 interface Props { variant?: "form" | "messengers"; course: Course; country: Country }
 const { variant = "form", course, country } = Astro.props;
-const revised = country.id === "uz" && course.id === "bls";
+const modes = course.org.modes;
 const courses = COURSE_LIST.map((c) => ({ id: c.id, name: c.name }));
 ---
-<section class="relative overflow-hidden bg-soft pb-8 pt-16 md:pb-10 md:pt-28" id="lead">
+<section class="relative overflow-hidden bg-soft pb-8 pt-14 md:pb-10 md:pt-28" id="lead">
   <div class="container-l relative">
     {variant === "form" && (
       <div class="grid gap-10 md:grid-cols-2 md:gap-16 [&>*]:min-w-0">
         <div data-reveal>
           <h2 class="h-section">Запишитесь на курс</h2>
-          <p class="lead-text mt-4">{revised ? "Мы свяжемся с вами, уточним детали и ответим на все вопросы." : "Оставьте контакты — менеджер перезвонит, ответит на вопросы и подберёт дату."}</p>
-          <div class="mt-8 rounded-3xl bg-white p-5 md:p-6">
+          <p class="lead-text mt-4">Оставьте контакты — перезвоним, ответим на вопросы и подберём дату.</p>
+          <div class="mt-8 rounded-3xl bg-white p-5 md:p-6" data-mode={modes ? "self" : undefined}>
             <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
               <p class="text-sm text-muted-foreground">Стоимость курса</p>
               <p class="text-2xl font-bold tracking-tight md:text-[28px]"><Rich text={priceText(course, country)} /> <span class="text-sm font-medium text-muted-foreground">за участника</span></p>
@@ -36,14 +35,14 @@ const courses = COURSE_LIST.map((c) => ({ id: c.id, name: c.name }));
             </ul>
             <Rich as="p" class="mt-4 text-sm text-ink-2" text={`Для групп — [[скидка от ${course.price.groupDiscounts[0].from} человек|Есть ли групповые скидки и какие?]]`} />
           </div>
-          <div class="mt-6 grid gap-1">
+          <div class="mt-6 hidden gap-1 md:grid">
             <a href={country.phoneHref} class="text-xl font-bold">{country.phone}</a>
             <p class="text-ink-2">{country.address}</p>
           </div>
-          <div class="mt-5 flex flex-wrap gap-2">
+          <div class="mt-5 hidden flex-wrap gap-2 md:flex">
             {country.messengers.map((m) => (
               <a href={m.href} class="flex h-11 items-center gap-2 rounded-full bg-white px-4 text-sm font-semibold shadow-sm transition hover:text-brand">
-                {revised ? <span class="text-brand"><HeaderMessengerIcon id={m.id} /></span> : <BrandIcon id={m.id} className="size-5 text-brand" />}{MESSENGER_LABEL[m.id]}
+                <span class="text-brand"><HeaderMessengerIcon id={m.id} /></span>{MESSENGER_LABEL[m.id]}
               </a>
             ))}
           </div>
@@ -61,8 +60,8 @@ const courses = COURSE_LIST.map((c) => ({ id: c.id, name: c.name }));
         <p class="mt-6 inline-flex flex-wrap items-baseline justify-center gap-x-2 rounded-full bg-white px-5 py-2.5"><span class="text-sm text-muted-foreground">Стоимость</span><b class="text-lg"><Rich text={priceText(course, country)} /></b><span class="text-sm text-muted-foreground">за участника, всё включено</span></p>
         <div class="mt-10 grid gap-3 sm:grid-cols-3">
           {country.messengers.map((m, i) => (
-            <a href={m.href} class={`flex h-16 items-center justify-center gap-2.5 rounded-2xl text-base font-semibold transition ${revised ? "bg-white hover:text-brand" : i === 0 ? "bg-brand text-white hover:bg-brand-600" : "bg-white hover:text-brand"}`}>
-              {revised ? <span class="text-brand"><HeaderMessengerIcon id={m.id} /></span> : <BrandIcon id={m.id} tone={i === 0 ? "glyph" : "solid"} className={`size-6 ${i === 0 ? "" : "text-brand"}`} />}{MESSENGER_LABEL[m.id]}
+            <a href={m.href} class={`flex h-16 items-center justify-center gap-2.5 rounded-2xl text-base font-semibold transition ${i === 0 ? "bg-brand text-white hover:bg-brand-600" : "bg-white hover:text-brand"}`}>
+              <span class={i === 0 ? "[--glyph:var(--brand)]" : "text-brand"}><HeaderMessengerIcon id={m.id} /></span>{MESSENGER_LABEL[m.id]}
             </a>
           ))}
         </div>

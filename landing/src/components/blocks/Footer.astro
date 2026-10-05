@@ -8,9 +8,9 @@ import { COURSE_LIST, IMG, type Country } from "@/data";
 interface Props { country: Country; base?: string }
 const { country, base = "" } = Astro.props;
 ---
-<footer class="bg-[#f4f4f4] pb-28 pt-14 text-[15px] md:pb-14">
-  <div class="container-l grid gap-10 md:grid-cols-4">
-    <div>
+<footer class="relative z-10 bg-[#f4f4f4] pb-28 pt-12 text-[15px] md:pb-14 md:pt-14">
+  <div class="container-l grid grid-cols-2 gap-x-6 gap-y-9 md:grid-cols-4 md:gap-10">
+    <div class="col-span-2 md:col-span-1">
       <img src={IMG.logo} alt="ЦКМ" class="h-16 w-auto" width="140" height="64" loading="lazy" />
       <div class="mt-6 flex gap-2">
         {country.messengers.map((m) => (
@@ -18,7 +18,7 @@ const { country, base = "" } = Astro.props;
         ))}
       </div>
     </div>
-    <div>
+    <div class="col-span-2 md:col-span-1">
       <h3 class="mb-4 font-semibold tracking-wide">Связаться с нами</h3>
       <p class="text-ink-2">Учебный центр ЦКМ</p>
       <p class="text-ink-2">{country.address}</p>
@@ -34,6 +34,7 @@ const { country, base = "" } = Astro.props;
       <a href="#" class="mb-2 block text-brand hover:underline">Политика конфиденциальности</a>
       <a href="#" class="mb-2 block text-brand hover:underline">Договор-оферта</a>
       <Rich as="p" class="mt-4 text-sm text-muted-foreground" text={country.legal} />
+      {country.license && <p class="mt-1 text-sm text-muted-foreground">{country.license}</p>}
     </div>
   </div>
   <p class="container-l mt-10 text-xs text-muted-foreground">© 2006–2026 Центр корпоративной медицины</p>

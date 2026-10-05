@@ -3,6 +3,7 @@
  * Программа. Варианты:
  *  accordion — раскрывающийся список разделов, как просили в ЦКМ; разделы
  *              открываются по очереди по мере прокрутки
+ *  puzzle    — тот же список, при прокрутке детали пазла собираются в целое
  *  timeline  — вертикальная красная линия, в стиле globalccm.com
  *  day       — как проходит день + темы чипами
  */
@@ -11,20 +12,9 @@ import Rich from "@/components/parts/Rich.astro";
 import ProgramPuzzle from "@/components/parts/ProgramPuzzle.astro";
 import type { Course } from "@/data";
 
-interface Props { variant?: "accordion" | "timeline" | "day"; course: Course; revised?: boolean }
-const { variant = "accordion", course, revised = false } = Astro.props;
-const p = revised
-  ? {
-      ...course.program,
-      lead: "Очный курс проводится за один день. Теория, практика на манекенах и экзамен под руководством опытных инструкторов.",
-      sections: course.program.sections.map((section) => ({
-        ...section,
-        title: section.title === "Остановка сердца" ? "Помощь при остановке сердца"
-          : section.title === "Неотложные ситуации" ? "Действия в неотложных ситуациях"
-          : section.title,
-      })),
-    }
-  : course.program;
+interface Props { variant?: "accordion" | "puzzle" | "timeline" | "day"; course: Course }
+const { variant = "accordion", course } = Astro.props;
+const p = course.program;
 const total = p.sections.reduce((n, s) => n + s.items.length, 0);
 const day = [
   { t: "Демонстрация", d: "Инструктор показывает алгоритм целиком, в реальном темпе" },
@@ -33,7 +23,7 @@ const day = [
   { t: "Экзамен", d: "Оценка навыков и разбор с инструктором" },
 ];
 ---
-<section class="py-16 md:py-28" id="program">
+<section class="py-14 md:py-28" id="program">
   <div class="container-l">
     <div class="grid gap-10 md:grid-cols-[.8fr_1.2fr] md:gap-16">
       <div class="md:sticky md:top-28 md:self-start" data-reveal>
@@ -42,12 +32,12 @@ const day = [
         <div class="mt-8 flex gap-8">
           <div><p class="text-4xl font-bold text-brand">{p.sections.length}</p><p class="text-sm text-ink-2">раздела</p></div>
           <div><p class="text-4xl font-bold text-brand">{total}</p><p class="text-sm text-ink-2">тем</p></div>
-          <div><p class="text-4xl font-bold text-brand">4–8</p><p class="text-sm text-ink-2">часов</p></div>
+          <div><p class="text-4xl font-bold text-brand">1</p><p class="text-sm text-ink-2">день</p></div>
         </div>
       </div>
 
-      {variant === "accordion" && revised && <ProgramPuzzle course={{ ...course, program: p }} />}
-      {variant === "accordion" && !revised && (
+      {variant === "puzzle" && <ProgramPuzzle course={course} />}
+      {variant === "accordion" && (
         <div class="grid gap-3">
           {p.sections.map((s, i) => (
             <details data-prog-step class="prog-step group rounded-3xl bg-soft transition-colors duration-500 open:bg-white open:shadow-[0_8px_40px_-16px_rgba(17,19,23,.2)] open:ring-1 open:ring-black/5" open={i === 0} data-reveal style={`--reveal-delay:${i * 60}ms`}>

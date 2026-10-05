@@ -1,9 +1,10 @@
 import type { Country, CountryId } from "./types";
 
 /*
- * Контакты взяты с alfamedtraining.com. Основной мессенджер — гипотеза:
- * в Узбекистане чаще пишут в Telegram, в Кыргызстане — в WhatsApp.
- * Проверить по истории заявок в amoCRM.
+ * Контакты — с alfamedtraining.com. Кыргызстан: юрлицо, лицензия, WhatsApp как
+ * основной канал и цифра про скорую — из презентации учебного центра в Бишкеке.
+ * Узбекистан: юрлицо — с образца сертификата; Telegram первым — гипотеза,
+ * проверить по истории заявок в amoCRM.
  */
 export const COUNTRIES: Record<CountryId, Country> = {
   uz: {
@@ -22,7 +23,7 @@ export const COUNTRIES: Record<CountryId, Country> = {
       { id: "whatsapp", href: "#" },
       { id: "instagram", href: "#" },
     ],
-    legal: "[[ООО «CCM Training», ИНН 000 000 000, Ташкент|Название и реквизиты юрлица в Узбекистане]]",
+    legal: "[[ООО «CCM Global», Ташкент|Юрлицо взято с образца сертификата (CCM Global LLC). Как писать по-русски и какой ИНН — для подвала и оферты?]]",
   },
   kg: {
     id: "kg",
@@ -36,11 +37,17 @@ export const COUNTRIES: Record<CountryId, Country> = {
     email: "ccm@globalccm.com",
     currency: "сом",
     messengers: [
-      { id: "whatsapp", href: "#" },
+      { id: "whatsapp", href: "https://wa.me/996995024438" },
       { id: "telegram", href: "#" },
       { id: "instagram", href: "#" },
     ],
-    legal: "[[ОсОО «CCM Training», ИНН 00000000000000, Бишкек|Название и реквизиты юрлица в Кыргызстане]]",
+    legal: "ОсОО «Центр корпоративной медицины»",
+    license: "Лицензия Министерства образования и науки КР № Е2022-0115 от 24.11.2022",
+    stat: {
+      value: "42–43",
+      text: "бригады скорой работают в Бишкеке, а нужно около 150. Первым рядом с пострадавшим окажется тот, кто рядом",
+      source: "Центр экстренной медицины Бишкека, 24.kg, 2025–2026",
+    },
   },
 };
 

@@ -43,7 +43,10 @@ const $$ = <T extends HTMLElement>(sel: string, root: ParentNode = document) => 
 
 export function initPlayground() {
   const cfg = JSON.parse($("#pg-config").textContent!) as Config;
-  let sel: Record<string, string> = { ...cfg.defaults, ...get(LS_SEL, {}) };
+  // Сохранённый выбор мог ссылаться на варианты, которых уже нет, — такие берём из DEFAULTS
+  const saved = get<Record<string, string>>(LS_SEL, {});
+  const known = (k: string, v: string) => k.endsWith(".copy") || cfg.blocks.find((b) => b.id === k)?.variants.some(([id]) => id === v);
+  let sel: Record<string, string> = { ...cfg.defaults, ...Object.fromEntries(Object.entries(saved).filter(([k, v]) => known(k, v))) };
   let comments: Comment[] = get(LS_COMM, []);
   const ui = get(LS_UI, { bars: true, marks: true, collapsed: false });
   let drawer: null | "comments" | "questions" = null;

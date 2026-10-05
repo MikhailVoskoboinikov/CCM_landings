@@ -1,0 +1,48 @@
+---
+/*
+ * Почему это важно: крупная цифра и ситуации, в которых пригодится курс.
+ * Если у страны есть своя цифра (например, про скорую в Бишкеке), она идёт первой,
+ * цифра курса — второй, поменьше.
+ */
+import Icon from "@/components/parts/Icon.astro";
+import Rich from "@/components/parts/Rich.astro";
+import type { Country, Course } from "@/data";
+
+interface Props { course: Course; country: Country }
+const { course, country } = Astro.props;
+const w = course.why;
+const main = country.stat ?? w.stat;
+const second = country.stat ? w.stat : undefined;
+---
+<section class="py-14 md:py-24" id="why">
+  <div class="container-l grid gap-8 md:grid-cols-2 md:items-center md:gap-16">
+    <div data-reveal>
+      <h2 class="h-section">{w.title}</h2>
+      <div class="relative mt-7 overflow-hidden rounded-[28px] bg-brand p-6 text-white md:mt-10 md:p-9">
+        <svg viewBox="0 0 400 120" class="pointer-events-none absolute -right-10 bottom-0 h-28 w-[420px] text-white/15" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
+          <path d="M0 80h120l12-8 10 8h22l8 10 14-70 14 92 10-32h30l14-14 16 14h130" stroke-linejoin="round" />
+        </svg>
+        <p class="relative text-[56px] font-bold leading-none tracking-tight md:text-[80px]"><Rich text={main.value} /></p>
+        <Rich as="p" class="relative mt-3 max-w-md text-[17px] leading-snug md:text-xl" text={main.text} />
+        <Rich as="p" class="relative mt-4 text-[12.5px] text-white/70" text={main.source} />
+      </div>
+      {second && (
+        <div class="mt-3 flex items-baseline gap-4 rounded-3xl bg-soft p-5">
+          <p class="shrink-0 text-[28px] font-bold leading-none text-brand"><Rich text={second.value} /></p>
+          <div>
+            <Rich as="p" class="text-[15px] leading-snug" text={second.text} />
+            <Rich as="p" class="mt-1 text-[12px] text-muted-foreground" text={second.source} />
+          </div>
+        </div>
+      )}
+    </div>
+    <ul class="grid grid-cols-2 gap-2.5 md:grid-cols-1">
+      {w.items.map((it, i) => (
+        <li class="flex flex-col gap-2.5 rounded-2xl bg-soft p-3.5 md:flex-row md:items-center md:gap-4 md:px-4" data-reveal style={`--reveal-delay:${i * 60}ms`}>
+          <span class="grid size-9 shrink-0 place-items-center rounded-full bg-white text-brand md:size-10"><Icon name={it.icon} size={19} /></span>
+          <Rich as="p" class="text-[14.5px] font-medium leading-snug md:text-[15.5px]" text={it.text} />
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
