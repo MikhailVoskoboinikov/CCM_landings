@@ -2,6 +2,8 @@
 /*
  * Сертификат — главный блок: по брифу информация должна быть больше
  * о сертификате, чем о курсе. Варианты:
+ *  anatomy — настоящий образец с номерами у полей и список «что в сертификате»: наведение
+ *            или тап по пункту или номеру выделяет пару; без касаний подсветка идёт по пунктам сама
  *  real — настоящий образец сертификата; срок, проверка и где пригодится
  *  tilt — объёмная карточка и «где пригодится»
  *  path — путь от курса до проверки подлинности
@@ -12,8 +14,8 @@ import CertificateReal from "@/components/parts/CertificateReal.astro";
 import Tilt from "@/components/parts/Tilt";
 import type { Country, Course } from "@/data";
 
-interface Props { variant?: "real" | "tilt" | "path"; course: Course; country: Country }
-const { variant = "real", course, country } = Astro.props;
+interface Props { variant?: "anatomy" | "real" | "tilt" | "path"; course: Course; country: Country }
+const { variant = "anatomy", course, country } = Astro.props;
 const c = course.certificate;
 const facts = [
   { icon: "UserCheck", label: "Именной", value: "После экзамена" },
@@ -30,6 +32,47 @@ const steps = [
 ---
 <section class="relative overflow-hidden bg-soft py-14 md:py-28" id="certificate">
   <div class="pointer-events-none absolute -left-32 top-10 size-96 rounded-full bg-brand/10 blur-3xl"></div>
+
+  {variant === "anatomy" && (
+    <div class="container-l relative" data-cert-anatomy>
+      <div class="max-w-2xl" data-reveal>
+        <h2 class="h-section">{c.title}</h2>
+        <Rich as="p" class="lead-text mt-3" text={c.lead} />
+      </div>
+      <div class="mt-8 grid gap-6 md:mt-12 md:grid-cols-[1.15fr_.85fr] md:items-center md:gap-14">
+        <div data-reveal><CertificateReal sample={c.sample} country={country.id} spots /></div>
+        <ol class="grid gap-1.5">
+          {c.anatomy.map((a, i) => (
+            <li>
+              <button type="button" data-anatomy={i + 1} class="flex w-full gap-4 rounded-2xl p-3.5 text-left transition-colors hover:bg-white data-[on]:bg-white data-[on]:shadow-[0_6px_24px_-12px_rgba(17,19,23,.2)] md:p-4">
+                <span class="grid size-8 shrink-0 place-items-center rounded-full bg-brand text-sm font-bold text-white">{i + 1}</span>
+                <span>
+                  <span class="block font-bold leading-snug">{a.title}</span>
+                  <Rich as="span" class="mt-0.5 block text-[15px] leading-snug text-ink-2" text={a.text} />
+                </span>
+              </button>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <dl class="mt-8 grid grid-cols-2 gap-2.5 md:mt-12 md:grid-cols-4 md:gap-4">
+        {facts.map((f, i) => (
+          <div class="rounded-2xl bg-white p-4" data-reveal style={`--reveal-delay:${i * 60}ms`}>
+            <dt class="flex items-center gap-2 text-[13px] text-muted-foreground"><Icon name={f.icon} size={16} class="text-brand" />{f.label}</dt>
+            <dd class="mt-1.5 text-[15px] font-semibold leading-snug"><Rich text={f.value} /></dd>
+          </div>
+        ))}
+      </dl>
+      <div class="mt-3 grid gap-3 sm:grid-cols-3 md:mt-4 md:gap-4">
+        {c.useful.map((u, i) => (
+          <article class="audience-card flex gap-3 rounded-3xl bg-white p-5 transition-colors hover:bg-brand-50 md:flex-col md:gap-4 md:p-6" data-reveal style={`--reveal-delay:${i * 60}ms`}>
+            <span class="grid size-11 shrink-0 place-items-center rounded-2xl bg-soft text-brand"><Icon name={u.icon} size={22} animated /></span>
+            <div><h3 class="font-bold leading-snug">{u.title}</h3><Rich as="p" class="mt-1 text-[14.5px] leading-snug text-ink-2" text={u.text} /></div>
+          </article>
+        ))}
+      </div>
+    </div>
+  )}
 
   {variant === "real" && (
     <div class="container-l relative grid gap-8 md:grid-cols-[1.15fr_.85fr] md:items-center md:gap-14">
@@ -106,3 +149,34 @@ const steps = [
     </div>
   )}
 </section>
+
+<script>
+  // Пункты списка ↔ номера на сертификате. Пока не трогали — подсветка идёт по кругу
+  document.querySelectorAll<HTMLElement>("[data-cert-anatomy]").forEach((root) => {
+    const items = [...root.querySelectorAll<HTMLElement>("[data-anatomy]")];
+    const spots = [...root.querySelectorAll<HTMLElement>("[data-spot]")];
+    let auto = 0, n = 0, touched = false;
+    const light = (k: number) => {
+      n = k;
+      const id = String(k);
+      items.forEach((el) => el.toggleAttribute("data-on", el.dataset.anatomy === id));
+      spots.forEach((el) => el.toggleAttribute("data-on", el.dataset.spot === id));
+    };
+    const pick = (k: number) => { touched = true; clearInterval(auto); light(k); };
+    items.forEach((el) => {
+      el.addEventListener("click", () => pick(Number(el.dataset.anatomy)));
+      el.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && pick(Number(el.dataset.anatomy)));
+    });
+    spots.forEach((el) => {
+      el.addEventListener("click", () => pick(Number(el.dataset.spot)));
+      el.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && pick(Number(el.dataset.spot)));
+    });
+    new IntersectionObserver(([e]) => {
+      clearInterval(auto);
+      if (e.isIntersecting && !touched) {
+        if (!n) light(1);
+        auto = window.setInterval(() => light((n % items.length) + 1), 2600);
+      }
+    }, { threshold: 0.4 }).observe(root);
+  });
+</script>
