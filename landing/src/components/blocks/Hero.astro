@@ -2,12 +2,13 @@
 /*
  * Первый экран. Варианты:
  *  adaptive — на телефоне screen, на компьютере ecg
- *  screen — фото на весь экран телефона, поверх образец сертификата, заголовок, факты и кнопки
+ *  screen — фото на весь экран телефона, поверх образец сертификата, заголовок, факты и кнопки;
+ *           кружок-сторис слева сверху открывает «Курс за 60 секунд» (parts/Stories.astro)
  *  ecg    — белый фон: текст, фото с сертификатом и бегущая кардиограмма
  *  cert   — в центре внимания образец сертификата
  *  film   — текст и ролик-алгоритм вместо фото
- * Ближайшая группа (course.nextGroup) показывается, только если дата подтверждена
- * или включены пометки: выдуманная дата не должна попасть на боевой сайт.
+ * Ближайшая группа (course.nextGroup) — строкой под кнопками; показывается, только если
+ * дата подтверждена или включены пометки: выдуманная дата не должна попасть на боевой сайт.
  * copy: a | b — два текста для A/B-теста в рекламе.
  * Курс с режимом организаций показывает переключатель и второй заголовок (data-mode).
  */
@@ -18,6 +19,8 @@ import CertificateReal from "@/components/parts/CertificateReal.astro";
 import ModeSwitch from "@/components/parts/ModeSwitch.astro";
 import HeaderMessengerIcon from "@/components/parts/HeaderMessengerIcon.astro";
 import Film from "@/components/film/Film.astro";
+import NextGroup from "@/components/parts/NextGroup.astro";
+import Stories from "@/components/parts/Stories.astro";
 import { showMarks } from "@/lib/rich";
 import { IMG, MESSENGER_LABEL, type Country, type Course, type ImageKey } from "@/data";
 
@@ -35,7 +38,7 @@ const m = country.messengers[0];
 const cert = course.certificate.sample;
 /* Три коротких факта для первого экрана: длительность, группа, документ */
 const chips = course.facts.slice(0, 3);
-const group = course.nextGroup && (showMarks || !course.nextGroup.includes("[[")) ? course.nextGroup : undefined;
+const group = course.nextGroup && (course.nextGroup.confirmed || showMarks) ? course.nextGroup : undefined;
 ---
 {variant === "adaptive" && (
   <>
@@ -45,9 +48,21 @@ const group = course.nextGroup && (showMarks || !course.nextGroup.includes("[[")
 )}
 
 {variant === "screen" && (
+  <>
   <section class="relative isolate flex min-h-[calc(100svh-var(--hdr))] flex-col justify-end overflow-hidden bg-ink text-white md:min-h-[min(calc(100svh-var(--hdr)),860px)]" data-hero>
     <img src={img} alt="" class="absolute inset-0 -z-20 size-full object-cover" loading="eager" fetchpriority="high" />
     <div class="absolute inset-0 -z-10 bg-[linear-gradient(to_top,rgba(10,11,14,.92)_0%,rgba(10,11,14,.7)_38%,rgba(10,11,14,.15)_70%,rgba(10,11,14,.05)_100%)] md:bg-[linear-gradient(100deg,rgba(10,11,14,.88)_0%,rgba(10,11,14,.6)_45%,rgba(10,11,14,.1)_80%)]"></div>
+
+    {/* Кружок-сторис, как в Instagram: открывает «Курс за 60 секунд» */}
+    <button type="button" data-stories-open class="absolute left-4 top-5 z-10 flex flex-col items-center gap-1.5 md:hidden" aria-label="Смотреть курс за 60 секунд">
+      <span class="story-ring relative grid size-[70px] place-items-center rounded-full p-[3px]">
+        <span class="relative grid size-full place-items-center overflow-hidden rounded-full border-[3px] border-ink">
+          <img src={IMG[course.skills.items[1]?.image as ImageKey ?? "manikin"]} alt="" class="absolute inset-0 size-full object-cover" />
+          <span class="relative grid size-7 place-items-center rounded-full bg-white/90 text-ink"><svg viewBox="0 0 24 24" class="ml-0.5 size-3.5"><path d="M8 5v14l11-7z" fill="currentColor" /></svg></span>
+        </span>
+      </span>
+      <span class="text-[12px] font-semibold text-white [text-shadow:0_1px_6px_rgb(0_0_0/.6)]">Курс за 60 с</span>
+    </button>
 
     <div class="absolute right-4 top-5 w-[48%] max-w-[300px] rotate-[4deg] md:right-[5%] md:top-1/2 md:w-[38%] md:max-w-[520px] md:-translate-y-1/2" data-hero-cert>
       <div class="animate-float" style="--r:0deg"><CertificateReal sample={cert} country={country.id} /></div>
@@ -63,11 +78,6 @@ const group = course.nextGroup && (showMarks || !course.nextGroup.includes("[[")
           </div>
         ))}
         <ul class="mt-5 flex flex-wrap gap-2 md:mt-8" data-reveal style="--reveal-delay:120ms">
-          {group && (
-            <li class="flex items-center gap-1.5 rounded-full bg-sun px-3 py-1.5 text-[13.5px] font-semibold text-ink">
-              <span class="relative flex size-2"><span class="absolute inset-0 animate-ping rounded-full bg-brand opacity-70"></span><span class="relative size-2 rounded-full bg-brand"></span></span><Rich text={group} />
-            </li>
-          )}
           {chips.map((f) => (
             <li class="flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-[13.5px] font-medium ring-1 ring-white/20 backdrop-blur-md">
               <Icon name={f.icon} size={15} class="text-sun" /><Rich text={f.value} />
@@ -80,9 +90,12 @@ const group = course.nextGroup && (showMarks || !course.nextGroup.includes("[[")
             <HeaderMessengerIcon id={m.id} /><span class="hidden md:inline">{MESSENGER_LABEL[m.id]}</span>
           </a>
         </div>
+        {group && <NextGroup group={group} dark class="mt-4" />}
       </div>
     </div>
   </section>
+  <Stories course={course} country={country} />
+  </>
 )}
 
 {variant === "ecg" && (
@@ -96,11 +109,6 @@ const group = course.nextGroup && (showMarks || !course.nextGroup.includes("[[")
       </div>
       <div class="order-2 pt-4 md:order-1 md:pt-0">
         {modes && <ModeSwitch class="mb-5" />}
-        {group && (
-          <p class="mb-5 inline-flex items-center gap-2 rounded-full bg-brand-50 px-3.5 py-1.5 text-[14px] font-semibold text-brand-600" data-reveal>
-            <span class="relative flex size-2"><span class="absolute inset-0 animate-ping rounded-full bg-brand opacity-70"></span><span class="relative size-2 rounded-full bg-brand"></span></span><Rich text={group} />
-          </p>
-        )}
         {texts.map((t) => (
           <div data-mode={t.mode}>
             <h1 class="text-[32px] font-bold leading-[1.05] md:text-[60px]" data-reveal><Rich text={t.title} /></h1>
@@ -113,6 +121,7 @@ const group = course.nextGroup && (showMarks || !course.nextGroup.includes("[[")
             <HeaderMessengerIcon id={m.id} /><span class="hidden text-ink md:inline">{MESSENGER_LABEL[m.id]}</span>
           </a>
         </div>
+        {group && <NextGroup group={group} class="mt-4" />}
         <dl class="mt-8 grid grid-cols-2 gap-x-6 gap-y-5 md:mt-10" data-reveal style="--reveal-delay:240ms">
           {course.facts.map((f) => (
             <div class="flex flex-col gap-1">
@@ -163,11 +172,6 @@ const group = course.nextGroup && (showMarks || !course.nextGroup.includes("[[")
     <div class="container-l grid items-center gap-7 md:grid-cols-[1fr_1fr] md:gap-14">
       <div>
         {modes && <ModeSwitch class="mb-5" />}
-        {group && (
-          <p class="mb-4 inline-flex items-center gap-2 rounded-full bg-brand-50 px-3.5 py-1.5 text-[14px] font-semibold text-brand-600">
-            <span class="relative flex size-2"><span class="absolute inset-0 animate-ping rounded-full bg-brand opacity-70"></span><span class="relative size-2 rounded-full bg-brand"></span></span><Rich text={group} />
-          </p>
-        )}
         {texts.map((t) => (
           <div data-mode={t.mode}>
             <h1 class="text-[32px] font-bold leading-[1.05] md:text-[56px]"><Rich text={t.title} /></h1>
@@ -183,9 +187,13 @@ const group = course.nextGroup && (showMarks || !course.nextGroup.includes("[[")
           <button data-lead-open={course.id} class="h-14 rounded-full bg-brand px-8 text-base font-semibold text-white shadow-[0_12px_30px_-10px_var(--brand)] transition hover:bg-brand-600">Записаться на курс</button>
           <a href={m.href} class="flex h-14 items-center gap-2 rounded-full bg-soft px-6 font-semibold text-brand transition hover:bg-line"><HeaderMessengerIcon id={m.id} /><span class="text-ink">{MESSENGER_LABEL[m.id]}</span></a>
         </div>
+        {group && <div class="hidden md:block"><NextGroup group={group} class="mt-4" /></div>}
       </div>
       <Film film={course.film} />
-      <button data-lead-open={course.id} class="h-14 w-full rounded-full bg-brand text-base font-semibold text-white md:hidden">Записаться на курс</button>
+      <div class="md:hidden">
+        <button data-lead-open={course.id} class="h-14 w-full rounded-full bg-brand text-base font-semibold text-white">Записаться на курс</button>
+        {group && <NextGroup group={group} class="mt-4" />}
+      </div>
     </div>
   </section>
 )}

@@ -78,8 +78,8 @@ export interface Course {
   quiz: { title: string; lead: string; items: { q: string; options: string[]; answer: number; explain: string }[] };
   /** Расписание дня курса — для варианта программы «Один день» */
   schedule: { time: string; title: string; text: string }[];
-  /** Ближайшая группа — строка с пометкой, пока нет реального графика */
-  nextGroup?: string;
+  /** Ближайшая группа: дата, свободные и все места. confirmed: false — пример, на боевом сайте не показывается */
+  nextGroup?: { date: string; free: number; total: number; confirmed: boolean };
   /** Чему научитесь: 6 навыков с фото */
   skills: {
     title: string;

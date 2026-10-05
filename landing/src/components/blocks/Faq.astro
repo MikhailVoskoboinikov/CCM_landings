@@ -7,7 +7,6 @@
  */
 import Icon from "@/components/parts/Icon.astro";
 import Rich from "@/components/parts/Rich.astro";
-import HeaderMessengerIcon from "@/components/parts/HeaderMessengerIcon.astro";
 import { BrandIcon, MESSENGER_COLOR } from "@/components/parts/BrandIcon";
 import { MESSENGER_LABEL, type Country, type Course } from "@/data";
 import { priceText } from "@/lib/price";
@@ -42,17 +41,14 @@ const faq: [string, string][] = [
 
         <aside class="md:sticky md:top-28 md:self-start" data-reveal>
           <div class="rounded-[28px] bg-brand-50/40 p-6 lg:p-7">
-            <div class="flex items-center gap-3">
-              <Icon name="MessageCircle" size={23} class="shrink-0 text-brand" />
-              <h3 class="text-xl font-bold leading-snug">Остались вопросы?</h3>
-            </div>
+            <h3 class="text-xl font-bold leading-snug">Остались вопросы?</h3>
             <p class="mt-3 text-[15px] leading-relaxed text-ink-2">Поможем разобраться в программе курса и выбрать удобную дату.</p>
             <a href={country.phoneHref} class="mt-6 inline-block whitespace-nowrap text-xl font-bold tracking-tight transition-colors hover:text-brand">{country.phone}</a>
             <p class="mb-3 mt-6 text-xs font-medium text-ink-2">Или напишите нам</p>
             <div class="flex flex-wrap gap-2">
               {chats.map((m) => (
-                <a href={m.href} aria-label={`Написать в ${MESSENGER_LABEL[m.id]}`} class="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-white px-3 py-2.5 text-[13px] font-semibold transition-colors hover:text-brand">
-                  <span class="shrink-0 text-brand"><HeaderMessengerIcon id={m.id} /></span>{MESSENGER_LABEL[m.id]}
+                <a href={m.href} aria-label={`Написать в ${MESSENGER_LABEL[m.id]}`} class="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-[13px] font-semibold text-white transition hover:brightness-95" style={`background:${MESSENGER_COLOR[m.id]}`}>
+                  <BrandIcon id={m.id} tone="glyph" className="size-[18px] shrink-0" />{MESSENGER_LABEL[m.id]}
                 </a>
               ))}
             </div>
