@@ -7,13 +7,14 @@
  *  puzzle    — тот же список, при прокрутке детали пазла собираются в целое
  *  timeline  — вертикальная красная линия, в стиле globalccm.com
  *  day       — как проходит день + темы чипами
+ *  schedule  — один день по часам: линия времени от начала до сертификата
  */
 import Icon from "@/components/parts/Icon.astro";
 import Rich from "@/components/parts/Rich.astro";
 import ProgramPuzzle from "@/components/parts/ProgramPuzzle.astro";
 import type { Course } from "@/data";
 
-interface Props { variant?: "adaptive" | "accordion" | "puzzle" | "timeline" | "day"; course: Course }
+interface Props { variant?: "adaptive" | "accordion" | "puzzle" | "timeline" | "day" | "schedule"; course: Course }
 const { variant = "adaptive", course } = Astro.props;
 const p = course.program;
 const total = p.sections.reduce((n, s) => n + s.items.length, 0);
@@ -83,6 +84,27 @@ const day = [
         </ol>
       )}
 
+      {variant === "schedule" && (
+        <ol class="relative grid gap-1">
+          <span class="absolute bottom-6 left-[59px] top-6 w-0.5 bg-brand/20 md:left-[75px]" aria-hidden="true"></span>
+          {course.schedule.map((it, i) => (
+            <li class="relative grid grid-cols-[48px_24px_1fr] items-start gap-x-3 py-2.5 md:grid-cols-[60px_30px_1fr] md:gap-x-4" data-reveal style={`--reveal-delay:${i * 60}ms`}>
+              <span class="pt-0.5 text-right text-[15px] font-bold tabular-nums text-ink md:text-[17px]">{it.time}</span>
+              <span class={`relative mt-1.5 size-3.5 justify-self-center rounded-full ring-4 ring-white ${it.text ? "bg-brand" : "bg-line"}`}></span>
+              <div class="min-w-0">
+                <p class={`text-[17px] font-bold leading-snug md:text-lg ${it.text ? "" : "text-muted-foreground"}`}>{it.title}</p>
+                {it.text && <Rich as="p" class="mt-0.5 text-[15px] leading-snug text-ink-2" text={it.text} />}
+              </div>
+            </li>
+          ))}
+          <li class="relative mt-2 grid grid-cols-[48px_24px_1fr] items-center gap-x-3 md:grid-cols-[60px_30px_1fr] md:gap-x-4">
+            <span></span>
+            <span class="relative grid size-7 place-items-center justify-self-center rounded-full bg-brand text-white ring-4 ring-white"><Icon name="Award" size={15} /></span>
+            <p class="rounded-2xl bg-brand-50 px-4 py-3 text-[15.5px] font-semibold text-brand-600">Сертификат — ваш</p>
+          </li>
+          <Rich as="p" class="mt-3 text-[13px] text-muted-foreground" text="[[Примерное расписание|Нужно реальное расписание дня курса: время начала, перерывы, экзамен]]" />
+        </ol>
+      )}
       {variant === "day" && (
         <div>
           <ol class="grid gap-3 sm:grid-cols-2">

@@ -1,0 +1,106 @@
+---
+/*
+ * «Ролик на коде»: сцены-анимации SVG сменяют друг друга, как сторис — с полосками
+ * прогресса и подписью к каждому шагу. Видеофайлов нет: весит как картинка.
+ * Тап по левой или правой трети — назад и вперёд, кнопка внизу — пауза.
+ * Играет, только пока виден на экране; при «уменьшении движения» не листается сам.
+ * steps — рядом снаружи можно поставить список шагов с [data-film-step]: он подсвечивается и кликается.
+ */
+import Rich from "@/components/parts/Rich.astro";
+import Scene from "./Scene.astro";
+import type { Course } from "@/data";
+
+interface Props { film: Course["film"]; class?: string }
+const { film, class: cls = "" } = Astro.props;
+const n = film.scenes.length;
+---
+<div class={`relative overflow-hidden rounded-[28px] bg-soft ${cls}`} data-film>
+  <div class="absolute inset-x-4 top-3.5 z-10 flex gap-1.5" aria-hidden="true">
+    {film.scenes.map(() => <span class="h-1 flex-1 overflow-hidden rounded-full bg-black/10"><span data-film-bar class="block h-full w-full origin-left scale-x-0 rounded-full bg-brand"></span></span>)}
+  </div>
+  <div class="relative aspect-[4/3]">
+    {film.scenes.map((s, i) => (
+      <div class="film-scene absolute inset-0 opacity-0 transition-opacity duration-500 data-[on]:opacity-100" data-film-scene data-ms={s.ms} aria-hidden={i > 0 ? "true" : undefined}>
+        <Scene kind={s.kind} count={s.count} />
+      </div>
+    ))}
+    <button type="button" data-film-go="-1" aria-label="Предыдущий шаг" class="absolute inset-y-0 left-0 w-1/3"></button>
+    <button type="button" data-film-go="1" aria-label="Следующий шаг" class="absolute inset-y-0 right-0 w-1/3"></button>
+    <button type="button" data-film-pause aria-label="Пауза" class="absolute bottom-3 right-3 grid size-10 place-items-center rounded-full bg-white/90 text-ink shadow-sm">
+      <svg viewBox="0 0 24 24" class="size-4" data-film-icon="pause"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor" /><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor" /></svg>
+      <svg viewBox="0 0 24 24" class="hidden size-4" data-film-icon="play"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>
+    </button>
+  </div>
+  <div class="grid px-5 pb-5 pt-3 md:px-6 md:pb-6" aria-live="polite">
+    {film.scenes.map((s, i) => (
+      <div class="col-start-1 row-start-1 opacity-0 transition-opacity duration-300 data-[on]:opacity-100" data-film-caption>
+        <p class="text-[13px] font-semibold text-brand">Шаг {i + 1} из {n}</p>
+        <Rich as="p" class="mt-1 text-[19px] font-bold leading-snug md:text-[21px]" text={s.title} />
+        <Rich as="p" class="mt-1.5 text-[15px] leading-snug text-ink-2" text={s.text} />
+      </div>
+    ))}
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-film]").forEach((root) => {
+    const scenes = [...root.querySelectorAll<HTMLElement>("[data-film-scene]")];
+    const caps = [...root.querySelectorAll<HTMLElement>("[data-film-caption]")];
+    const bars = [...root.querySelectorAll<HTMLElement>("[data-film-bar]")];
+    const steps = [...(root.closest("[data-film-root]") ?? root).querySelectorAll<HTMLElement>("[data-film-step]")];
+    const pauseBtn = root.querySelector<HTMLButtonElement>("[data-film-pause]")!;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let i = 0, elapsed = 0, last = performance.now(), visible = false, paused = reduce, raf = 0;
+    let counters: { el: Element; to: number; every: number }[] = [];
+
+    const show = (k: number) => {
+      i = (k + scenes.length) % scenes.length;
+      elapsed = 0;
+      scenes.forEach((s) => s.removeAttribute("data-on"));
+      void root.offsetWidth; // перезапуск CSS-анимаций сцены
+      scenes.forEach((s, j) => { s.toggleAttribute("data-on", j === i); s.setAttribute("aria-hidden", String(j !== i)); });
+      caps.forEach((c, j) => c.toggleAttribute("data-on", j === i));
+      steps.forEach((c, j) => c.toggleAttribute("data-on", j === i));
+      bars.forEach((b, j) => (b.style.transform = `scaleX(${j < i ? 1 : 0})`));
+      counters = [...scenes[i].querySelectorAll("[data-count]")].map((el) => ({ el, to: Number((el as HTMLElement).dataset.to), every: Number((el as HTMLElement).dataset.every) }));
+      counters.forEach((c) => (c.el.textContent = "0"));
+    };
+    const setPaused = (p: boolean) => {
+      paused = p;
+      root.toggleAttribute("data-paused", p);
+      pauseBtn.setAttribute("aria-label", p ? "Смотреть" : "Пауза");
+      root.querySelector('[data-film-icon="pause"]')!.classList.toggle("hidden", p);
+      root.querySelector('[data-film-icon="play"]')!.classList.toggle("hidden", !p);
+    };
+    const tick = (now: number) => {
+      raf = 0;
+      const dt = now - last;
+      last = now;
+      if (!paused && visible) {
+        elapsed += dt;
+        const ms = Number(scenes[i].dataset.ms);
+        bars[i].style.transform = `scaleX(${Math.min(1, elapsed / ms)})`;
+        counters.forEach((c) => (c.el.textContent = String(Math.min(c.to, Math.floor(elapsed / c.every) + 1))));
+        if (elapsed >= ms) show(i + 1);
+      }
+      if (visible) raf = requestAnimationFrame(tick);
+    };
+    const run = () => { if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); } };
+
+    root.querySelectorAll<HTMLElement>("[data-film-go]").forEach((b) => b.addEventListener("click", () => show(i + Number(b.dataset.filmGo))));
+    steps.forEach((s, j) => s.addEventListener("click", () => show(j)));
+    pauseBtn.addEventListener("click", () => setPaused(!paused));
+    new IntersectionObserver(([e]) => {
+      visible = e.isIntersecting;
+      root.toggleAttribute("data-offscreen", !visible);
+      if (visible) run();
+    }, { threshold: 0.35 }).observe(root);
+    setPaused(paused);
+    show(0);
+  });
+</script>
+
+<style>
+  [data-film][data-paused] :global(.film-scene *),
+  [data-film][data-offscreen] :global(.film-scene *) { animation-play-state: paused !important; }
+</style>

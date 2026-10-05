@@ -5,6 +5,9 @@
  *  screen — фото на весь экран телефона, поверх образец сертификата, заголовок, факты и кнопки
  *  ecg    — белый фон: текст, фото с сертификатом и бегущая кардиограмма
  *  cert   — в центре внимания образец сертификата
+ *  film   — текст и ролик-алгоритм вместо фото
+ * Ближайшая группа (course.nextGroup) показывается, только если дата подтверждена
+ * или включены пометки: выдуманная дата не должна попасть на боевой сайт.
  * copy: a | b — два текста для A/B-теста в рекламе.
  * Курс с режимом организаций показывает переключатель и второй заголовок (data-mode).
  */
@@ -14,10 +17,12 @@ import Ecg from "@/components/parts/Ecg.astro";
 import CertificateReal from "@/components/parts/CertificateReal.astro";
 import ModeSwitch from "@/components/parts/ModeSwitch.astro";
 import HeaderMessengerIcon from "@/components/parts/HeaderMessengerIcon.astro";
+import Film from "@/components/film/Film.astro";
+import { showMarks } from "@/lib/rich";
 import { IMG, MESSENGER_LABEL, type Country, type Course, type ImageKey } from "@/data";
 
 interface Props {
-  variant?: "adaptive" | "screen" | "ecg" | "cert";
+  variant?: "adaptive" | "screen" | "ecg" | "cert" | "film";
   copy?: "a" | "b";
   course: Course;
   country: Country;
@@ -30,6 +35,7 @@ const m = country.messengers[0];
 const cert = course.certificate.sample;
 /* Три коротких факта для первого экрана: длительность, группа, документ */
 const chips = course.facts.slice(0, 3);
+const group = course.nextGroup && (showMarks || !course.nextGroup.includes("[[")) ? course.nextGroup : undefined;
 ---
 {variant === "adaptive" && (
   <>
@@ -57,6 +63,11 @@ const chips = course.facts.slice(0, 3);
           </div>
         ))}
         <ul class="mt-5 flex flex-wrap gap-2 md:mt-8" data-reveal style="--reveal-delay:120ms">
+          {group && (
+            <li class="flex items-center gap-1.5 rounded-full bg-sun px-3 py-1.5 text-[13.5px] font-semibold text-ink">
+              <span class="relative flex size-2"><span class="absolute inset-0 animate-ping rounded-full bg-brand opacity-70"></span><span class="relative size-2 rounded-full bg-brand"></span></span><Rich text={group} />
+            </li>
+          )}
           {chips.map((f) => (
             <li class="flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-[13.5px] font-medium ring-1 ring-white/20 backdrop-blur-md">
               <Icon name={f.icon} size={15} class="text-sun" /><Rich text={f.value} />
@@ -85,6 +96,11 @@ const chips = course.facts.slice(0, 3);
       </div>
       <div class="order-2 pt-4 md:order-1 md:pt-0">
         {modes && <ModeSwitch class="mb-5" />}
+        {group && (
+          <p class="mb-5 inline-flex items-center gap-2 rounded-full bg-brand-50 px-3.5 py-1.5 text-[14px] font-semibold text-brand-600" data-reveal>
+            <span class="relative flex size-2"><span class="absolute inset-0 animate-ping rounded-full bg-brand opacity-70"></span><span class="relative size-2 rounded-full bg-brand"></span></span><Rich text={group} />
+          </p>
+        )}
         {texts.map((t) => (
           <div data-mode={t.mode}>
             <h1 class="text-[32px] font-bold leading-[1.05] md:text-[60px]" data-reveal><Rich text={t.title} /></h1>
@@ -138,6 +154,38 @@ const chips = course.facts.slice(0, 3);
           <CertificateReal sample={cert} country={country.id} />
         </div>
       </div>
+    </div>
+  </section>
+)}
+
+{variant === "film" && (
+  <section class="relative overflow-hidden pb-10 pt-6 md:pb-16 md:pt-14">
+    <div class="container-l grid items-center gap-7 md:grid-cols-[1fr_1fr] md:gap-14">
+      <div>
+        {modes && <ModeSwitch class="mb-5" />}
+        {group && (
+          <p class="mb-4 inline-flex items-center gap-2 rounded-full bg-brand-50 px-3.5 py-1.5 text-[14px] font-semibold text-brand-600">
+            <span class="relative flex size-2"><span class="absolute inset-0 animate-ping rounded-full bg-brand opacity-70"></span><span class="relative size-2 rounded-full bg-brand"></span></span><Rich text={group} />
+          </p>
+        )}
+        {texts.map((t) => (
+          <div data-mode={t.mode}>
+            <h1 class="text-[32px] font-bold leading-[1.05] md:text-[56px]"><Rich text={t.title} /></h1>
+            <Rich as="p" class="lead-text mt-3 md:mt-5" text={t.sub} />
+          </div>
+        ))}
+        <ul class="mt-5 flex flex-wrap gap-2">
+          {chips.map((f) => (
+            <li class="flex items-center gap-1.5 rounded-full bg-soft px-3 py-1.5 text-[13.5px] font-medium"><Icon name={f.icon} size={15} class="text-brand" /><Rich text={f.value} /></li>
+          ))}
+        </ul>
+        <div class="mt-6 hidden gap-3 md:flex">
+          <button data-lead-open={course.id} class="h-14 rounded-full bg-brand px-8 text-base font-semibold text-white shadow-[0_12px_30px_-10px_var(--brand)] transition hover:bg-brand-600">Записаться на курс</button>
+          <a href={m.href} class="flex h-14 items-center gap-2 rounded-full bg-soft px-6 font-semibold text-brand transition hover:bg-line"><HeaderMessengerIcon id={m.id} /><span class="text-ink">{MESSENGER_LABEL[m.id]}</span></a>
+        </div>
+      </div>
+      <Film film={course.film} />
+      <button data-lead-open={course.id} class="h-14 w-full rounded-full bg-brand text-base font-semibold text-white md:hidden">Записаться на курс</button>
     </div>
   </section>
 )}

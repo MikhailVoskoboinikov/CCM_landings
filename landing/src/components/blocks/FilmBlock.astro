@@ -1,0 +1,36 @@
+---
+/*
+ * Ролик-алгоритм. Варианты:
+ *  steps — на компьютере слева заголовок и список шагов (подсвечивается текущий, кликается),
+ *          справа ролик; на телефоне заголовок и ролик
+ *  off   — блока нет
+ */
+import Rich from "@/components/parts/Rich.astro";
+import Film from "@/components/film/Film.astro";
+import type { Course } from "@/data";
+
+interface Props { variant?: "steps" | "off"; course: Course }
+const { variant = "steps", course } = Astro.props;
+const f = course.film;
+---
+{variant === "steps" && (
+  <section class="py-14 md:py-24" id="film">
+    <div class="container-l grid gap-8 md:grid-cols-[.85fr_1.15fr] md:items-center md:gap-14" data-film-root>
+      <div data-reveal>
+        <h2 class="h-section">{f.title}</h2>
+        <Rich as="p" class="lead-text mt-3" text={f.lead} />
+        <ol class="mt-8 hidden gap-1 md:grid">
+          {f.scenes.map((s, i) => (
+            <li>
+              <button type="button" data-film-step class="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-[15.5px] text-ink-2 transition-colors hover:bg-soft data-[on]:bg-brand-50 data-[on]:font-semibold data-[on]:text-ink">
+                <span class="grid size-7 shrink-0 place-items-center rounded-full bg-soft text-[13px] font-bold text-brand">{i + 1}</span>
+                <Rich text={s.title} />
+              </button>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <div data-reveal><Film film={f} /></div>
+    </div>
+  </section>
+)}

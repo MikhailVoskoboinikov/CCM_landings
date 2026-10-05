@@ -11,6 +11,19 @@ export type DeepPartial<T> = {
   [K in keyof T]?: T[K] extends readonly unknown[] ? T[K] : T[K] extends object ? DeepPartial<T[K]> : T[K];
 };
 
+/** Сцена ролика: kind — какая анимация (components/film/Scene.astro), ms — сколько показывать */
+export type FilmKind =
+  | "safety" | "shake" | "breath-check" | "call" | "compress" | "breaths" | "aed"
+  | "press" | "bandage" | "tourniquet" | "cough" | "backblows" | "abdominal" | "course";
+export interface FilmScene {
+  kind: FilmKind;
+  title: string;
+  text: string;
+  ms: number;
+  /** Подпись на счётчике, например «из 30» или «15 : 2» */
+  count?: string;
+}
+
 export interface Stat {
   value: string;
   text: string;
@@ -59,6 +72,14 @@ export interface Course {
     stat: Stat;
     items: { icon: string; text: string }[];
   };
+  /** Ролик-алгоритм на коде: анимированные сцены с подписями */
+  film: { title: string; lead: string; scenes: FilmScene[] };
+  /** Мини-тест: несколько вопросов с объяснением */
+  quiz: { title: string; lead: string; items: { q: string; options: string[]; answer: number; explain: string }[] };
+  /** Расписание дня курса — для варианта программы «Один день» */
+  schedule: { time: string; title: string; text: string }[];
+  /** Ближайшая группа — строка с пометкой, пока нет реального графика */
+  nextGroup?: string;
   /** Чему научитесь: 6 навыков с фото */
   skills: {
     title: string;

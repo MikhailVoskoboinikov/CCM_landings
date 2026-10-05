@@ -4,6 +4,7 @@
  * отдавал место содержимому. Варианты:
  *  full — логотип, меню «город и язык», мессенджеры, кнопка записи
  *  ad   — только логотип и кнопка: для рекламного трафика, где лишние ссылки уводят
+ * Под шапкой — красная полоска: сколько страницы уже прочитано.
  * Переводы ещё не подключены: другие языки в меню видны, но выбрать их пока нельзя.
  */
 import { url } from "@/lib/url";
@@ -57,10 +58,16 @@ const languages = [
       <button data-lead-open={course.id} class="h-10 shrink-0 rounded-full bg-brand px-4 text-[14px] font-semibold text-white transition-colors hover:bg-brand-600 md:h-11 md:px-6">Записаться</button>
     </div>
   </div>
+  <span class="absolute inset-x-0 bottom-0 h-[3px] origin-left scale-x-0 bg-brand" data-read-progress aria-hidden="true"></span>
 </header>
 <script>
   document.querySelectorAll<HTMLElement>("[data-header]").forEach((h) => {
-    const on = () => h.toggleAttribute("data-scrolled", scrollY > 8);
+    // Красная полоска прочитанного под шапкой
+    const bar = h.querySelector<HTMLElement>("[data-read-progress]");
+    const on = () => {
+      h.toggleAttribute("data-scrolled", scrollY > 8);
+      if (bar) bar.style.transform = `scaleX(${Math.min(1, scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight))})`;
+    };
     on();
     addEventListener("scroll", on, { passive: true });
     const menu = h.querySelector<HTMLDetailsElement>("[data-header-menu]");
