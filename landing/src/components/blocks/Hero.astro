@@ -2,8 +2,7 @@
 /*
  * Первый экран. Варианты:
  *  adaptive — на телефоне screen, на компьютере ecg
- *  screen — фото на весь экран телефона, поверх образец сертификата, заголовок, факты и кнопки;
- *           кружок-сторис слева сверху открывает «Курс за 60 секунд» (parts/Stories.astro)
+ *  screen — фото на весь экран телефона, поверх образец сертификата, заголовок, факты и кнопки
  *  ecg    — белый фон: текст, фото с сертификатом и бегущая кардиограмма
  *  cert   — в центре внимания образец сертификата
  *  film   — текст и ролик-алгоритм вместо фото
@@ -20,7 +19,6 @@ import ModeSwitch from "@/components/parts/ModeSwitch.astro";
 import HeaderMessengerIcon from "@/components/parts/HeaderMessengerIcon.astro";
 import Film from "@/components/film/Film.astro";
 import NextGroup from "@/components/parts/NextGroup.astro";
-import Stories from "@/components/parts/Stories.astro";
 import { showMarks } from "@/lib/rich";
 import { IMG, MESSENGER_LABEL, type Country, type Course, type ImageKey } from "@/data";
 
@@ -53,17 +51,6 @@ const group = course.nextGroup && (course.nextGroup.confirmed || showMarks) ? co
     <img src={img} alt="" class="absolute inset-0 -z-20 size-full object-cover" loading="eager" fetchpriority="high" />
     <div class="absolute inset-0 -z-10 bg-[linear-gradient(to_top,rgba(10,11,14,.92)_0%,rgba(10,11,14,.7)_38%,rgba(10,11,14,.15)_70%,rgba(10,11,14,.05)_100%)] md:bg-[linear-gradient(100deg,rgba(10,11,14,.88)_0%,rgba(10,11,14,.6)_45%,rgba(10,11,14,.1)_80%)]"></div>
 
-    {/* Кружок-сторис, как в Instagram: открывает «Курс за 60 секунд» */}
-    <button type="button" data-stories-open class="absolute left-4 top-5 z-10 flex flex-col items-center gap-1.5 md:hidden" aria-label="Смотреть курс за 60 секунд">
-      <span class="story-ring relative grid size-[70px] place-items-center rounded-full p-[3px]">
-        <span class="relative grid size-full place-items-center overflow-hidden rounded-full border-[3px] border-ink">
-          <img src={IMG[course.skills.items[1]?.image as ImageKey ?? "manikin"]} alt="" class="absolute inset-0 size-full object-cover" />
-          <span class="relative grid size-7 place-items-center rounded-full bg-white/90 text-ink"><svg viewBox="0 0 24 24" class="ml-0.5 size-3.5"><path d="M8 5v14l11-7z" fill="currentColor" /></svg></span>
-        </span>
-      </span>
-      <span class="text-[12px] font-semibold text-white [text-shadow:0_1px_6px_rgb(0_0_0/.6)]">Курс за 60 с</span>
-    </button>
-
     <div class="absolute right-4 top-5 w-[48%] max-w-[300px] rotate-[4deg] md:right-[5%] md:top-1/2 md:w-[38%] md:max-w-[520px] md:-translate-y-1/2" data-hero-cert>
       <div class="animate-float" style="--r:0deg"><CertificateReal sample={cert} country={country.id} /></div>
     </div>
@@ -94,7 +81,6 @@ const group = course.nextGroup && (course.nextGroup.confirmed || showMarks) ? co
       </div>
     </div>
   </section>
-  <Stories course={course} country={country} />
   </>
 )}
 

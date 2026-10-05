@@ -3,6 +3,7 @@
 import Header from "./Header.astro";
 import Hero from "./Hero.astro";
 import Why from "./Why.astro";
+import Clip from "./Clip.astro";
 import FilmBlock from "./FilmBlock.astro";
 import Quiz from "./Quiz.astro";
 import Audience from "./Audience.astro";
@@ -26,6 +27,7 @@ const v = variant as any;
 ---
 {id === "header" && <Header variant={v} course={course} country={country} base={base} />}
 {id === "hero" && <Hero variant={v} copy={copy as any} course={course} country={country} />}
+{id === "clip" && <Clip variant={v} course={course} country={country} />}
 {id === "why" && <Why course={course} country={country} />}
 {id === "film" && <FilmBlock variant={v} course={course} />}
 {id === "quiz" && <Quiz variant={v} course={course} />}

@@ -3,7 +3,6 @@
 import Base from "@/layouts/Base.astro";
 import Block from "@/components/blocks/Block.astro";
 import Footer from "@/components/blocks/Footer.astro";
-import StickyCta from "@/components/blocks/StickyCta.astro";
 import { BLOCKS, DEFAULTS } from "@/config/blocks";
 import { COUNTRIES, COURSE_LIST, courseFor, type CountryId, type CourseId } from "@/data";
 import { plain } from "@/lib/rich";
@@ -21,5 +20,4 @@ const hero = course.hero[DEFAULTS["hero.copy"] as "a" | "b"];
     <Block id={b.id} variant={DEFAULTS[b.id]} copy={DEFAULTS["hero.copy"]} course={course} country={country} />
   ))}
   <Footer country={country} />
-  <StickyCta course={course} country={country} />
 </Base>

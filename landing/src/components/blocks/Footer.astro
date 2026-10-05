@@ -8,7 +8,7 @@ import { COURSE_LIST, IMG, type Country } from "@/data";
 interface Props { country: Country; base?: string }
 const { country, base = "" } = Astro.props;
 ---
-<footer class="bg-[#f4f4f4] pb-28 pt-12 text-[15px] md:pb-14 md:pt-14">
+<footer class="bg-[#f4f4f4] pb-12 pt-12 text-[15px] md:pb-14 md:pt-14">
   <div class="container-l grid grid-cols-2 gap-x-6 gap-y-9 md:grid-cols-4 md:gap-10">
     <div class="col-span-2 md:col-span-1">
       <img src={IMG.logo} alt="ЦКМ" class="h-16 w-auto" width="140" height="64" loading="lazy" />

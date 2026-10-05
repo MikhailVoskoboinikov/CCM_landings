@@ -1,43 +1,53 @@
 ---
 /*
- * «Курс за 60 секунд» — полноэкранные сторис для телефона на настоящих фото:
- * медленное приближение кадра, крупный текст с поочерёдным появлением, полоски прогресса.
- * Тап справа/слева — дальше/назад, удержание — пауза, свайп вниз, крестик или Esc — закрыть.
- * Последний слайд — запись: кнопка открывает шторку заявки и закрывает сторис.
- * Открывается любым элементом с [data-stories-open]. Всё содержимое — из данных курса.
+ * Клип «Курс за 60 секунд» — второй блок на телефоне (на компьютере его нет).
+ * Шесть слайдов на настоящих фото: медленное приближение кадра, текст появляется
+ * строка за строкой, полоски прогресса. Играет сам, пока виден на экране; тап справа/слева —
+ * дальше/назад, удержание — пауза. Последний слайд — запись. Под клипом — «Узнать подробнее»
+ * к следующему блоку. Фото на слайдах не повторяются. Всё содержимое — из данных курса.
+ * Варианты: inline — клип; off — блока нет.
  */
-import Icon from "./Icon.astro";
-import Rich from "./Rich.astro";
-import CertificateReal from "./CertificateReal.astro";
-import NextGroup from "./NextGroup.astro";
-import HeaderMessengerIcon from "./HeaderMessengerIcon.astro";
+import Icon from "@/components/parts/Icon.astro";
+import Rich from "@/components/parts/Rich.astro";
+import CertificateReal from "@/components/parts/CertificateReal.astro";
+import NextGroup from "@/components/parts/NextGroup.astro";
+import HeaderMessengerIcon from "@/components/parts/HeaderMessengerIcon.astro";
 import { IMG, MESSENGER_LABEL, type Country, type Course, type ImageKey } from "@/data";
 import { priceText } from "@/lib/price";
 import { showMarks } from "@/lib/rich";
 
-interface Props { course: Course; country: Country }
-const { course, country } = Astro.props;
+interface Props { variant?: "inline" | "off"; course: Course; country: Country }
+const { variant = "inline", course, country } = Astro.props;
 const stat = country.stat ?? course.why.stat;
 const img = (k: string) => IMG[k as ImageKey];
 const m = country.messengers[0];
 const group = course.nextGroup && (course.nextGroup.confirmed || showMarks) ? course.nextGroup : undefined;
-/* Фото для «Чему научитесь» — первое из навыков, которое не совпадает с фото первого слайда */
-const skillPhoto = course.skills.items.find((it) => it.image !== course.hero.image)?.image ?? "aed";
+/* Разные фото на каждом слайде: берём первое ещё не использованное из списка */
+const used = new Set<string>([course.hero.image]);
+const pick = (...keys: string[]) => {
+  const k = keys.find((x) => !used.has(x)) ?? keys[0];
+  used.add(k);
+  return k;
+};
+const photoHook = pick("clinical", "airway", "bandage", "event");
+const photoWhere = pick("event", "clinical", "airway", "bandage");
+const photoSkills = pick(...course.skills.items.map((it) => it.image).filter((k) => k !== "scenario"), "aed");
+const photoTeam = pick("team", "workers", "bag");
 const SLIDE_MS = 9000;
 const slides = 6;
 ---
-<div class="stories fixed inset-0 z-[80] hidden bg-black text-white" data-stories role="dialog" aria-modal="true" aria-label="Курс за 60 секунд">
-  <div class="absolute inset-x-3 top-[calc(10px+env(safe-area-inset-top))] z-20 flex gap-1" aria-hidden="true">
-    {Array.from({ length: slides }, () => <span class="h-[3px] flex-1 overflow-hidden rounded-full bg-white/30"><span data-st-bar class="block h-full w-full origin-left scale-x-0 bg-white"></span></span>)}
+{variant === "inline" && (
+<section class="py-6 md:hidden" id="clip" aria-label="Курс за 60 секунд">
+<div class="container-l">
+<div class="relative h-[min(76svh,660px)] overflow-hidden rounded-[28px] bg-black text-white" data-stories>
+  <div class="absolute inset-x-4 top-3.5 z-20 flex gap-1" aria-hidden="true">
+    {Array.from({ length: slides }, () => <span class="h-[3px] flex-1 overflow-hidden rounded-full bg-white/30"><span data-st-bar class="block h-full w-full origin-left bg-white" style="transform:scaleX(0)"></span></span>)}
   </div>
-  <div class="absolute inset-x-3 top-[calc(22px+env(safe-area-inset-top))] z-20 flex items-center justify-between">
-    <p class="text-[13px] font-semibold text-white/90">Учебный центр ЦКМ · {course.short}</p>
-    <button type="button" data-st-close aria-label="Закрыть" class="grid size-10 place-items-center rounded-full"><Icon name="X" size={24} /></button>
-  </div>
+  <p class="absolute inset-x-4 top-7 z-20 text-[13px] font-semibold text-white/90">Курс за 60 секунд · {course.short}</p>
 
   {/* 1. Крючок: цифра */}
   <section class="st-slide" data-st-slide>
-    <img src={img(course.hero.image)} alt="" class="st-kb" loading="lazy" />
+    <img src={img(photoHook)} alt="" class="st-kb" loading="lazy" />
     <div class="st-shade"></div>
     <div class="st-body">
       <p class="st-in text-[15px] font-semibold text-sun" style="--d:.2s">{course.why.title}</p>
@@ -49,7 +59,7 @@ const slides = 6;
 
   {/* 2. Где пригодится */}
   <section class="st-slide" data-st-slide>
-    <img src={img("scenario")} alt="" class="st-kb" loading="lazy" />
+    <img src={img(photoWhere)} alt="" class="st-kb" loading="lazy" />
     <div class="st-shade"></div>
     <div class="st-body">
       <p class="st-in text-[30px] font-bold leading-tight" style="--d:.2s">Это может случиться рядом с вами</p>
@@ -66,7 +76,7 @@ const slides = 6;
 
   {/* 3. Чему научитесь */}
   <section class="st-slide" data-st-slide>
-    <img src={img(skillPhoto)} alt="" class="st-kb" loading="lazy" />
+    <img src={img(photoSkills)} alt="" class="st-kb" loading="lazy" />
     <div class="st-shade"></div>
     <div class="st-body">
       <p class="st-in text-[30px] font-bold leading-tight" style="--d:.2s">За один день вы научитесь</p>
@@ -93,7 +103,7 @@ const slides = 6;
 
   {/* 5. Кто учит и как */}
   <section class="st-slide" data-st-slide>
-    <img src={img("team")} alt="" class="st-kb" loading="lazy" />
+    <img src={img(photoTeam)} alt="" class="st-kb" loading="lazy" />
     <div class="st-shade"></div>
     <div class="st-body">
       <p class="st-in text-[30px] font-bold leading-tight" style="--d:.2s">Учат практикующие врачи</p>
@@ -117,27 +127,34 @@ const slides = 6;
       <p class="st-in mt-3 text-[18px] text-white/85" style="--d:.5s"><Rich text={priceText(course, country)} /> за участника, всё включено</p>
       {group && <div class="st-in" style="--d:.8s"><NextGroup group={group} dark class="mt-4" /></div>}
       <div class="st-in mt-7 grid gap-2.5" style="--d:1.1s">
-        <button data-lead-open={course.id} data-st-close class="h-14 rounded-full bg-brand text-[17px] font-semibold text-white">Записаться</button>
+        <button data-lead-open={course.id} class="h-14 rounded-full bg-brand text-[17px] font-semibold text-white">Записаться</button>
         <a href={m.href} class="flex h-14 items-center justify-center gap-2 rounded-full bg-white/15 text-[16px] font-semibold backdrop-blur [--glyph:#111317]"><HeaderMessengerIcon id={m.id} />Написать в {MESSENGER_LABEL[m.id]}</a>
       </div>
     </div>
   </section>
 
-  <button type="button" data-st-go="-1" aria-label="Назад" class="absolute bottom-48 left-0 top-20 z-10 w-1/3"></button>
-  <button type="button" data-st-go="1" aria-label="Дальше" class="absolute bottom-48 right-0 top-20 z-10 w-2/3"></button>
+  <button type="button" data-st-go="-1" aria-label="Назад" class="absolute inset-y-0 left-0 z-10 w-1/3"></button>
+  <button type="button" data-st-go="1" aria-label="Дальше" class="absolute inset-y-0 right-0 z-10 w-2/3"></button>
 </div>
+<button type="button" data-clip-more class="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-soft text-[15px] font-semibold text-ink transition hover:bg-line">
+  Узнать подробнее<Icon name="ChevronDown" size={18} />
+</button>
+</div>
+</section>
+)}
 
 <style>
   .st-slide { position: absolute; inset: 0; overflow: hidden; opacity: 0; transition: opacity .45s ease; pointer-events: none; }
   .st-slide[data-on] { opacity: 1; pointer-events: auto; }
   .st-kb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .st-shade { position: absolute; inset: 0; background: linear-gradient(to top, rgb(0 0 0 / .88) 0%, rgb(0 0 0 / .55) 45%, rgb(0 0 0 / .15) 75%, rgb(0 0 0 / .35) 100%); }
-  .st-body { position: absolute; inset-inline: 22px; bottom: calc(32px + env(safe-area-inset-bottom)); z-index: 15; }
+  .st-body { position: absolute; inset-inline: 20px; bottom: 24px; z-index: 15; pointer-events: none; }
+  .st-body :is(a, button) { pointer-events: auto; }
   .st-in { opacity: 0; transform: translateY(18px); }
   .st-slide[data-on] .st-kb { animation: st-kb var(--st-ms) linear both; }
   .st-slide[data-on] .st-in { animation: st-in .7s cubic-bezier(.2,.8,.2,1) var(--d, 0s) both; }
   .st-slide[data-on] .st-cert { animation: st-cert 1.1s cubic-bezier(.2,.8,.2,1) .2s both; }
-  [data-stories][data-paused] * { animation-play-state: paused !important; }
+  [data-stories]:is([data-paused], [data-offscreen]) * { animation-play-state: paused !important; }
   @keyframes st-kb { from { transform: scale(1.14) translate(1.5%, 1%); } to { transform: scale(1) translate(0, 0); } }
   @keyframes st-in { to { opacity: 1; transform: none; } }
   @keyframes st-cert { from { opacity: 0; transform: translateY(60px) rotate(-8deg) scale(.9); } to { opacity: 1; transform: rotate(-3deg); } }
@@ -149,19 +166,18 @@ const slides = 6;
     root.style.setProperty("--st-ms", `${SLIDE_MS}ms`);
     const slides = [...root.querySelectorAll("[data-st-slide]")];
     const bars = [...root.querySelectorAll("[data-st-bar]")];
-    let i = 0, elapsed = 0, last = 0, paused = false, open = false, raf = 0, held = false, holdTimer = 0, y0 = 0;
+    let i = 0, elapsed = 0, last = 0, paused = false, visible = false, raf = 0, held = false, holdTimer = 0;
     const show = (k) => {
-      if (k >= slides.length) return close();
-      i = Math.max(0, k);
+      i = Math.min(slides.length - 1, Math.max(0, k));
       elapsed = 0;
       slides.forEach((s) => s.removeAttribute("data-on"));
-      void root.offsetWidth;
+      void root.offsetWidth; // перезапуск анимаций слайда
       slides[i].setAttribute("data-on", "");
       bars.forEach((b, j) => (b.style.transform = `scaleX(${j < i ? 1 : 0})`));
     };
     const tick = (now) => {
       raf = 0;
-      if (!open) return;
+      if (!visible) return;
       if (!paused) {
         elapsed += now - last;
         bars[i].style.transform = `scaleX(${Math.min(1, elapsed / SLIDE_MS)})`;
@@ -171,46 +187,30 @@ const slides = 6;
       raf = requestAnimationFrame(tick);
     };
     const setPaused = (p) => { paused = p; root.toggleAttribute("data-paused", p); };
-    function close() {
-      open = false;
-      root.classList.add("hidden");
-      document.documentElement.style.overflow = "";
-    }
-    const start = () => {
-      open = true;
-      root.classList.remove("hidden");
-      document.documentElement.style.overflow = "hidden";
-      setPaused(false);
-      show(0);
-      last = performance.now();
-      raf ||= requestAnimationFrame(tick);
-    };
-    document.querySelectorAll("[data-stories-open]").forEach((b) => b.addEventListener("click", start));
-    root.querySelectorAll("[data-st-close]").forEach((b) => b.addEventListener("click", close));
+    // Играет, только пока клип виден; ушёл с экрана — пауза
+    new IntersectionObserver(([e]) => {
+      visible = e.isIntersecting;
+      root.toggleAttribute("data-offscreen", !visible);
+      if (visible && !raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
+    }, { threshold: 0.5 }).observe(root);
     root.querySelectorAll("[data-st-go]").forEach((b) =>
       b.addEventListener("click", () => {
         if (!held) show(i + Number(b.dataset.stGo));
         held = false;
       }),
     );
-    // Удержание пальца — пауза; свайп вниз — закрыть
     // Палец держат дольше 250 мс — это пауза, а не тап «дальше»
-    root.addEventListener("pointerdown", (e) => {
-      y0 = e.clientY;
+    root.addEventListener("pointerdown", () => {
       held = false;
       holdTimer = setTimeout(() => { held = true; setPaused(true); }, 250);
     });
-    root.addEventListener("pointerup", (e) => {
-      clearTimeout(holdTimer);
-      setPaused(false);
-      if (e.clientY - y0 > 90) { held = true; close(); }
+    const release = () => { clearTimeout(holdTimer); setPaused(false); };
+    root.addEventListener("pointerup", release);
+    root.addEventListener("pointercancel", release);
+    root.addEventListener("pointerleave", release);
+    document.querySelector("[data-clip-more]")?.addEventListener("click", () => {
+      document.getElementById("clip")?.nextElementSibling?.scrollIntoView({ behavior: "smooth" });
     });
-    root.addEventListener("pointercancel", () => { clearTimeout(holdTimer); setPaused(false); });
-    addEventListener("keydown", (e) => {
-      if (!open) return;
-      if (e.key === "Escape") close();
-      if (e.key === "ArrowRight") show(i + 1);
-      if (e.key === "ArrowLeft") show(i - 1);
-    });
+    show(0);
   }
 </script>

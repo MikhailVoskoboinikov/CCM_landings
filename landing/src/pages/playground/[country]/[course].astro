@@ -7,7 +7,6 @@
 import Base from "@/layouts/Base.astro";
 import Block from "@/components/blocks/Block.astro";
 import Footer from "@/components/blocks/Footer.astro";
-import StickyCta from "@/components/blocks/StickyCta.astro";
 import { BLOCKS, DEFAULTS } from "@/config/blocks";
 import { COUNTRIES, COURSE_LIST, courseFor, type CountryId, type CourseId } from "@/data";
 import { url } from "@/lib/url";
@@ -51,7 +50,6 @@ const pg = { blocks: BLOCKS, defaults: DEFAULTS, course: course.id, country: cou
     </div>
   ))}
   <Footer country={country} base="/playground" />
-  <StickyCta course={course} country={country} />
 
   <!-- Панель стенда -->
   <div data-pg-panel class="fixed bottom-20 right-3 z-[60] w-[min(360px,calc(100vw-24px))] rounded-2xl bg-[#1c2030] p-3 text-[13px] text-white shadow-2xl md:bottom-4">
