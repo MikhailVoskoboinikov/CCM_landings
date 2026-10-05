@@ -3,7 +3,7 @@
  * Образец настоящего сертификата. Основа — картинка из PDF-образцов ЦКМ, с которой
  * сняты имя, номер, дата и QR-код реальных выпускников. Эти поля рисуются поверх в SVG
  * в тех же координатах (пиксели картинки), поэтому всё масштабируется вместе с ней.
- * editable — посетитель вписывает своё имя, кириллица переводится в латиницу.
+ * Имя на образце — типичное для страны, не реального выпускника.
  */
 import { Picture } from "astro:assets";
 import QRCode from "qrcode";
@@ -18,8 +18,9 @@ import firstAid from "@/assets/certificates/first-aid.png";
 import firstAidKids from "@/assets/certificates/first-aid-kids.png";
 import type { CertSampleId, CountryId } from "@/data";
 
-interface Props { sample: CertSampleId; country: CountryId; editable?: boolean; class?: string }
-const { sample, country, editable = false, class: cls = "" } = Astro.props;
+interface Props { sample: CertSampleId; country: CountryId; class?: string }
+const { sample, country, class: cls = "" } = Astro.props;
+const NAME: Record<CountryId, string> = { uz: "Malika Karimova", kg: "Aidana Asanova" };
 
 type Field = { text: string; x: number; y: number; size: number; font: "serif" | "sans" | "erc"; weight?: number; fill: string; anchor?: "start" | "middle"; spacing?: number };
 interface Layout {
@@ -98,55 +99,15 @@ const cell = L.qr.s / n;
 let qrPath = "";
 for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.modules.get(r, c)) qrPath += `M${(L.qr.x + c * cell).toFixed(2)} ${(L.qr.y + r * cell).toFixed(2)}h${cell.toFixed(2)}v${cell.toFixed(2)}h-${cell.toFixed(2)}z`;
 ---
-<figure class={`cert-real relative ${cls}`} data-cert data-cert-max={L.name.max} data-cert-size={L.name.size}>
+<figure class={`relative ${cls}`}>
   <div class="relative overflow-hidden rounded-[10px] bg-white shadow-[0_24px_60px_-24px_rgba(17,19,23,.45)] ring-1 ring-black/5" style={`aspect-ratio:${L.w}/${L.h}`}>
     <Picture src={L.img} formats={["avif", "webp"]} widths={[700, 1100, 1600]} sizes="(min-width: 1024px) 620px, (min-width: 768px) 80vw, 100vw" alt="Образец сертификата" loading="lazy" class="absolute inset-0 size-full" />
     <svg viewBox={`0 0 ${L.w} ${L.h}`} class="absolute inset-0 size-full" aria-hidden="true">
-      <text data-cert-name x={L.name.x} y={L.name.y} font-size={L.name.size} font-family={FONT[L.name.font]} font-weight={L.name.weight ?? 400} fill={L.name.fill} text-anchor="middle">Your Name</text>
+      <text x={L.name.x} y={L.name.y} font-size={L.name.size} font-family={FONT[L.name.font]} font-weight={L.name.weight ?? 400} fill={L.name.fill} text-anchor="middle">{NAME[country]}</text>
       {L.fields.map((f) => (
         <text x={f.x} y={f.y} font-size={f.size} font-family={FONT[f.font]} font-weight={f.weight ?? 400} fill={f.fill} text-anchor={f.anchor ?? "middle"} letter-spacing={f.spacing ?? 0}>{f.text}</text>
       ))}
       <path d={qrPath} fill="#111317" />
     </svg>
   </div>
-  {editable && (
-    <label class="mt-4 flex items-center gap-3 rounded-2xl bg-soft px-4 py-2.5 focus-within:ring-2 focus-within:ring-brand/40">
-      <span class="shrink-0 text-[14px] text-ink-2">Ваше имя:</span>
-      <input data-cert-input type="text" maxlength="40" autocomplete="name" placeholder="впишите, и оно появится выше" class="h-9 min-w-0 flex-1 bg-transparent text-[16px] font-medium outline-none placeholder:text-muted-foreground/80" />
-    </label>
-  )}
 </figure>
-
-<script>
-  // Латиница для имени на сертификате: сертификат англоязычный
-  const MAP: Record<string, string> = {
-    а: "a", б: "b", в: "v", г: "g", д: "d", е: "e", ё: "yo", ж: "zh", з: "z", и: "i", й: "y", к: "k", л: "l", м: "m", н: "n",
-    о: "o", п: "p", р: "r", с: "s", т: "t", у: "u", ф: "f", х: "kh", ц: "ts", ч: "ch", ш: "sh", щ: "shch", ъ: "", ы: "y", ь: "",
-    э: "e", ю: "yu", я: "ya", ў: "oʻ", қ: "q", ғ: "gʻ", ҳ: "h", ң: "ng", ө: "ö", ү: "ü",
-  };
-  const latin = (s: string) =>
-    [...s].map((ch) => {
-      const low = ch.toLowerCase();
-      const t = MAP[low];
-      if (t === undefined) return ch;
-      return ch === low ? t : t.charAt(0).toUpperCase() + t.slice(1);
-    }).join("");
-
-  document.querySelectorAll<HTMLElement>("[data-cert]").forEach((fig) => {
-    const name = fig.querySelector<SVGTextElement>("[data-cert-name]")!;
-    const input = fig.querySelector<HTMLInputElement>("[data-cert-input]");
-    const max = Number(fig.dataset.certMax);
-    const size = Number(fig.dataset.certSize);
-    // Длинное имя уменьшаем, чтобы оно не вылезало за поля сертификата
-    const fit = () => {
-      name.setAttribute("font-size", String(size));
-      const w = name.getComputedTextLength();
-      if (w > max) name.setAttribute("font-size", String(Math.floor((size * max) / w)));
-    };
-    input?.addEventListener("input", () => {
-      name.textContent = latin(input.value.trim()) || "Your Name";
-      fit();
-    });
-    document.fonts?.ready.then(fit);
-  });
-</script>

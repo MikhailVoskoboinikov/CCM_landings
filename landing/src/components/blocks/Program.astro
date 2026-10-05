@@ -1,6 +1,7 @@
 ---
 /*
  * Программа. Варианты:
+ *  adaptive  — на компьютере пазл, на телефоне раскрывающийся список
  *  accordion — раскрывающийся список разделов, как просили в ЦКМ; разделы
  *              открываются по очереди по мере прокрутки
  *  puzzle    — тот же список, при прокрутке детали пазла собираются в целое
@@ -12,8 +13,8 @@ import Rich from "@/components/parts/Rich.astro";
 import ProgramPuzzle from "@/components/parts/ProgramPuzzle.astro";
 import type { Course } from "@/data";
 
-interface Props { variant?: "accordion" | "puzzle" | "timeline" | "day"; course: Course }
-const { variant = "accordion", course } = Astro.props;
+interface Props { variant?: "adaptive" | "accordion" | "puzzle" | "timeline" | "day"; course: Course }
+const { variant = "adaptive", course } = Astro.props;
 const p = course.program;
 const total = p.sections.reduce((n, s) => n + s.items.length, 0);
 const day = [
@@ -36,9 +37,9 @@ const day = [
         </div>
       </div>
 
-      {variant === "puzzle" && <ProgramPuzzle course={course} />}
-      {variant === "accordion" && (
-        <div class="grid gap-3">
+      {(variant === "puzzle" || variant === "adaptive") && <div class={variant === "adaptive" ? "hidden md:block" : ""}><ProgramPuzzle course={course} /></div>}
+      {(variant === "accordion" || variant === "adaptive") && (
+        <div class={`grid gap-3 ${variant === "adaptive" ? "md:hidden" : ""}`}>
           {p.sections.map((s, i) => (
             <details data-prog-step class="prog-step group rounded-3xl bg-soft transition-colors duration-500 open:bg-white open:shadow-[0_8px_40px_-16px_rgba(17,19,23,.2)] open:ring-1 open:ring-black/5" open={i === 0} data-reveal style={`--reveal-delay:${i * 60}ms`}>
               <summary class="flex cursor-pointer list-none items-center gap-4 p-5 md:p-6 [&::-webkit-details-marker]:hidden">

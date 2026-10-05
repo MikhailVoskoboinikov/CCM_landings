@@ -16,12 +16,10 @@ const country = COUNTRIES[Astro.params.country as CountryId];
 const course = courseFor(Astro.params.course as CourseId, country.id);
 const hero = course.hero[DEFAULTS["hero.copy"] as "a" | "b"];
 ---
-<Base title={`${plain(hero.title)} — учебный центр ЦКМ, ${country.city}`} description={plain(hero.sub)} country={country} courseId={course.id} screens>
-  {/* Каждый блок — «экран»: прилипает, следующий наезжает на него (layouts/Base.astro, global.css) */}
-  {BLOCKS.filter((b) => DEFAULTS[b.id] !== "off").map((b) => b.id === "header"
-    ? <Block id={b.id} variant={DEFAULTS[b.id]} course={course} country={country} />
-    : <><div class="screen-snap" aria-hidden="true"></div><div class="screen" data-screen={b.id}><Block id={b.id} variant={DEFAULTS[b.id]} copy={DEFAULTS["hero.copy"]} course={course} country={country} /></div></>
-  )}
+<Base title={`${plain(hero.title)} — учебный центр ЦКМ, ${country.city}`} description={plain(hero.sub)} country={country} courseId={course.id}>
+  {BLOCKS.filter((b) => DEFAULTS[b.id] !== "off").map((b) => (
+    <Block id={b.id} variant={DEFAULTS[b.id]} copy={DEFAULTS["hero.copy"]} course={course} country={country} />
+  ))}
   <Footer country={country} />
   <StickyCta course={course} country={country} />
 </Base>

@@ -1,50 +1,106 @@
 ---
 /*
- * Чему научитесь. Варианты:
- *  list  — компактный список с круглыми фото: шесть навыков помещаются в один экран телефона
- *  cards — карточки с крупным фото
+ * Чему научитесь. На компьютере всегда 6 карточек. Варианты — что на телефоне:
+ *  swipe — блок закрепляется на экране, прокрутка вниз листает карточки вбок:
+ *          каждый свайп — следующая карточка (карточка доезжает до места сама)
+ *  list  — компактный список с круглыми фото, помещается в один экран
  */
 import Rich from "@/components/parts/Rich.astro";
 import { IMG, type Course, type ImageKey } from "@/data";
 
-interface Props { variant?: "list" | "cards"; course: Course }
-const { variant = "list", course } = Astro.props;
+interface Props { variant?: "swipe" | "list"; course: Course }
+const { variant = "swipe", course } = Astro.props;
 const s = course.skills;
+const n = s.items.length;
 ---
 <section class="py-14 md:py-24" id="skills">
-  <div class="container-l">
+  <div class={`container-l ${variant === "swipe" ? "hidden md:block" : ""}`}>
     <div class="max-w-2xl" data-reveal>
       <h2 class="h-section">{s.title}</h2>
       <Rich as="p" class="lead-text mt-3" text={s.lead} />
     </div>
-    {variant === "list" && (
-      <ol class="mt-8 grid gap-x-10 gap-y-3 md:mt-12 md:grid-cols-2 md:gap-y-5">
-        {s.items.map((it, i) => (
-          <li class="flex items-center gap-4" data-reveal style={`--reveal-delay:${i * 50}ms`}>
-            <span class="relative shrink-0">
-              <img src={IMG[it.image as ImageKey]} alt="" loading="lazy" decoding="async" class="size-[68px] rounded-full object-cover md:size-20" />
-              <span class="absolute -right-1 -top-1 grid size-6 place-items-center rounded-full bg-brand text-[12px] font-bold text-white ring-2 ring-white">{i + 1}</span>
-            </span>
-            <div class="min-w-0">
-              <h3 class="text-[16.5px] font-bold leading-snug md:text-lg">{it.title}</h3>
-              <Rich as="p" class="mt-0.5 text-[14.5px] leading-snug text-ink-2 md:text-[15.5px]" text={it.text} />
-            </div>
-          </li>
-        ))}
-      </ol>
-    )}
-    {variant === "cards" && (
-      <div class="mt-8 grid grid-cols-2 gap-3 md:mt-12 md:gap-6 lg:grid-cols-3">
-        {s.items.map((it, i) => (
-          <article class="flex min-w-0 flex-col overflow-hidden rounded-3xl bg-soft" data-reveal style={`--reveal-delay:${i * 50}ms`}>
-            <img src={IMG[it.image as ImageKey]} alt="" loading="lazy" decoding="async" class="aspect-[4/3] w-full object-cover" />
-            <div class="p-4 md:p-6">
-              <h3 class="text-[15.5px] font-bold leading-snug md:text-lg">{it.title}</h3>
-              <Rich as="p" class="mt-1.5 hidden text-[15px] leading-relaxed text-ink-2 sm:block" text={it.text} />
-            </div>
-          </article>
-        ))}
-      </div>
-    )}
   </div>
+
+  <div class="container-l hidden md:block">
+    <div class="mt-12 grid grid-cols-3 gap-6">
+      {s.items.map((it, i) => (
+        <article class="flex min-w-0 flex-col overflow-hidden rounded-3xl bg-soft" data-reveal style={`--reveal-delay:${i * 50}ms`}>
+          <img src={IMG[it.image as ImageKey]} alt="" loading="lazy" decoding="async" class="aspect-[16/10] w-full object-cover" />
+          <div class="p-6">
+            <h3 class="text-lg font-bold leading-snug">{it.title}</h3>
+            <Rich as="p" class="mt-1.5 text-[15.5px] leading-relaxed text-ink-2" text={it.text} />
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+
+  {variant === "list" && (
+    <ol class="container-l mt-8 grid gap-3 md:hidden">
+      {s.items.map((it, i) => (
+        <li class="flex items-center gap-4" data-reveal style={`--reveal-delay:${i * 50}ms`}>
+          <span class="relative shrink-0">
+            <img src={IMG[it.image as ImageKey]} alt="" loading="lazy" decoding="async" class="size-[68px] rounded-full object-cover" />
+            <span class="absolute -right-1 -top-1 grid size-6 place-items-center rounded-full bg-brand text-[12px] font-bold text-white ring-2 ring-white">{i + 1}</span>
+          </span>
+          <div class="min-w-0">
+            <h3 class="text-[16.5px] font-bold leading-snug">{it.title}</h3>
+            <Rich as="p" class="mt-0.5 text-[14.5px] leading-snug text-ink-2" text={it.text} />
+          </div>
+        </li>
+      ))}
+    </ol>
+  )}
+
+  {variant === "swipe" && (
+    <div class="relative -my-14 md:hidden" style={`height:calc(${n} * 62svh + 38svh)`} data-skill-pin>
+      <div class="sticky top-[var(--hdr)] flex h-[calc(100svh-var(--hdr))] flex-col overflow-hidden py-8">
+        <div class="container-l">
+          <h2 class="h-section">{s.title}</h2>
+          <Rich as="p" class="mt-2 text-[16px] leading-snug text-ink-2" text={s.lead} />
+        </div>
+        <div class="mt-6 flex min-h-0 flex-1 gap-3 px-5 transition-transform duration-500 ease-[cubic-bezier(.22,.7,.2,1)]" data-skill-track>
+          {s.items.map((it, i) => (
+            <article class="flex w-[82%] shrink-0 flex-col overflow-hidden rounded-3xl bg-soft" data-skill-card>
+              <img src={IMG[it.image as ImageKey]} alt="" loading="lazy" decoding="async" class="min-h-0 w-full flex-1 object-cover" />
+              <div class="p-5">
+                <p class="text-[13px] font-semibold text-brand">{i + 1} из {n}</p>
+                <h3 class="mt-1 text-[19px] font-bold leading-snug">{it.title}</h3>
+                <Rich as="p" class="mt-1 text-[15px] leading-snug text-ink-2" text={it.text} />
+              </div>
+            </article>
+          ))}
+        </div>
+        <div class="mt-5 flex justify-center gap-1.5" aria-hidden="true">
+          {s.items.map(() => <span class="h-1.5 w-1.5 rounded-full bg-line transition-all duration-300 data-[on]:w-5 data-[on]:bg-brand" data-skill-dot></span>)}
+        </div>
+      </div>
+    </div>
+  )}
 </section>
+
+<script>
+  // Закреплённая лента навыков: доля прокрутки блока → номер карточки, карточка доезжает до места сама
+  document.querySelectorAll<HTMLElement>("[data-skill-pin]").forEach((pin) => {
+    const track = pin.querySelector<HTMLElement>("[data-skill-track]")!;
+    const cards = [...pin.querySelectorAll<HTMLElement>("[data-skill-card]")];
+    const dots = [...pin.querySelectorAll<HTMLElement>("[data-skill-dot]")];
+    let current = -1;
+    const update = () => {
+      const r = pin.getBoundingClientRect();
+      const hdr = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--hdr")) || 56;
+      const run = r.height - (innerHeight - hdr);
+      const p = Math.min(1, Math.max(0, (hdr - r.top) / run));
+      const i = Math.min(cards.length - 1, Math.floor(p * cards.length));
+      if (i === current) return;
+      current = i;
+      const shift = cards[i].offsetLeft - cards[0].offsetLeft;
+      track.style.transform = `translateX(${-shift}px)`;
+      dots.forEach((d, k) => d.toggleAttribute("data-on", k === i));
+    };
+    let raf = 0;
+    addEventListener("scroll", () => (raf ||= requestAnimationFrame(() => ((raf = 0), update()))), { passive: true });
+    addEventListener("resize", () => ((current = -1), update()));
+    update();
+  });
+</script>

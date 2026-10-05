@@ -1,8 +1,8 @@
 ---
 /*
  * Клиенты — сразу после «О ЦКМ», как просили в ЦКМ.
- * Кыргызстан: реальные клиенты из презентации учебного центра — списком с тем, чему учились.
- * Узбекистан: пока отрасли (нужны логотипы и разрешение компаний). Варианты для отраслей:
+ * Кыргызстан: реальные клиенты из презентации учебного центра с тем, чему учились.
+ * Узбекистан: пока отрасли (нужны логотипы и разрешение компаний). Варианты:
  *  marquee — бегущая строка; grid — сетка.
  */
 import Icon from "@/components/parts/Icon.astro";
@@ -22,7 +22,17 @@ const title = named
   <div class="container-l">
     <Rich as="h2" class="text-[22px] font-bold leading-tight md:text-[30px]" text={title} />
   </div>
-  {named && (
+  {named && variant === "marquee" && (
+    <Marquee class="mt-6 md:mt-8" repeat={2} duration={60}>
+      {named.map((c) => (
+        <div class="mr-3 w-[280px] shrink-0 rounded-2xl bg-soft px-5 py-4 md:w-[340px]">
+          <p class="text-[17px] font-bold leading-snug">{c.name}</p>
+          <p class="mt-1 text-[14px] leading-snug text-ink-2">{c.text}</p>
+        </div>
+      ))}
+    </Marquee>
+  )}
+  {named && variant === "grid" && (
     <ul class="container-l mt-6 grid gap-2.5 md:mt-8 md:grid-cols-2 lg:grid-cols-3">
       {named.map((c, i) => (
         <li class="rounded-2xl bg-soft px-5 py-4" data-reveal style={`--reveal-delay:${i * 50}ms`}>

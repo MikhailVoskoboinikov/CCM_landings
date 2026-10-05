@@ -1,6 +1,7 @@
 ---
 /*
  * «Для кого». Варианты:
+ *  adaptive — на компьютере плитки, на телефоне список
  *  cards — плитки 2 × 2 на телефоне, в ряд на компьютере; без горизонтальной прокрутки
  *  list  — крупная мысль слева, список справа
  * Если у курса есть режим «Для организации», рисуются обе версии, видна одна (data-mode).
@@ -9,15 +10,21 @@ import Icon from "@/components/parts/Icon.astro";
 import Rich from "@/components/parts/Rich.astro";
 import type { Course } from "@/data";
 
-interface Props { variant?: "cards" | "list"; course: Course }
-const { variant = "cards", course } = Astro.props;
+interface Props { variant?: "adaptive" | "cards" | "list"; course: Course }
+const { variant = "adaptive", course } = Astro.props;
 const modes = course.org.modes;
 const versions = [
   { mode: modes ? "self" : undefined, ...course.audience },
   ...(modes ? [{ mode: "org", ...modes.audience }] : []),
 ];
 ---
-{versions.map((a) => variant === "cards" ? (
+{variant === "adaptive" && (
+  <>
+    <div class="md:hidden"><Astro.self variant="list" course={course} /></div>
+    <div class="hidden md:block"><Astro.self variant="cards" course={course} /></div>
+  </>
+)}
+{variant !== "adaptive" && versions.map((a) => variant === "cards" ? (
   <section class="py-14 md:py-24" data-mode={a.mode}>
     <div class="container-l">
       <div class="max-w-2xl" data-reveal>
@@ -45,7 +52,7 @@ const versions = [
       <ul class="grid gap-1">
         {a.items.map((it, i) => (
           <li class="audience-card flex gap-4 rounded-2xl p-3 transition-colors hover:bg-soft md:p-5" data-reveal style={`--reveal-delay:${i * 60}ms`}>
-            <span class="grid size-11 shrink-0 place-items-center rounded-full bg-brand text-white"><Icon name={it.icon} size={20} animated /></span>
+            <span class="icon-on-brand grid size-11 shrink-0 place-items-center rounded-full bg-brand text-white"><Icon name={it.icon} size={20} animated /></span>
             <div>
               <h3 class="text-[17px] font-bold md:text-lg">{it.title}</h3>
               <Rich as="p" class="mt-1 text-[15px] text-ink-2" text={it.text} />

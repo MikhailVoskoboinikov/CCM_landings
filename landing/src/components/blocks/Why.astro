@@ -6,6 +6,7 @@
  */
 import Icon from "@/components/parts/Icon.astro";
 import Rich from "@/components/parts/Rich.astro";
+import Ecg from "@/components/parts/Ecg.astro";
 import type { Country, Course } from "@/data";
 
 interface Props { course: Course; country: Country }
@@ -18,10 +19,11 @@ const second = country.stat ? w.stat : undefined;
   <div class="container-l grid gap-8 md:grid-cols-2 md:items-center md:gap-16">
     <div data-reveal>
       <h2 class="h-section">{w.title}</h2>
-      <div class="relative mt-7 overflow-hidden rounded-[28px] bg-brand p-6 text-white md:mt-10 md:p-9">
-        <svg viewBox="0 0 400 120" class="pointer-events-none absolute -right-10 bottom-0 h-28 w-[420px] text-white/15" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
-          <path d="M0 80h120l12-8 10 8h22l8 10 14-70 14 92 10-32h30l14-14 16 14h130" stroke-linejoin="round" />
-        </svg>
+      <div class="relative mt-7 overflow-hidden rounded-[28px] bg-brand p-6 pb-20 text-white md:mt-10 md:p-9 md:pb-24">
+        {/* Та же кардиограмма, что на первом экране: на телефоне бежит, на компьютере неподвижна —
+            две бегущие рядом с кардиограммой первого экрана смотрелись бы странно */}
+        <Ecg beats={3} base={0.22} class="pointer-events-none absolute inset-x-0 bottom-3 h-16 w-full text-white md:hidden" />
+        <Ecg beats={3} still base={0.22} class="pointer-events-none absolute inset-x-0 bottom-3 hidden h-20 w-full text-white md:block" />
         <p class="relative text-[56px] font-bold leading-none tracking-tight md:text-[80px]"><Rich text={main.value} /></p>
         <Rich as="p" class="relative mt-3 max-w-md text-[17px] leading-snug md:text-xl" text={main.text} />
         <Rich as="p" class="relative mt-4 text-[12.5px] text-white/70" text={main.source} />

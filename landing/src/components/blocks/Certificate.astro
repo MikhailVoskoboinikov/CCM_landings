@@ -2,7 +2,7 @@
 /*
  * Сертификат — главный блок: по брифу информация должна быть больше
  * о сертификате, чем о курсе. Варианты:
- *  real — настоящий образец: посетитель вписывает своё имя; срок, проверка и где пригодится
+ *  real — настоящий образец сертификата; срок, проверка и где пригодится
  *  tilt — объёмная карточка и «где пригодится»
  *  path — путь от курса до проверки подлинности
  */
@@ -38,8 +38,7 @@ const steps = [
         <Rich as="p" class="lead-text mt-3" text={c.lead} />
       </div>
       <div data-reveal>
-        <CertificateReal sample={c.sample} country={country.id} editable />
-        {c.sampleNote && <Rich as="p" class="mt-3 text-[13px] leading-snug text-muted-foreground" text={c.sampleNote} />}
+        <CertificateReal sample={c.sample} country={country.id} />
       </div>
       <div>
         <dl class="grid grid-cols-2 gap-2.5">
@@ -90,7 +89,7 @@ const steps = [
         <h2 class="h-section">{c.title}</h2>
         <p class="lead-text mt-4"><Rich text={c.lead} /></p>
       </div>
-      <div class="mx-auto mt-12 max-w-[560px]" data-reveal><CertificateReal sample={c.sample} country={country.id} editable /></div>
+      <div class="mx-auto mt-12 max-w-[560px]" data-reveal><CertificateReal sample={c.sample} country={country.id} /></div>
       <ol class="relative mt-14 grid gap-8 md:grid-cols-4 md:gap-6">
         <span class="absolute left-[22px] top-2 h-[calc(100%-16px)] w-0.5 bg-brand/25 md:left-0 md:top-[22px] md:h-0.5 md:w-full" aria-hidden="true"></span>
         {steps.map((s, i) => (

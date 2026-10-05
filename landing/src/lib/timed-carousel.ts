@@ -1,4 +1,4 @@
-/** Shared 10-second slider; manual selection resets time, hover preserves it. */
+/** Слайдер с автосменой: по умолчанию 10 с, иначе data-carousel-duration (мс). Выбор вручную сбрасывает время, наведение ставит на паузу. */
 export function initTimedCarousels() {
   document.querySelectorAll<HTMLElement>("[data-timed-carousel]").forEach((root) => {
     if (root.dataset.carouselReady) return;
@@ -9,7 +9,7 @@ export function initTimedCarousels() {
     const counter = root.querySelector<HTMLElement>("[data-carousel-counter]");
     const main = root.querySelector<HTMLElement>("[data-carousel-main]");
     if (!panels.length) return;
-    const duration = 10_000;
+    const duration = Number(root.dataset.carouselDuration) || 10_000;
     let index = 0, elapsed = 0, previous = performance.now(), frame = 0;
     let hovered = false, focused = false, visible = false;
     const drawProgress = () => {

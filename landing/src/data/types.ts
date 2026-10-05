@@ -75,8 +75,6 @@ export interface Course {
     kind: "erc" | "center";
     /** Образец, который показываем на странице */
     sample: CertSampleId;
-    /** Пометка под образцом: чем он отличается от настоящего документа */
-    sampleNote?: string;
     /** Когда участник получает сертификат */
     issued: string;
     title: string;
