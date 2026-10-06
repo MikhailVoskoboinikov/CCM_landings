@@ -5,6 +5,7 @@
 interface Config {
   blocks: { id: string; label: string; variants: [string, string][]; copy?: boolean }[];
   scroll: [string, string][];
+  scrollDetails: Record<string, string>;
   defaults: Record<string, string>;
   course: string;
   country: string;
@@ -58,6 +59,40 @@ export function initPlayground() {
   let drawer: null | "comments" | "questions" = null;
   let target: { block: string; variant: string } | null = null;
 
+  function scrollStatus() {
+    const engine = document.documentElement.dataset.scrollEngine;
+    const label = cfg.scroll.find(([id]) => id === engine)?.[1];
+    $("[data-pg-scroll-status]").textContent = engine === "desktop"
+      ? "На этой ширине — обычная прокрутка."
+      : engine === "loading" ? "Подключаю библиотеку…"
+      : engine === "error" ? "Не удалось загрузить режим — обычная прокрутка."
+      : label ? `Работает: ${label}` : "Подготовка прокрутки…";
+    $("[data-pg-scroll-detail]").textContent = cfg.scrollDetails[sel.scroll] ?? "";
+  }
+  document.addEventListener("ccm:scroll-status", scrollStatus);
+
+  const preview = $<HTMLDialogElement>("[data-pg-mobile-preview]");
+  const frame = $<HTMLIFrameElement>("[data-pg-mobile-frame]");
+  $("[data-pg-mobile-open]").addEventListener("click", () => {
+    const url = new URL(location.href);
+    url.searchParams.set("preview", "mobile");
+    frame.src = url.href;
+    preview.showModal();
+    document.dispatchEvent(new CustomEvent("ccm:overlay", { detail: { source: "mobile-preview", open: true } }));
+  });
+  $("[data-pg-mobile-close]").addEventListener("click", () => preview.close());
+  preview.addEventListener("close", () => {
+    frame.src = "about:blank";
+    document.dispatchEvent(new CustomEvent("ccm:overlay", { detail: { source: "mobile-preview", open: false } }));
+    // Выбор, сделанный в мобильном окне, доступен и в основном стенде.
+    const saved = get<Record<string, string>>(LS_SEL, {});
+    sel = { ...cfg.defaults, ...Object.fromEntries(Object.entries(saved).filter(([k, v]) => known(k, v))) };
+    comments = get(LS_COMM, []);
+    Object.assign(ui, get(LS_UI, ui));
+    $$<HTMLInputElement>("[data-pg-toggle]").forEach((cb) => { cb.checked = ui[cb.dataset.pgToggle as "bars" | "marks"]; });
+    apply();
+  });
+
   const variantKey = (block: string) => {
     const b = cfg.blocks.find((x) => x.id === block)!;
     return b.copy ? `${sel[block]}/${sel[block + ".copy"] ?? "a"}` : sel[block];
@@ -94,6 +129,7 @@ export function initPlayground() {
       $("[data-pg-count]", cb).textContent = n ? String(n) : "";
     }
     document.documentElement.dataset.snap = sel.scroll;
+    scrollStatus();
     $$("[data-pg-scroll]").forEach((btn) => btn.toggleAttribute("data-on", btn.dataset.pgScroll === sel.scroll));
     $$("[data-pg-bar]").forEach((b) => (b.style.display = ui.bars ? "" : "none"));
     document.documentElement.classList.toggle("hide-marks", !ui.marks);

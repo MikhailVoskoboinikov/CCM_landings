@@ -46,6 +46,23 @@ export const BLOCKS: BlockDef[] = [
  */
 export const SCROLL: [id: string, label: string][] = [["fullpage", "Экраны fullPage.js"], ["strict", "Блок за свайп"], ["first", "Свайп на первых экранах"], ["near", "Мягкая доводка"], ["free", "Обычная"]];
 
+export const PLAYGROUND_SCROLL: [id: string, label: string][] = [
+  ...SCROLL,
+  ["swiper", "Swiper — жесты"],
+  ["swiper-css", "Swiper — нативный"],
+  ["lenis", "Lenis — плавная доводка"],
+];
+export const SCROLL_DETAILS: Record<string, string> = {
+  fullpage: "Полноэкранные секции. Длинный блок прокручивается внутри, затем переход к следующему.",
+  swiper: "Экран двигается за пальцем. Длинное содержимое листается вложенным слайдером с инерцией.",
+  "swiper-css": "Нативный scroll-snap. Длинный блок сохраняет свою высоту и листается целиком; инерцию и доводку задаёт браузер.",
+  lenis: "Непрерывная плавная прокрутка. После остановки — мягкая доводка к ближайшей границе блока.",
+  strict: "Нативное прилипание к блокам с остановкой на каждой границе.",
+  first: "Мягкое прилипание только на первых трёх блоках.",
+  near: "Нативная доводка, если остановиться рядом с границей блока.",
+  free: "Обычная прокрутка без прилипания к блокам.",
+};
+
 export const DEFAULTS: Record<string, string> = {
   scroll: "fullpage",
   header: "full",

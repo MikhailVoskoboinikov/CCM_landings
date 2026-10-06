@@ -1,6 +1,6 @@
 /* Мобильная прокрутка секциями. Исходные узлы возвращаются на место при смене режима. */
 interface FullpageSection { item: HTMLElement }
-interface FullpageAPI {
+export interface ScrollAPI {
   getActiveSection(): FullpageSection | undefined;
   destroy(type: "all"): void;
   reBuild(): void;
@@ -9,8 +9,12 @@ interface FullpageAPI {
   setAllowScrolling(allow: boolean): void;
   setKeyboardScrolling(allow: boolean): void;
   setScrollingSpeed(speed: number): void;
+  getScrollOffset?(): number;
+  getScrollRange?(): number;
+  setScrollOffset?(offset: number): void;
+  scrollToElement?(target: HTMLElement): void;
 }
-type FullpageConstructor = new (container: HTMLElement, options: Record<string, unknown>) => FullpageAPI;
+type FullpageConstructor = new (container: HTMLElement, options: Record<string, unknown>) => ScrollAPI;
 interface Entry { node: HTMLElement; marker: Comment; section: HTMLElement }
 
 export function initMobileFullpage() {
@@ -20,7 +24,7 @@ export function initMobileFullpage() {
   const mobile = matchMedia("(max-width: 767.98px)");
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
   const overlays = new Set<string>();
-  let api: FullpageAPI | undefined;
+  let api: ScrollAPI | undefined;
   let host: HTMLElement | undefined;
   let entries: Entry[] = [];
   let generation = 0;
@@ -28,6 +32,12 @@ export function initMobileFullpage() {
   let rebuildFrame = 0;
   let library: Promise<FullpageConstructor> | undefined;
   let pendingTarget: HTMLElement | undefined;
+  const playground = !!document.getElementById("pg-config");
+  const experimentalModes = new Set(["swiper", "swiper-css", "lenis"]);
+  const status = (mode: string) => {
+    root.dataset.scrollEngine = mode;
+    document.dispatchEvent(new Event("ccm:scroll-status"));
+  };
 
   const visibleSections = () => [...page.querySelectorAll<HTMLElement>("section, footer")].filter(
     (s) => !s.parentElement?.closest("section, footer") && s.getClientRects().length,
@@ -38,11 +48,15 @@ export function initMobileFullpage() {
     return section ? { item: section.item, index: entries.findIndex((entry) => entry.section === section.item) } : undefined;
   };
   const headerHeight = () => {
-    const header = page.querySelector<HTMLElement>("[data-header]");
+    const header = [...page.querySelectorAll<HTMLElement>("[data-header]")].find((element) => element.offsetHeight > 0);
     if (!header) return 0;
     const group = header.closest<HTMLElement>("[data-pg-block]");
     const bar = group?.querySelector<HTMLElement>("[data-pg-bar]");
     return header.offsetHeight + (bar?.offsetHeight ?? 0);
+  };
+  const viewport = () => {
+    root.style.setProperty("--ccm-screen-height", `${Math.max(0, innerHeight - headerHeight())}px`);
+    root.style.setProperty("--ccm-header-height", `${headerHeight()}px`);
   };
   const lock = () => {
     api?.setAllowScrolling(overlays.size === 0);
@@ -52,20 +66,24 @@ export function initMobileFullpage() {
     const active = activeSection();
     if (!active) return;
     const scroll = overflow(active.item);
-    const inner = scroll && scroll.scrollHeight > scroll.clientHeight
-      ? scroll.scrollTop / (scroll.scrollHeight - scroll.clientHeight) : 0;
+    const offset = api?.getScrollOffset?.() ?? scroll?.scrollTop ?? 0;
+    const range = api?.getScrollRange?.() ?? (scroll ? scroll.scrollHeight - scroll.clientHeight : 0);
+    const inner = range > 0 ? offset / range : 0;
+    const native = host?.dataset.scrollEngine === "lenis";
     document.dispatchEvent(new CustomEvent("ccm:scroll", { detail: {
-      progress: Math.min(1, (active.index + inner) / Math.max(1, entries.length - 1)),
-      scrolled: active.index > 0 || (scroll?.scrollTop ?? 0) > 8,
+      progress: native ? Math.min(1, scrollY / Math.max(1, root.scrollHeight - innerHeight)) : Math.min(1, (active.index + inner) / Math.max(1, entries.length - 1)),
+      scrolled: native ? scrollY > 8 : active.index > 0 || offset > 8,
     } }));
   };
   const reveal = () => {
     const active = activeSection();
     if (active) active.item.querySelectorAll("[data-reveal]").forEach((el) => el.classList.add("is-in"));
     if (pendingTarget && active?.item.contains(pendingTarget)) {
-      const scroll = overflow(active.item);
-      if (scroll) scroll.scrollTop += pendingTarget.getBoundingClientRect().top - scroll.getBoundingClientRect().top;
+      const target = pendingTarget;
       pendingTarget = undefined;
+      const scroll = overflow(active.item);
+      if (api?.scrollToElement) api.scrollToElement(target);
+      else if (scroll) scroll.scrollTop += target.getBoundingClientRect().top - scroll.getBoundingClientRect().top;
     }
     progress();
   };
@@ -75,6 +93,7 @@ export function initMobileFullpage() {
     if (!api || rebuildFrame) return;
     rebuildFrame = requestAnimationFrame(() => {
       rebuildFrame = 0;
+      viewport();
       api?.reBuild();
       progress();
     });
@@ -84,7 +103,7 @@ export function initMobileFullpage() {
     const active = activeSection();
     const position = active ? {
       node: entries[active.index]?.node,
-      scrollTop: overflow(active.item)?.scrollTop ?? 0,
+      scrollTop: api?.getScrollOffset?.() ?? overflow(active.item)?.scrollTop ?? 0,
     } : undefined;
     resize.disconnect();
     cancelAnimationFrame(rebuildFrame);
@@ -96,26 +115,41 @@ export function initMobileFullpage() {
     host?.remove();
     host = undefined;
     root.classList.remove("ccm-fullpage-active");
+    root.classList.remove("ccm-scroll-active", "ccm-swiper-active");
     root.style.removeProperty("--ccm-screen-height");
+    root.style.removeProperty("--ccm-header-height");
+    pendingTarget = undefined;
+    status("native");
     return position;
   };
 
   async function sync(version: number) {
     const position = destroy();
-    if (!mobile.matches || root.dataset.snap !== "fullpage") {
+    const mode = root.dataset.snap ?? "free";
+    const experiment = playground && experimentalModes.has(mode);
+    if (!mobile.matches || (mode !== "fullpage" && !experiment)) {
       if (position?.node) {
         const target = position.node.getClientRects().length ? position.node :
           [...position.node.querySelectorAll<HTMLElement>("section, footer")].find((section) => section.getClientRects().length);
         if (target) window.scrollTo({ top: target.getBoundingClientRect().top + scrollY - headerHeight() + position.scrollTop, behavior: "instant" });
       }
       window.dispatchEvent(new Event("scroll"));
+      status(mobile.matches ? mode : "desktop");
       return;
     }
+    status("loading");
     try {
-      // Пакет fullpage.js не включает объявленные в package.json типы в npm-архив.
-      // @ts-expect-error Внешний модуль типизирован локальным интерфейсом адаптера.
-      library ??= import("fullpage.js").then((module) => module.default as FullpageConstructor);
-      const Fullpage = await library;
+      let Fullpage: FullpageConstructor | undefined;
+      let factory: Awaited<ReturnType<typeof import("@/lib/playground-scroll")["loadPlaygroundScroll"]>> | undefined;
+      if (experiment) {
+        const { loadPlaygroundScroll } = await import("@/lib/playground-scroll");
+        factory = await loadPlaygroundScroll(mode);
+      } else {
+        // Пакет fullpage.js не включает объявленные в package.json типы в npm-архив.
+        // @ts-expect-error Внешний модуль типизирован локальным интерфейсом адаптера.
+        library ??= import("fullpage.js").then((module) => module.default as FullpageConstructor);
+        Fullpage = await library;
+      }
       if (version !== generation) return;
       const sections = visibleSections();
       const groupSelector = "[data-pg-block], [data-landing-block]";
@@ -131,9 +165,10 @@ export function initMobileFullpage() {
       const current = sections.find((section) => section.getBoundingClientRect().bottom > headerHeight());
       const initial = position?.node ?? current?.closest<HTMLElement>(groupSelector) ?? current ?? nodes[0];
       const top = headerHeight();
-      root.style.setProperty("--ccm-screen-height", `${Math.max(0, innerHeight - top)}px`);
+      viewport();
       host = document.createElement("div");
       host.dataset.fullpageRoot = "";
+      host.dataset.scrollEngine = mode;
       page!.append(host);
       entries = nodes.map((node) => {
         const marker = document.createComment("Место секции в обычной прокрутке");
@@ -146,8 +181,9 @@ export function initMobileFullpage() {
         host!.append(section);
         return { node, marker, section };
       });
-      root.classList.add("ccm-fullpage-active");
-      api = new Fullpage(host, {
+      root.classList.add("ccm-scroll-active");
+      if (mode === "fullpage") root.classList.add("ccm-fullpage-active");
+      api = factory ? factory({ host, entries, initial: Math.max(0, entries.findIndex(({ node }) => node === initial)), headerHeight: top, reducedMotion: reducedMotion.matches, onChange: reveal }) : new Fullpage!(host, {
         licenseKey: import.meta.env.PUBLIC_FULLPAGE_LICENSE_KEY ?? "",
         sectionSelector: ".ccm-fullpage-section",
         slideSelector: ".ccm-fullpage-slide",
@@ -165,7 +201,7 @@ export function initMobileFullpage() {
         credits: { enabled: true, label: "fullPage.js", position: "right" },
         afterLoad: reveal,
         afterResize: () => {
-          root.style.setProperty("--ccm-screen-height", `${Math.max(0, innerHeight - headerHeight())}px`);
+          viewport();
           progress();
         },
         onScrollOverflow: progress,
@@ -173,18 +209,23 @@ export function initMobileFullpage() {
       if (position) {
         const active = activeSection();
         const scroll = active && overflow(active.item);
-        if (scroll) scroll.scrollTop = position.scrollTop;
+        if (api.setScrollOffset) api.setScrollOffset(position.scrollTop);
+        else if (scroll) scroll.scrollTop = position.scrollTop;
       }
       entries.forEach(({ node }) => {
         resize.observe(node);
         node.querySelectorAll<HTMLElement>("section, footer").forEach((section) => resize.observe(section));
       });
+      const header = page!.querySelector<HTMLElement>("[data-header]");
+      if (header) resize.observe(header);
       lock();
       reveal();
+      status(mode);
       if (!position && location.hash) navigateHash();
     } catch (error) {
       destroy();
       library = undefined;
+      status("error");
       console.error("Не удалось включить полноэкранную прокрутку", error);
     }
   }
@@ -233,6 +274,11 @@ export function initMobileFullpage() {
     } catch { /* Некорректный якорь не мешает прокрутке. */ }
   });
   addEventListener("hashchange", navigateHash);
+  addEventListener("resize", () => {
+    if (!api) return;
+    viewport();
+    api.reBuild();
+  });
   mobile.addEventListener("change", schedule);
   reducedMotion.addEventListener("change", () => api?.setScrollingSpeed(reducedMotion.matches ? 0 : 600));
   document.addEventListener("ccm:rendered", schedule);

@@ -213,7 +213,9 @@ html[data-mode="org"] [data-mode="self"] {
 /* Прокрутка блоками на телефоне: data-snap на <html>, точки доводки расставляет Base.astro.
    Блок выше экрана браузер листает внутри и доводит только на его границах. */
 @media (max-width: 767.98px) {
-  html.ccm-fullpage-active { scroll-behavior: auto; }
+  [data-landing-content] { overflow-x: clip; }
+  [data-header-menu]:not([open]) > div { display: none; }
+  html.ccm-scroll-active { scroll-behavior: auto; }
   [data-fullpage-root] {
     position: fixed !important;
     inset: 0;
@@ -221,12 +223,32 @@ html[data-mode="org"] [data-mode="self"] {
   }
   .ccm-fullpage-section [data-pg-block],
   .ccm-fullpage-section [data-landing-block] { display: block; }
-  .ccm-fullpage-active .ccm-fullpage-section > .fp-overflow {
+  .ccm-scroll-active .ccm-fullpage-section > .fp-overflow {
     max-height: var(--ccm-screen-height);
     overscroll-behavior-y: contain;
   }
   .ccm-fullpage-section { background: var(--background); }
   .ccm-fullpage-section [data-hero] { min-height: var(--ccm-screen-height); }
+  html.ccm-swiper-active, .ccm-swiper-active body { overflow: hidden; }
+  [data-fullpage-root].ccm-swiper {
+    top: var(--ccm-header-height);
+    bottom: auto;
+    height: var(--ccm-screen-height);
+  }
+  .ccm-swiper.swiper-css-mode { touch-action: pan-y; }
+  .ccm-swiper > .swiper-wrapper > .swiper-slide { height: var(--ccm-screen-height); }
+  .ccm-swiper > .swiper-wrapper > .fp-auto-height { height: auto; }
+  .ccm-swiper-inner { height: 100%; width: 100%; }
+  .ccm-swiper-inner .ccm-swiper-content { height: auto !important; }
+  .ccm-swiper.swiper-css-mode > .swiper-wrapper > .swiper-slide { height: auto; min-height: var(--ccm-screen-height); }
+  .ccm-swiper.swiper-css-mode > .swiper-wrapper > .fp-auto-height { min-height: 0; }
+  .ccm-scroll-locked > .swiper-wrapper {
+    overflow: hidden !important;
+    touch-action: none;
+  }
+  [data-fullpage-root][data-scroll-engine="lenis"] { position: static !important; }
+  [data-scroll-engine="lenis"] > .ccm-fullpage-section { min-height: var(--ccm-screen-height); }
+  [data-scroll-engine="lenis"] > .fp-auto-height { min-height: 0; }
   html[data-snap="strict"] { scroll-snap-type: y mandatory; }
   html[data-snap="first"],
   html[data-snap="near"] { scroll-snap-type: y proximity; }

@@ -7,7 +7,7 @@
 import Base from "@/layouts/Base.astro";
 import Block from "@/components/blocks/Block.astro";
 import Footer from "@/components/blocks/Footer.astro";
-import { blocksFor, DEFAULTS, SCROLL } from "@/config/blocks";
+import { blocksFor, DEFAULTS, PLAYGROUND_SCROLL, SCROLL_DETAILS } from "@/config/blocks";
 import { COUNTRIES, COURSE_LIST, courseFor, type CountryId, type CourseId } from "@/data";
 import { url } from "@/lib/url";
 
@@ -18,7 +18,7 @@ export function getStaticPaths() {
 const country = COUNTRIES[Astro.params.country as CountryId];
 const course = courseFor(Astro.params.course as CourseId, country.id);
 const blocks = blocksFor(country.id, course.id);
-const pg = { blocks: blocks, scroll: SCROLL, defaults: DEFAULTS, course: course.id, country: country.id };
+const pg = { blocks: blocks, scroll: PLAYGROUND_SCROLL, scrollDetails: SCROLL_DETAILS, defaults: DEFAULTS, course: course.id, country: country.id };
 ---
 <Base title={`Стенд: ${course.name} · ${country.city}`} country={country} courseId={course.id} scroll={DEFAULTS.scroll} noindex>
   {blocks.map((b) => (
@@ -53,7 +53,7 @@ const pg = { blocks: blocks, scroll: SCROLL, defaults: DEFAULTS, course: course.
   <Footer country={country} base="/playground" />
 
   <!-- Панель стенда -->
-  <div data-pg-panel class="fixed bottom-20 right-3 z-[60] w-[min(360px,calc(100vw-24px))] rounded-2xl bg-[#1c2030] p-3 text-[13px] text-white shadow-2xl md:bottom-4">
+  <div data-pg-panel class="fixed bottom-20 right-3 z-[60] max-h-[calc(100dvh-100px)] w-[min(360px,calc(100vw-24px))] overflow-y-auto rounded-2xl bg-[#1c2030] p-3 text-[13px] text-white shadow-2xl md:bottom-4">
     <div class="flex items-center justify-between gap-2">
       <b>Стенд лендингов ЦКМ</b>
       <button data-pg-collapse class="rounded-lg px-2 py-1 text-white/70 hover:bg-white/10">свернуть</button>
@@ -72,10 +72,13 @@ const pg = { blocks: blocks, scroll: SCROLL, defaults: DEFAULTS, course: course.
       <div class="grid gap-1">
         <span class="text-white/60">Прокрутка на телефоне</span>
         <span class="flex flex-wrap gap-1">
-          {SCROLL.map(([v, label]) => (
+          {PLAYGROUND_SCROLL.map(([v, label]) => (
             <button data-pg-scroll={v} class="rounded-full px-2.5 py-1 text-white/80 ring-1 ring-white/20 data-[on]:bg-white data-[on]:text-[#1c2030] data-[on]:ring-white">{label}</button>
           ))}
         </span>
+        <p data-pg-scroll-status aria-live="polite" class="mt-1 text-[12px] font-semibold text-white"></p>
+        <p data-pg-scroll-detail class="text-[12px] leading-snug text-white/65"></p>
+        <button data-pg-mobile-open class="mt-1 hidden rounded-xl bg-white/10 px-3 py-2 text-left hover:bg-white/15 md:block">Открыть мобильный просмотр</button>
       </div>
       <div class="flex flex-wrap gap-x-4 gap-y-1 text-white/80">
         <label class="flex items-center gap-1.5"><input type="checkbox" data-pg-toggle="bars" checked /> Панели блоков</label>
@@ -93,6 +96,14 @@ const pg = { blocks: blocks, scroll: SCROLL, defaults: DEFAULTS, course: course.
   <aside data-pg-drawer class="fixed inset-y-0 right-0 z-[70] hidden w-full max-w-[400px] flex-col bg-white text-[14px] text-ink shadow-2xl"></aside>
   <div data-pg-toast class="fixed bottom-6 left-1/2 z-[80] hidden -translate-x-1/2 rounded-xl bg-[#1c2030] px-4 py-2 text-white"></div>
   <input type="file" accept="application/json" data-pg-import class="hidden" />
+
+  <dialog data-pg-mobile-preview aria-label="Мобильный просмотр лендинга" class="fixed inset-0 m-auto w-[min(399px,calc(100vw-24px))] max-w-none rounded-2xl bg-[#1c2030] p-3 text-white shadow-2xl backdrop:bg-black/65">
+    <div class="mb-2 flex items-center justify-between gap-3 text-[13px]">
+      <b>Мобильный просмотр · 375 px</b>
+      <button data-pg-mobile-close autofocus aria-label="Закрыть мобильный просмотр" class="grid size-8 place-items-center rounded-lg hover:bg-white/10"><svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg></button>
+    </div>
+    <iframe data-pg-mobile-frame title="Стенд лендинга на мобильном экране" class="block h-[min(740px,calc(100dvh-96px))] w-full rounded-lg border-0 bg-white"></iframe>
+  </dialog>
 
   <script type="application/json" id="pg-config" set:html={JSON.stringify(pg)} />
   <script>
