@@ -12,6 +12,7 @@
  * Курс с режимом организаций показывает переключатель и второй заголовок (data-mode).
  */
 import Icon from "@/components/parts/Icon.astro";
+import blsHero from "@/assets/bls-hero.png";
 import Rich from "@/components/parts/Rich.astro";
 import Ecg from "@/components/parts/Ecg.astro";
 import CertificateReal from "@/components/parts/CertificateReal.astro";
@@ -31,7 +32,7 @@ interface Props {
 const { variant = "adaptive", copy = "a", course, country } = Astro.props;
 const modes = course.org.modes;
 const texts = [{ mode: modes ? "self" : undefined, ...course.hero[copy] }, ...(modes ? [{ mode: "org", ...modes.hero }] : [])];
-const img = course.id === "bls" && country.id === "uz" ? "/images/bls-hero.png" : IMG[course.hero.image as ImageKey];
+const img = course.id === "bls" && country.id === "uz" ? blsHero.src : IMG[course.hero.image as ImageKey];
 const m = country.messengers[0];
 const cert = course.certificate.sample;
 /* Три коротких факта для первого экрана: длительность, группа, документ */
