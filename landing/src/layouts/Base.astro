@@ -1,5 +1,6 @@
 ---
 import "@/styles/global.css";
+import "fullpage.js/dist/fullpage.css";
 import LeadSheet from "@/components/lead/LeadSheet";
 import { COURSE_LIST, type Country, type CourseId } from "@/data";
 import { priceText } from "@/lib/price";
@@ -31,13 +32,15 @@ const prices = Object.fromEntries(COURSE_LIST.map((c) => [c.id, priceText(c, cou
     <link rel="icon" type="image/svg+xml" href={url("/favicon.svg")} />
   </head>
   <body class="min-h-dvh">
-    <slot />
+    <div data-landing-content><slot /></div>
     <LeadSheet client:idle country={country} courses={courses} courseId={courseId} prices={prices} />
     {showMarks && <div id="q-tip" class="pointer-events-none fixed z-[100] hidden max-w-72 rounded-xl bg-ink px-3 py-2 text-[13px] leading-snug text-white shadow-xl"></div>}
 
     <script>
       import { captureAttribution } from "@/lib/attribution";
+      import { initMobileFullpage } from "@/lib/mobile-fullpage";
       captureAttribution();
+      initMobileFullpage();
 
       // Появление блоков при прокрутке
       const io = new IntersectionObserver(
@@ -57,6 +60,7 @@ const prices = Object.fromEntries(COURSE_LIST.map((c) => [c.id, priceText(c, cou
       };
       snapPoints();
       document.addEventListener("ccm:rendered", snapPoints);
+      document.addEventListener("ccm:mode", snapPoints);
       matchMedia("(min-width: 768px)").addEventListener("change", snapPoints);
 
       // Подсказка к пометкам «уточнить у ЦКМ»

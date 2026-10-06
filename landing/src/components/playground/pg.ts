@@ -24,6 +24,7 @@ const LS_SEL = "ccm-pg-selection";
 const LS_COMM = "ccm-pg-comments";
 const LS_AUTHOR = "ccm-pg-author";
 const LS_UI = "ccm-pg-ui";
+const LS_SCROLL_DEFAULT = "ccm-pg-fullpage-default";
 
 const get = <T>(k: string, d: T): T => {
   try {
@@ -46,6 +47,10 @@ export function initPlayground() {
   const cfg = JSON.parse($("#pg-config").textContent!) as Config;
   // Сохранённый выбор мог ссылаться на варианты, которых уже нет, — такие берём из DEFAULTS
   const saved = get<Record<string, string>>(LS_SEL, {});
+  if (!get(LS_SCROLL_DEFAULT, false)) {
+    if (saved.scroll === "strict") saved.scroll = cfg.defaults.scroll;
+    set(LS_SCROLL_DEFAULT, true);
+  }
   const known = (k: string, v: string) => k.endsWith(".copy") || (k === "scroll" && cfg.scroll.some(([id]) => id === v)) || cfg.blocks.find((b) => b.id === k)?.variants.some(([id]) => id === v);
   let sel: Record<string, string> = { ...cfg.defaults, ...Object.fromEntries(Object.entries(saved).filter(([k, v]) => known(k, v))) };
   let comments: Comment[] = get(LS_COMM, []);
@@ -112,6 +117,7 @@ export function initPlayground() {
   }
 
   function renderDrawer() {
+    document.dispatchEvent(new CustomEvent("ccm:overlay", { detail: { source: "playground", open: drawer !== null } }));
     const d = $("[data-pg-drawer]");
     if (!drawer) {
       d.classList.add("hidden");

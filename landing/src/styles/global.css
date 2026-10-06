@@ -213,6 +213,20 @@ html[data-mode="org"] [data-mode="self"] {
 /* Прокрутка блоками на телефоне: data-snap на <html>, точки доводки расставляет Base.astro.
    Блок выше экрана браузер листает внутри и доводит только на его границах. */
 @media (max-width: 767.98px) {
+  html.ccm-fullpage-active { scroll-behavior: auto; }
+  [data-fullpage-root] {
+    position: fixed !important;
+    inset: 0;
+    width: 100%;
+  }
+  .ccm-fullpage-section [data-pg-block],
+  .ccm-fullpage-section [data-landing-block] { display: block; }
+  .ccm-fullpage-active .ccm-fullpage-section > .fp-overflow {
+    max-height: var(--ccm-screen-height);
+    overscroll-behavior-y: contain;
+  }
+  .ccm-fullpage-section { background: var(--background); }
+  .ccm-fullpage-section [data-hero] { min-height: var(--ccm-screen-height); }
   html[data-snap="strict"] { scroll-snap-type: y mandatory; }
   html[data-snap="first"],
   html[data-snap="near"] { scroll-snap-type: y proximity; }

@@ -18,7 +18,9 @@ const hero = course.hero[DEFAULTS["hero.copy"] as "a" | "b"];
 ---
 <Base title={`${plain(hero.title)} — учебный центр ЦКМ, ${country.city}`} description={plain(hero.sub)} country={country} courseId={course.id} scroll={DEFAULTS.scroll}>
   {blocks.filter((b) => DEFAULTS[b.id] !== "off").map((b) => (
-    <Block id={b.id} variant={DEFAULTS[b.id]} copy={DEFAULTS["hero.copy"]} course={course} country={country} />
+    <div data-landing-block={b.id} class="contents">
+      <Block id={b.id} variant={DEFAULTS[b.id]} copy={DEFAULTS["hero.copy"]} course={course} country={country} />
+    </div>
   ))}
   <Footer country={country} />
 </Base>

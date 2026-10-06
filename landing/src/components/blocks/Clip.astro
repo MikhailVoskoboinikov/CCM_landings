@@ -211,6 +211,8 @@ const slides = 6;
     root.addEventListener("pointercancel", release);
     root.addEventListener("pointerleave", release);
     document.querySelector("[data-clip-more]")?.addEventListener("click", () => {
+      const request = new CustomEvent("ccm:next-section", { cancelable: true });
+      if (!document.dispatchEvent(request)) return;
       let next = document.getElementById("clip")?.nextElementSibling;
       while (next && !next.getClientRects().length) next = next.nextElementSibling;
       next?.scrollIntoView({ behavior: "smooth" });

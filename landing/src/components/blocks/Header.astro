@@ -64,12 +64,20 @@ const languages = [
   document.querySelectorAll<HTMLElement>("[data-header]").forEach((h) => {
     // Красная полоска прочитанного под шапкой
     const bar = h.querySelector<HTMLElement>("[data-read-progress]");
+    const paint = (progress: number, scrolled: boolean) => {
+      h.toggleAttribute("data-scrolled", scrolled);
+      if (bar) bar.style.transform = `scaleX(${progress})`;
+    };
     const on = () => {
-      h.toggleAttribute("data-scrolled", scrollY > 8);
-      if (bar) bar.style.transform = `scaleX(${Math.min(1, scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight))})`;
+      if (document.documentElement.classList.contains("ccm-fullpage-active")) return;
+      paint(Math.min(1, scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight)), scrollY > 8);
     };
     on();
     addEventListener("scroll", on, { passive: true });
+    document.addEventListener("ccm:scroll", (event) => {
+      const { progress, scrolled } = (event as CustomEvent<{ progress: number; scrolled: boolean }>).detail;
+      paint(progress, scrolled);
+    });
     const menu = h.querySelector<HTMLDetailsElement>("[data-header-menu]");
     if (!menu) return;
     document.addEventListener("click", (e) => { if (!menu.contains(e.target as Node)) menu.open = false; });

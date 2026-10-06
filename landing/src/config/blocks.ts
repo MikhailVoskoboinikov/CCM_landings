@@ -38,15 +38,16 @@ export const BLOCKS: BlockDef[] = [
 
 /*
  * Прокрутка на телефоне (на компьютере всегда обычная):
+ *  fullpage — полноэкранные секции fullPage.js с прокруткой длинного содержимого
  *  strict — один свайп доводит до начала следующего блока; длинные блоки листаются внутри
  *  first  — доводка только на первых трёх блоках, дальше обычная прокрутка
  *  near   — мягкая доводка: страница прилипает к началу блока, если остановились рядом
  *  free   — обычная прокрутка
  */
-export const SCROLL: [id: string, label: string][] = [["strict", "Блок за свайп"], ["first", "Свайп на первых экранах"], ["near", "Мягкая доводка"], ["free", "Обычная"]];
+export const SCROLL: [id: string, label: string][] = [["fullpage", "Экраны fullPage.js"], ["strict", "Блок за свайп"], ["first", "Свайп на первых экранах"], ["near", "Мягкая доводка"], ["free", "Обычная"]];
 
 export const DEFAULTS: Record<string, string> = {
-  scroll: "strict",
+  scroll: "fullpage",
   header: "full",
   hero: "adaptive",
   "hero.copy": "a",

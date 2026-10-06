@@ -14,6 +14,13 @@ export default function LeadSheet({ prices, ...props }: Props) {
   const [courseId, setCourseId] = useState(props.courseId);
 
   useEffect(() => {
+    document.dispatchEvent(new CustomEvent("ccm:overlay", { detail: { source: "lead", open } }));
+    return () => {
+      document.dispatchEvent(new CustomEvent("ccm:overlay", { detail: { source: "lead", open: false } }));
+    };
+  }, [open]);
+
+  useEffect(() => {
     const onClick = (e: MouseEvent) => {
       const el = (e.target as HTMLElement).closest<HTMLElement>("[data-lead-open]");
       if (!el) return;
