@@ -16,7 +16,7 @@ const course = courseFor(Astro.params.course as CourseId, country.id);
 const blocks = blocksFor(country.id, course.id);
 const hero = course.hero[DEFAULTS["hero.copy"] as "a" | "b"];
 ---
-<Base title={`${plain(hero.title)} — учебный центр ЦКМ, ${country.city}`} description={plain(hero.sub)} country={country} courseId={course.id}>
+<Base title={`${plain(hero.title)} — учебный центр ЦКМ, ${country.city}`} description={plain(hero.sub)} country={country} courseId={course.id} scroll={DEFAULTS.scroll}>
   {blocks.filter((b) => DEFAULTS[b.id] !== "off").map((b) => (
     <Block id={b.id} variant={DEFAULTS[b.id]} copy={DEFAULTS["hero.copy"]} course={course} country={country} />
   ))}

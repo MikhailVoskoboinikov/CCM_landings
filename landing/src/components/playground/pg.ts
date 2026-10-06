@@ -4,6 +4,7 @@
  */
 interface Config {
   blocks: { id: string; label: string; variants: [string, string][]; copy?: boolean }[];
+  scroll: [string, string][];
   defaults: Record<string, string>;
   course: string;
   country: string;
@@ -45,7 +46,7 @@ export function initPlayground() {
   const cfg = JSON.parse($("#pg-config").textContent!) as Config;
   // Сохранённый выбор мог ссылаться на варианты, которых уже нет, — такие берём из DEFAULTS
   const saved = get<Record<string, string>>(LS_SEL, {});
-  const known = (k: string, v: string) => k.endsWith(".copy") || cfg.blocks.find((b) => b.id === k)?.variants.some(([id]) => id === v);
+  const known = (k: string, v: string) => k.endsWith(".copy") || (k === "scroll" && cfg.scroll.some(([id]) => id === v)) || cfg.blocks.find((b) => b.id === k)?.variants.some(([id]) => id === v);
   let sel: Record<string, string> = { ...cfg.defaults, ...Object.fromEntries(Object.entries(saved).filter(([k, v]) => known(k, v))) };
   let comments: Comment[] = get(LS_COMM, []);
   const ui = get(LS_UI, { bars: true, marks: true, collapsed: false });
@@ -87,6 +88,8 @@ export function initPlayground() {
       cb.toggleAttribute("data-has", n > 0);
       $("[data-pg-count]", cb).textContent = n ? String(n) : "";
     }
+    document.documentElement.dataset.snap = sel.scroll;
+    $$("[data-pg-scroll]").forEach((btn) => btn.toggleAttribute("data-on", btn.dataset.pgScroll === sel.scroll));
     $$("[data-pg-bar]").forEach((b) => (b.style.display = ui.bars ? "" : "none"));
     document.documentElement.classList.toggle("hide-marks", !ui.marks);
     $("[data-pg-body]").style.display = ui.collapsed ? "none" : "";
@@ -159,6 +162,8 @@ export function initPlayground() {
     const copy = el.closest<HTMLElement>("[data-pg-copy]");
     const block = el.closest<HTMLElement>("[data-pg-block]")?.dataset.pgBlock;
     if (pick && block) return (sel[block] = pick.dataset.pgPick!), apply();
+    const scroll = el.closest<HTMLElement>("[data-pg-scroll]");
+    if (scroll) return (sel.scroll = scroll.dataset.pgScroll!), apply();
     if (copy && block) return (sel[block + ".copy"] = copy.dataset.pgCopy!), apply();
     if (el.closest("[data-pg-comment]") && block) {
       target = { block, variant: variantKey(block) };

@@ -7,7 +7,7 @@
 import Base from "@/layouts/Base.astro";
 import Block from "@/components/blocks/Block.astro";
 import Footer from "@/components/blocks/Footer.astro";
-import { blocksFor, DEFAULTS } from "@/config/blocks";
+import { blocksFor, DEFAULTS, SCROLL } from "@/config/blocks";
 import { COUNTRIES, COURSE_LIST, courseFor, type CountryId, type CourseId } from "@/data";
 import { url } from "@/lib/url";
 
@@ -18,9 +18,9 @@ export function getStaticPaths() {
 const country = COUNTRIES[Astro.params.country as CountryId];
 const course = courseFor(Astro.params.course as CourseId, country.id);
 const blocks = blocksFor(country.id, course.id);
-const pg = { blocks: blocks, defaults: DEFAULTS, course: course.id, country: country.id };
+const pg = { blocks: blocks, scroll: SCROLL, defaults: DEFAULTS, course: course.id, country: country.id };
 ---
-<Base title={`Стенд: ${course.name} · ${country.city}`} country={country} courseId={course.id} noindex>
+<Base title={`Стенд: ${course.name} · ${country.city}`} country={country} courseId={course.id} scroll={DEFAULTS.scroll} noindex>
   {blocks.map((b) => (
     <div data-pg-block={b.id} class="contents">
       <div data-pg-bar={b.id} class="relative z-30 flex flex-wrap items-center gap-x-3 gap-y-1.5 bg-[#1c2030] px-4 py-2 text-[12px] text-white/70">
@@ -68,6 +68,14 @@ const pg = { blocks: blocks, defaults: DEFAULTS, course: course.id, country: cou
         {Object.values(COUNTRIES).map((c) => (
           <a href={url(`/playground/${c.id}/${course.id}`)} class={`rounded-full px-3 py-1 ring-1 ring-white/20 ${c.id === country.id ? "bg-white text-[#1c2030]" : "hover:bg-white/10"}`}>{c.city}</a>
         ))}
+      </div>
+      <div class="grid gap-1">
+        <span class="text-white/60">Прокрутка на телефоне</span>
+        <span class="flex flex-wrap gap-1">
+          {SCROLL.map(([v, label]) => (
+            <button data-pg-scroll={v} class="rounded-full px-2.5 py-1 text-white/80 ring-1 ring-white/20 data-[on]:bg-white data-[on]:text-[#1c2030] data-[on]:ring-white">{label}</button>
+          ))}
+        </span>
       </div>
       <div class="flex flex-wrap gap-x-4 gap-y-1 text-white/80">
         <label class="flex items-center gap-1.5"><input type="checkbox" data-pg-toggle="bars" checked /> Панели блоков</label>

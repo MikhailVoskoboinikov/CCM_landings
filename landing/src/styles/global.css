@@ -209,3 +209,15 @@ html[data-mode="org"] [data-mode="self"] {
 @media (min-width: 768px) {
   :root { --hdr: 68px; }
 }
+
+/* Прокрутка блоками на телефоне: data-snap на <html>, точки доводки расставляет Base.astro.
+   Блок выше экрана браузер листает внутри и доводит только на его границах. */
+@media (max-width: 767.98px) {
+  html[data-snap="strict"] { scroll-snap-type: y mandatory; }
+  html[data-snap="first"],
+  html[data-snap="near"] { scroll-snap-type: y proximity; }
+  html[data-snap="strict"] [data-snap-point],
+  html[data-snap="near"] [data-snap-point],
+  html[data-snap="first"] [data-snap-point="first"] { scroll-snap-align: start; }
+  html[data-snap="strict"] [data-snap-point] { scroll-snap-stop: always; }
+}

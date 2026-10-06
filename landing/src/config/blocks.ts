@@ -36,7 +36,17 @@ export const BLOCKS: BlockDef[] = [
   { id: "lead", label: "Заявка", variants: [["form", "Форма"], ["messengers", "Мессенджеры"]] },
 ];
 
+/*
+ * Прокрутка на телефоне (на компьютере всегда обычная):
+ *  strict — один свайп доводит до начала следующего блока; длинные блоки листаются внутри
+ *  first  — доводка только на первых трёх блоках, дальше обычная прокрутка
+ *  near   — мягкая доводка: страница прилипает к началу блока, если остановились рядом
+ *  free   — обычная прокрутка
+ */
+export const SCROLL: [id: string, label: string][] = [["strict", "Блок за свайп"], ["first", "Свайп на первых экранах"], ["near", "Мягкая доводка"], ["free", "Обычная"]];
+
 export const DEFAULTS: Record<string, string> = {
+  scroll: "strict",
   header: "full",
   hero: "adaptive",
   "hero.copy": "a",

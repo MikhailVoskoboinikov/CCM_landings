@@ -12,13 +12,15 @@ interface Props {
   country: Country;
   courseId: CourseId;
   noindex?: boolean;
+  /** Режим прокрутки на телефоне — SCROLL в config/blocks.ts */
+  scroll?: string;
 }
-const { title, description = "", country, courseId, noindex } = Astro.props;
+const { title, description = "", country, courseId, noindex, scroll } = Astro.props;
 const courses = COURSE_LIST.map((c) => ({ id: c.id, name: c.name }));
 const prices = Object.fromEntries(COURSE_LIST.map((c) => [c.id, priceText(c, country)]));
 ---
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-snap={scroll}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -45,6 +47,17 @@ const prices = Object.fromEntries(COURSE_LIST.map((c) => [c.id, priceText(c, cou
       const watch = () => document.querySelectorAll("[data-reveal]:not(.is-in)").forEach((el) => io.observe(el));
       watch();
       document.addEventListener("ccm:rendered", watch);
+
+      // Точки доводки для режима прокрутки: верхние секции блоков и подвал, которые сейчас видны.
+      // Варианты блоков на стенде и половинки adaptive скрыты — их пропускаем.
+      const snapPoints = () => {
+        const top = [...document.querySelectorAll<HTMLElement>("section, footer")].filter((s) => !s.parentElement?.closest("section, footer") && s.getClientRects().length);
+        document.querySelectorAll("[data-snap-point]").forEach((s) => s.removeAttribute("data-snap-point"));
+        top.forEach((s, i) => s.setAttribute("data-snap-point", i < 3 ? "first" : ""));
+      };
+      snapPoints();
+      document.addEventListener("ccm:rendered", snapPoints);
+      matchMedia("(min-width: 768px)").addEventListener("change", snapPoints);
 
       // Подсказка к пометкам «уточнить у ЦКМ»
       const tip = document.getElementById("q-tip");
