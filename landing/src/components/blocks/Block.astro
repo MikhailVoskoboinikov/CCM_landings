@@ -1,10 +1,14 @@
 ---
 /* Один блок в нужном варианте: общая точка входа для страниц и /playground */
 import Header from "./Header.astro";
-import HeaderV2 from "./HeaderV2.astro";
 import Hero from "./Hero.astro";
+import Why from "./Why.astro";
+import Clip from "./Clip.astro";
+import FilmBlock from "./FilmBlock.astro";
+import Quiz from "./Quiz.astro";
 import Audience from "./Audience.astro";
 import Certificate from "./Certificate.astro";
+import Skills from "./Skills.astro";
 import Program from "./Program.astro";
 import About from "./About.astro";
 import Clients from "./Clients.astro";
@@ -12,30 +16,31 @@ import Instructors from "./Instructors.astro";
 import Gallery from "./Gallery.astro";
 import Reviews from "./Reviews.astro";
 import Pricing from "./Pricing.astro";
+import Organizations from "./Organizations.astro";
 import Faq from "./Faq.astro";
 import LeadSection from "./LeadSection.astro";
-import Skills from "./Skills.astro";
-import Organizations from "./Organizations.astro";
 import type { Country, Course } from "@/data";
 
 interface Props { id: string; variant: string; copy?: string; course: Course; country: Country; base?: string }
 const { id, variant, copy, course, country, base } = Astro.props;
 const v = variant as any;
 ---
-{id === "header" && (country.id === "uz" && course.id === "bls"
-  ? <HeaderV2 variant={v} course={course} country={country} base={base} />
-  : <Header variant={v} course={course} country={country} base={base} />)}
+{id === "header" && <Header variant={v} course={course} country={country} base={base} />}
 {id === "hero" && <Hero variant={v} copy={copy as any} course={course} country={country} />}
-{id === "audience" && <Audience variant={v} course={course} revised={country.id === "uz" && course.id === "bls"} />}
-{id === "certificate" && <Certificate variant={v} course={course} revised={country.id === "uz" && course.id === "bls"} />}
-{id === "skills" && <Skills />}
-{id === "program" && <Program variant={v} course={course} revised={country.id === "uz" && course.id === "bls"} />}
-{id === "about" && <About variant={v} country={country} revised={country.id === "uz" && course.id === "bls"} />}
-{id === "clients" && <Clients variant={v} revised={country.id === "uz" && course.id === "bls"} />}
-{id === "instructors" && <Instructors variant={v} revised={country.id === "uz" && course.id === "bls"} />}
-{id === "gallery" && <Gallery variant={v} course={course} revised={country.id === "uz" && course.id === "bls"} />}
+{id === "clip" && <Clip variant={v} course={course} country={country} />}
+{id === "why" && <Why course={course} country={country} />}
+{id === "film" && <FilmBlock variant={v} course={course} />}
+{id === "quiz" && <Quiz variant={v} course={course} />}
+{id === "audience" && <Audience variant={v} course={course} />}
+{id === "certificate" && <Certificate variant={v} course={course} country={country} />}
+{id === "skills" && <Skills variant={v} course={course} />}
+{id === "program" && <Program variant={v} course={course} />}
+{id === "instructors" && <Instructors variant={v} course={course} country={country} />}
+{id === "about" && <About variant={v} country={country} />}
+{id === "clients" && <Clients variant={v} country={country} />}
+{id === "gallery" && <Gallery variant={v} course={course} />}
 {id === "pricing" && <Pricing variant={v} course={course} country={country} />}
-{id === "reviews" && <Reviews variant={v} revised={country.id === "uz" && course.id === "bls"} />}
+{id === "reviews" && <Reviews variant={v} />}
+{id === "organizations" && <Organizations course={course} country={country} />}
 {id === "faq" && <Faq variant={v} course={course} country={country} />}
 {id === "lead" && <LeadSection variant={v} course={course} country={country} />}
-{id === "organizations" && <Organizations course={course} country={country} />}

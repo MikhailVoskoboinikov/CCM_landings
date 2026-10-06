@@ -11,9 +11,10 @@
  *   U:   116–126, едва заметный
  * preserveAspectRatio="xMidYMid slice" сохраняет пропорции на любой ширине:
  * лишние комплексы просто обрезаются по краям.
+ * still — без бегущего импульса, только линия (base — её непрозрачность).
  */
-interface Props { class?: string; beats?: number }
-const { class: cls = "", beats = 14 } = Astro.props;
+interface Props { class?: string; beats?: number; still?: boolean; base?: number }
+const { class: cls = "", beats = 14, still = false, base = 0.13 } = Astro.props;
 const W = 160;
 const beat = (x: number) =>
   [
@@ -36,8 +37,8 @@ const beat = (x: number) =>
 const d = `M0 60 ` + Array.from({ length: beats }, (_, i) => beat(i * W)).join(" ");
 ---
 <svg viewBox={`0 0 ${beats * W} 80`} preserveAspectRatio="xMidYMid slice" class={cls} aria-hidden="true">
-  <path d={d} fill="none" stroke="currentColor" stroke-opacity="0.13" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
-  <path
+  <path d={d} fill="none" stroke="currentColor" stroke-opacity={base} stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+  {!still && <path
     d={d}
     fill="none"
     stroke="currentColor"
@@ -49,5 +50,5 @@ const d = `M0 60 ` + Array.from({ length: beats }, (_, i) => beat(i * W)).join("
     stroke-dasharray="0.16 0.84"
     class="animate-ecg"
     style={`animation-duration:${beats * 0.8}s`}
-  />
+  />}
 </svg>

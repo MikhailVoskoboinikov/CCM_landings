@@ -5,7 +5,7 @@ import { REVIEWS, REVIEWS_ARE_SAMPLES } from "@/data/about";
 const mark = (text: string) => REVIEWS_ARE_SAMPLES ? `[[${text}|Пример отзыва для макета — нужен реальный текст, имя и согласие автора]]` : text;
 ---
 <div class="container-l mt-7">
-  <div data-timed-carousel class="review-showcase mx-auto max-w-[960px] overflow-hidden rounded-3xl border border-line bg-white p-5 md:p-7">
+  <div data-timed-carousel class="review-showcase mx-auto max-w-[960px] overflow-hidden rounded-3xl bg-white p-5 md:p-7">
     <div data-carousel-main class="review-stage">
       <span class="block h-8 text-[56px] leading-none font-bold text-brand" aria-hidden="true">“</span>
       <div class="review-panels mt-3">
@@ -23,7 +23,7 @@ const mark = (text: string) => REVIEWS_ARE_SAMPLES ? `[[${text}|Пример о�
         ))}
       </div>
     </div>
-    <div class="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-4">
+    <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-2" aria-label="Выберите отзыв">
         {REVIEWS.map((review, i) => (
           <button type="button" data-carousel-choice data-active={String(i === 0)} aria-pressed={String(i === 0)} aria-label={`Отзыв ${i + 1}: ${review.name}`} class="review-author grid size-10 place-items-center rounded-full bg-soft text-sm font-semibold text-ink-2">{review.name[0]}</button>

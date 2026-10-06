@@ -1,10 +1,13 @@
 /*
  * О ЦКМ, инструкторы, клиенты, отзывы.
- * Цифры и люди пока частично известны: всё непроверенное — с пометкой [[…|вопрос]].
- * Инструкторы — команда «Альфамедтренинга» с alfamedtraining.com, как пример;
- * ташкентский и бишкекский состав пришлют ЦКМ.
+ * Всё непроверенное — с пометкой [[…|вопрос]].
+ * Инструкторы и клиенты Бишкека — из презентации учебного центра. Для Ташкента
+ * состава пока нет: показываем команду «Альфамедтренинга» с alfamedtraining.com с пометкой.
  */
-import type { CountryId } from "./types";
+import type { ImageMetadata } from "astro";
+import type { CountryId, CourseId } from "./types";
+import ashyrbaev from "@/assets/instructors/ashyrbaev.jpg";
+import davletalieva from "@/assets/instructors/davletalieva.png";
 
 export const STATS = [
   { value: 20, suffix: " лет", label: "медицинского сопровождения промышленных объектов", q: "" },
@@ -14,10 +17,10 @@ export const STATS = [
 ] as const;
 
 export const TRUST = [
-  { icon: "Stethoscope", title: "Учат практикующие врачи", text: "Реаниматологи, кардиологи и фельдшеры, которые сами работают в экстренной медицине" },
-  { icon: "Globe", title: "Международные стандарты", text: "Программы по рекомендациям Европейского совета по реанимации (ERC) 2025" },
-  { icon: "HardHat", title: "Опыт реальных вызовов", text: "ЦКМ оказывает помощь на удалённых промышленных объектах: здравпункты, эвакуация, дистанционные консультации" },
-  { icon: "Hand", title: "Практика, а не лекции", text: "Большая часть курса — отработка на манекенах и в сценариях" },
+  { icon: "Stethoscope", title: "Учат практикующие врачи", text: "Реаниматологи, кардиологи, педиатры и фельдшеры с большим опытом в экстренной медицине" },
+  { icon: "BadgeCheck", title: "Международные стандарты", text: "Программы по рекомендациям Европейского совета по реанимации (ERC) 2025" },
+  { icon: "Ambulance", title: "Опыт реальных вызовов", text: "ЦКМ сам оказывает помощь: здравпункты на предприятиях, эвакуация, дистанционные консультации" },
+  { icon: "HeartPulse", title: "Много практики", text: "Основа курса — отработка навыков на манекенах под руководством инструкторов" },
 ];
 
 /* Координаты для схемы: долгота и широта, проекция на прямоугольную сетку */
@@ -35,7 +38,11 @@ export interface Instructor {
   role: string;
   courses: string;
   edu: string;
-  img: string;
+  img: string | ImageMetadata;
+  /** Пара фраз об опыте — для крупной карточки ведущего инструктора */
+  bio?: string;
+  /** Какие курсы ведёт: по ним выбирается ведущий инструктор страницы */
+  leads?: CourseId[];
 }
 const T = "https://static.tildacdn.com/";
 export const INSTRUCTORS: Instructor[] = [
@@ -43,7 +50,32 @@ export const INSTRUCTORS: Instructor[] = [
   { name: "Лариса Кологривова", role: "Кардиолог, к.м.н.", courses: "Первая помощь, BLS, ITLS, ALS", edu: "СибГМУ, 1994", img: T + "tild6562-3533-4134-b835-333562646336/IMG_3326.jpg" },
   { name: "Александр Шарифулин", role: "Педиатр, анестезиолог-реаниматолог", courses: "BLS, ACLS, ITLS", edu: "СибГМУ, 2018", img: T + "tild3538-6336-4662-a336-623338663633/noroot.png" },
   { name: "Елена Фомина", role: "Стоматолог, челюстно-лицевой хирург", courses: "BLS, ITLS", edu: "ИГМУ, 2003", img: T + "tild6434-3230-4965-b638-376532303432/WhatsApp_Image_2025-.jpeg" },
-  { name: "Владислав Мумбер", role: "Фельдшер", courses: "BLS, ALS, ITLS, REM", edu: "Колпашевское медучилище, 2003", img: T + "tild6663-6534-4339-b661-346461666535/_ZIM0198.jpg" },
+];
+
+/* Инструкторы учебных центров в странах */
+export const LOCAL_INSTRUCTORS: Record<CountryId, Instructor[]> = {
+  kg: [
+    { name: "Айбек Ашырбаев", role: "Анестезиолог-реаниматолог, к.м.н.", courses: "BLS", edu: "", img: ashyrbaev, bio: "37 лет опыта. Инструктор Европейского совета по реанимации, директор курса BLS в Бишкеке", leads: ["bls"] },
+    { name: "Фатима Давлеталиева", role: "Педиатр", courses: "Первая помощь детям", edu: "", img: davletalieva, bio: "Преподаёт на кафедре педиатрии КРСУ и в медицинском колледже, работала врачом в частной школе", leads: ["first-aid-kids"] },
+  ],
+  uz: [],
+};
+
+/** Инструкторы для страницы: сначала ведущий курса, без местного состава — пример команды с пометкой */
+export function instructorsFor(country: CountryId, course: CourseId) {
+  const local = LOCAL_INSTRUCTORS[country];
+  if (!local.length) return { list: INSTRUCTORS, sample: true };
+  const lead = local.filter((i) => i.leads?.includes(course));
+  return { list: [...lead, ...local.filter((i) => !lead.includes(i))], sample: !lead.length };
+}
+
+/* Клиенты Бишкека — из презентации учебного центра */
+export const CLIENTS_KG = [
+  { name: "Школа «Акылтай»", text: "Ключевые сотрудники прошли BLS, остальные — курс первой помощи детям" },
+  { name: "«Академия гимнастики»", text: "Курс «Первая помощь детям», 2026" },
+  { name: "Аэропорт «Манас»", text: "Курс BLS с европейским сертификатом" },
+  { name: "Huawei", text: "Курс BLS, 2025" },
+  { name: "«Альянс Алтын»", text: "Учатся у нас каждый год: BLS, ALS, ITLS и другие курсы" },
 ];
 
 /*
@@ -51,13 +83,13 @@ export const INSTRUCTORS: Instructor[] = [
  * с реальной компанией. Нужны настоящие логотипы и разрешение их показывать.
  */
 export const CLIENTS = [
-  { name: "Горнодобыча", icon: "Pickaxe" },
+  { name: "Горнодобывающая промышленность", icon: "Pickaxe" },
   { name: "Энергетика", icon: "Zap" },
   { name: "Авиация", icon: "Plane" },
   { name: "Клиники", icon: "Stethoscope" },
-  { name: "Нефтегаз", icon: "Fuel" },
-  { name: "Строительство", icon: "Building2" },
-  { name: "Морские суда", icon: "Ship" },
+  { name: "Нефтегазовая отрасль", icon: "Fuel" },
+  { name: "Строительство", icon: "HardHat" },
+  { name: "Морской транспорт", icon: "Ship" },
   { name: "Туризм", icon: "Mountain" },
 ];
 

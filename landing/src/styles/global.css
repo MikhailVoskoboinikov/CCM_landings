@@ -53,6 +53,8 @@
 }
 
 :root {
+  /* Высота шапки: от неё отсчитываются прилипание экранов и прокрутка к якорям */
+  --hdr: 56px;
   --brand: #d9262c;
   --brand-600: #b51f25;
   --brand-50: #fdeeee;
@@ -93,6 +95,7 @@
     interpolate-size: allow-keywords;
     -webkit-tap-highlight-color: transparent;
     scroll-behavior: smooth;
+    scroll-padding-top: var(--hdr);
   }
   body {
     @apply bg-background text-foreground antialiased;
@@ -195,4 +198,14 @@
     transition-duration: 0.01ms !important;
   }
   [data-reveal] { opacity: 1; transform: none; }
+}
+
+/* Режимы «Для себя / Для организации» (parts/ModeSwitch.astro): видна только версия текущего режима */
+html:not([data-mode="org"]) [data-mode="org"],
+html[data-mode="org"] [data-mode="self"] {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  :root { --hdr: 68px; }
 }

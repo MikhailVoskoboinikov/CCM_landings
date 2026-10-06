@@ -1,5 +1,5 @@
 ---
-/* Контуры Lucide (ISC): сохранены прежние формы иконок. */
+/* Живые версии иконок Lucide (ISC): те же контуры, части двигаются при наведении на карточку. */
 interface Props { name: string; size?: number }
 const { name, size = 24 } = Astro.props;
 ---
@@ -47,7 +47,9 @@ const { name, size = 24 } = Astro.props;
   .case-lid { transform-origin: 2px 13px; }
   .handshake { transform-origin: 12px 14px; }
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    :global(.audience-card:hover) .audience-motion { color: #ed1725; filter: drop-shadow(0 0 3px rgb(237 23 37 / 18%)); transform: scale(1.08); }
+    :global(.audience-card:hover) .audience-motion { color: var(--icon-hover, #ed1725); filter: drop-shadow(0 0 3px rgb(237 23 37 / 18%)); transform: scale(1.08); }
+    /* На красной подложке иконка при наведении остаётся белой */
+    :global(.audience-card:hover .icon-on-brand) .audience-motion { --icon-hover: #fff; filter: drop-shadow(0 0 3px rgb(255 255 255 / 35%)); }
     :global(.audience-card:hover) .stethoscope-tube { animation: tube-bend 2.4s ease-in-out infinite; }
     :global(.audience-card:hover) .membrane { animation: membrane-circle 2.4s ease-in-out infinite; }
     :global(.audience-card:hover) .case-lid { animation: case-open 2.4s ease-in-out infinite; }

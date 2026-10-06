@@ -1,36 +1,116 @@
 ---
+/*
+ * Обучение для организаций — из course.org.
+ * Обычный курс: компактная карточка перед заявкой.
+ * Курс с режимом организаций: в режиме «Для себя» — та же карточка с переходом в режим
+ * организаций, в режиме «Для организации» — итоги обучения, мастер-классы для детей и цены.
+ */
 import Icon from "@/components/parts/Icon.astro";
 import Rich from "@/components/parts/Rich.astro";
-import { BLS_UZ_ORGANIZATIONS } from "@/data/bls-uz";
 import type { Country, Course } from "@/data";
 
 interface Props { course: Course; country: Country }
 const { course, country } = Astro.props;
-const content = BLS_UZ_ORGANIZATIONS;
+const o = course.org;
+const modes = o.modes;
 ---
-<section class="py-12 md:py-16" id="organizations" aria-labelledby="organizations-title">
+<section class="py-12 md:py-20" id="organizations" data-mode={modes ? "self" : undefined}>
   <div class="container-l">
     <div class="rounded-[28px] bg-soft p-6 md:p-10" data-reveal>
-      <div class="grid items-start gap-7 lg:grid-cols-[1fr_auto] lg:gap-12">
-        <div class="max-w-2xl">
-          <h2 class="h-section" id="organizations-title">{content.title}</h2>
-          <p class="mt-4 text-[17px] leading-relaxed text-ink-2">{content.lead}</p>
-        </div>
-        <div class="flex flex-col gap-3 lg:pt-1">
-          <button data-lead-open={course.id} class="flex min-h-12 items-center justify-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-600">
-            {content.cta}<Icon name="ArrowUpRight" size={18} />
-          </button>
-          <a href={country.phoneHref} class="flex min-h-11 items-center justify-center gap-2 text-sm font-semibold text-ink-2 hover:text-brand"><Icon name="Phone" size={17} />{country.phone}</a>
-        </div>
-      </div>
-      <ul class="mt-8 grid gap-5 md:grid-cols-3 md:gap-8">
-        {content.items.map((item) => (
+      <h2 class="text-[24px] font-bold leading-tight md:text-[34px]">{o.title}</h2>
+      <Rich as="p" class="mt-3 max-w-2xl text-[16px] leading-relaxed text-ink-2 md:text-[17px]" text={o.lead} />
+      <ul class="mt-6 grid gap-4 md:mt-8 md:grid-cols-3 md:gap-8">
+        {o.items.map((it) => (
           <li class="flex min-w-0 gap-3">
-            <span class="grid size-10 shrink-0 place-items-center rounded-full bg-white text-brand"><Icon name={item.icon} size={20} /></span>
-            <div><h3 class="font-bold">{item.title}</h3><Rich as="p" class="mt-1 text-[15px] leading-relaxed text-ink-2" text={item.text} /></div>
+            <span class="grid size-10 shrink-0 place-items-center rounded-full bg-white text-brand"><Icon name={it.icon} size={20} /></span>
+            <div><h3 class="font-bold leading-snug">{it.title}</h3><Rich as="p" class="mt-0.5 text-[14.5px] leading-snug text-ink-2" text={it.text} /></div>
           </li>
         ))}
       </ul>
+      {o.prices && !modes && (
+        <ul class="mt-6 grid gap-2 md:grid-cols-2">
+          {o.prices.map((p) => (
+            <li class="rounded-2xl bg-white px-4 py-3">
+              <div class="flex items-baseline justify-between gap-3"><p class="font-semibold leading-snug">{p.title}</p><Rich as="p" class="shrink-0 whitespace-nowrap text-lg font-bold" text={p.value} /></div>
+              <p class="text-[13px] text-muted-foreground">{p.note}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div class="mt-7 flex flex-col gap-2 sm:flex-row">
+        {modes
+          ? <button type="button" data-mode-goto="org" class="h-12 rounded-full bg-ink px-6 text-[15px] font-semibold text-white transition hover:bg-black">Условия для организаций</button>
+          : <button data-lead-open={course.id} class="h-12 rounded-full bg-ink px-6 text-[15px] font-semibold text-white transition hover:bg-black">Рассчитать для организации</button>}
+        <a href={country.phoneHref} class="flex h-12 items-center justify-center gap-2 px-4 text-[15px] font-semibold text-ink-2 hover:text-brand"><Icon name="Phone" size={17} />{country.phone}</a>
+      </div>
     </div>
   </div>
 </section>
+
+{modes && (
+  <section class="py-12 md:py-20" id="organizations-offer" data-mode="org">
+    <div class="container-l grid gap-10 md:grid-cols-2 md:gap-14">
+      <div data-reveal>
+        <h2 class="h-section">Что получит организация</h2>
+        <ul class="mt-6 grid gap-3">
+          {modes.deliverables.map((d) => (
+            <li class="flex gap-3 rounded-2xl bg-soft p-4">
+              <span class="grid size-10 shrink-0 place-items-center rounded-full bg-white text-brand"><Icon name={d.icon} size={20} /></span>
+              <div><h3 class="font-bold leading-snug">{d.title}</h3><Rich as="p" class="mt-0.5 text-[14.5px] text-ink-2" text={d.text} /></div>
+            </li>
+          ))}
+          {o.items.map((it) => (
+            <li class="flex gap-3 rounded-2xl bg-soft p-4">
+              <span class="grid size-10 shrink-0 place-items-center rounded-full bg-white text-brand"><Icon name={it.icon} size={20} /></span>
+              <div><h3 class="font-bold leading-snug">{it.title}</h3><Rich as="p" class="mt-0.5 text-[14.5px] text-ink-2" text={it.text} /></div>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="grid content-start gap-6">
+        {modes.kids && (
+          <div data-reveal>
+            <h2 class="text-[24px] font-bold leading-tight md:text-[30px]">{modes.kids.title}</h2>
+            <Rich as="p" class="mt-2 text-[16px] text-ink-2" text={modes.kids.lead} />
+            <ol class="mt-5 grid gap-2.5">
+              {modes.kids.items.map((k) => (
+                <li class="grid grid-cols-[88px_1fr] items-baseline gap-3 rounded-2xl bg-brand-50/60 p-4">
+                  <div><p class="text-[22px] font-bold leading-none text-brand">{k.grades.split(" ")[0]}</p><p class="mt-1 text-[12.5px] text-ink-2">классы, {k.hours}</p></div>
+                  <Rich as="p" class="text-[15px] leading-snug" text={k.text} />
+                </li>
+              ))}
+            </ol>
+            <Rich as="p" class="mt-3 text-[14px] font-medium" text={modes.kids.note} />
+          </div>
+        )}
+        <div class="rounded-[28px] bg-ink p-6 text-white md:p-8" data-reveal>
+          <h2 class="text-[22px] font-bold leading-tight md:text-[28px]">Стоимость</h2>
+          {o.prices ? (
+            <ul class="mt-4 grid gap-1">
+              {o.prices.map((p) => (
+                <li class="flex items-end justify-between gap-4 py-2.5">
+                  <div><p class="font-semibold leading-snug">{p.title}</p><p class="text-[13px] text-white/60">{p.note}</p></div>
+                  <Rich as="p" class="shrink-0 text-xl font-bold text-sun" text={p.value} />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <Rich as="p" class="mt-3 text-white/80" text="[[Рассчитаем по числу сотрудников и детей|Цены для организаций в Узбекистане]]" />
+          )}
+          <p class="mt-4 text-[14px] text-white/70">Если сотрудников или детей меньше, пришлём точный расчёт.</p>
+          <button data-lead-open={course.id} class="mt-6 h-13 w-full rounded-full bg-brand text-base font-semibold text-white transition hover:bg-brand-600">Рассчитать стоимость</button>
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
+<script>
+  // «Условия для организаций»: переключаем режим и показываем блок с условиями
+  document.querySelectorAll<HTMLElement>("[data-mode-goto]").forEach((b) =>
+    b.addEventListener("click", () => {
+      document.querySelector<HTMLElement>(`[data-mode-pick="${b.dataset.modeGoto}"]`)?.click();
+      requestAnimationFrame(() => document.getElementById("organizations-offer")?.scrollIntoView({ behavior: "smooth" }));
+    }),
+  );
+</script>

@@ -1,65 +1,80 @@
 ---
 /*
- * Шапка. Варианты:
- *  full — логотип, страна, мессенджеры, кнопка записи
+ * Шапка в одну строку: на телефоне 56 px (--hdr в global.css), чтобы первый экран
+ * отдавал место содержимому. Варианты:
+ *  full — логотип, меню «город и язык», мессенджеры, кнопка записи
  *  ad   — только логотип и кнопка: для рекламного трафика, где лишние ссылки уводят
+ * Под шапкой — красная полоска: сколько страницы уже прочитано.
+ * Переводы ещё не подключены: другие языки в меню видны, но выбрать их пока нельзя.
  */
 import { url } from "@/lib/url";
-import { BrandIcon } from "@/components/parts/BrandIcon";
-import { COUNTRIES, IMG, type Country, type Course } from "@/data";
+import HeaderMessengerIcon from "@/components/parts/HeaderMessengerIcon.astro";
+import { COUNTRIES, IMG, MESSENGER_LABEL, type Country, type Course } from "@/data";
 
-interface Props {
-  variant?: "full" | "ad";
-  country: Country;
-  course: Course;
-  base?: string;
-}
+interface Props { variant?: "full" | "ad"; country: Country; course: Course; base?: string }
 const { variant = "full", country, course, base = "" } = Astro.props;
-const other = Object.values(COUNTRIES).filter((c) => c.id !== country.id);
+const full = variant === "full";
+const languages = [
+  { code: "RU", name: "Русский" },
+  country.id === "kg" ? { code: "KY", name: "Кыргыз тили" } : { code: "UZ", name: "Oʻzbekcha" },
+  { code: "EN", name: "English" },
+];
 ---
-<header class="sticky top-0 z-40 bg-white/85 backdrop-blur-md transition-shadow data-[scrolled]:shadow-[0_6px_24px_-12px_rgba(17,19,23,.18)]" data-header>
-  <div class="container-l flex h-16 items-center gap-2 sm:gap-3 md:h-[72px]">
-    <a href={url(`${base}/${country.id}/${course.id}`)} class="flex shrink-0 items-center gap-2.5">
-      <img src={IMG.logo} alt="ЦКМ" class="h-8 w-auto sm:h-9 md:h-10" width="90" height="40" />
-      <span class="hidden text-[13px] leading-tight text-ink-2 sm:block">Учебный<br />центр</span>
+<header class="sticky top-0 z-50 h-[var(--hdr)] bg-white/90 backdrop-blur-md transition-shadow data-[scrolled]:shadow-[0_6px_24px_-12px_rgba(17,19,23,.18)]" data-header>
+  <div class="container-l flex h-full items-center gap-2 md:gap-4">
+    <a href={url(`${base}/${country.id}/${course.id}`)} aria-label="Учебный центр ЦКМ" class="flex shrink-0 items-center gap-2.5">
+      <img src={IMG.logo} alt="Центр корпоративной медицины" class="h-8 w-auto md:h-10" width="90" height="40" />
+      <span class="hidden text-[13px] leading-tight text-ink-2 lg:block">Учебный<br />центр</span>
     </a>
 
-    {variant === "full" && (
-      <details class="relative sm:ml-3 [&_summary::-webkit-details-marker]:hidden">
-        <summary class="flex cursor-pointer list-none items-center gap-1.5 rounded-full bg-soft px-2.5 py-1.5 text-[12.5px] font-medium sm:px-3 sm:text-[13px]">
-          {country.city}
-          <svg viewBox="0 0 24 24" class="size-3.5" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6" /></svg>
+    {full && (
+      <details class="relative [&_summary::-webkit-details-marker]:hidden" data-header-menu>
+        <summary aria-label="Город и язык" class="flex h-9 cursor-pointer list-none items-center gap-1 rounded-full px-2.5 text-[13px] font-semibold hover:bg-soft">
+          {country.city}<span class="hidden text-muted-foreground sm:inline">· RU</span>
+          <svg viewBox="0 0 24 24" class="size-3.5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
         </summary>
-        <div class="absolute left-0 top-full mt-2 min-w-40 rounded-2xl bg-white p-1.5 shadow-xl ring-1 ring-black/5">
-          {other.map((c) => (
-            <a href={url(`${base}/${c.id}/${course.id}`)} class="block rounded-xl px-3 py-2 text-sm hover:bg-soft">{c.city}, {c.name}</a>
+        <div class="absolute left-0 top-full mt-2 w-60 rounded-2xl bg-white p-2 shadow-xl ring-1 ring-black/5">
+          <p class="px-3 pb-1 pt-1.5 text-[12px] text-muted-foreground">Учебный центр</p>
+          {Object.values(COUNTRIES).map((c) => (
+            <a href={url(`${base}/${c.id}/${course.id}`)} aria-current={c.id === country.id ? "page" : undefined} class="flex min-h-10 items-center rounded-xl px-3 text-sm hover:bg-soft aria-[current]:bg-brand-50 aria-[current]:font-semibold aria-[current]:text-brand">{c.city}, {c.name}</a>
+          ))}
+          <p class="px-3 pb-1 pt-3 text-[12px] text-muted-foreground">Язык</p>
+          {languages.map((l, i) => (
+            <span aria-disabled={i > 0 ? "true" : undefined} class={`flex min-h-10 items-center justify-between rounded-xl px-3 text-sm ${i === 0 ? "bg-brand-50 font-semibold text-brand" : "text-muted-foreground"}`}>
+              {l.name}{i > 0 && <span class="text-[11px]">готовится</span>}
+            </span>
           ))}
         </div>
       </details>
     )}
 
-    <div class="ml-auto flex items-center gap-1.5 md:gap-3">
-      {variant === "full" && (
-        <div class="flex items-center gap-1">
-          {country.messengers.map((m, i) => (
-            <a href={m.href} aria-label={m.id} class={`${i > 0 ? "hidden sm:grid" : "grid"} size-9 place-items-center rounded-full text-ink sm:size-10 transition-colors hover:bg-soft hover:text-brand`}>
-              <BrandIcon id={m.id} className="size-[22px]" />
-            </a>
-          ))}
-        </div>
-      )}
-      {variant === "full" && <a href={country.phoneHref} class="hidden text-[15px] font-semibold lg:block">{country.phone}</a>}
-      <button data-lead-open={course.id} class="h-10 shrink-0 rounded-full bg-brand px-3.5 text-[13px] font-semibold sm:px-4 sm:text-sm text-white transition-colors hover:bg-brand-600 md:h-11 md:px-6">
-        Записаться
-      </button>
+    <div class="ml-auto flex items-center gap-1 md:gap-3">
+      {full && country.messengers.map((m, i) => (
+        <a href={m.href} aria-label={`Написать в ${MESSENGER_LABEL[m.id]}`} class={`${i > 0 ? "hidden md:grid" : "grid"} size-10 place-items-center rounded-full text-ink transition-colors hover:bg-soft hover:text-brand`}>
+          <HeaderMessengerIcon id={m.id} />
+        </a>
+      ))}
+      {full && <a href={country.phoneHref} class="hidden whitespace-nowrap text-[15px] font-semibold lg:block">{country.phone}</a>}
+      <button data-lead-open={course.id} class="h-10 shrink-0 rounded-full bg-brand px-4 text-[14px] font-semibold text-white transition-colors hover:bg-brand-600 md:h-11 md:px-6">Записаться</button>
     </div>
   </div>
+  <span class="absolute inset-x-0 bottom-0 h-[3px] origin-left bg-brand" style="transform:scaleX(0)" data-read-progress aria-hidden="true"></span>
 </header>
 <script>
-  const h = document.querySelector<HTMLElement>("[data-header]");
-  if (h) {
-    const on = () => (scrollY > 8 ? h.setAttribute("data-scrolled", "") : h.removeAttribute("data-scrolled"));
+  document.querySelectorAll<HTMLElement>("[data-header]").forEach((h) => {
+    // Красная полоска прочитанного под шапкой
+    const bar = h.querySelector<HTMLElement>("[data-read-progress]");
+    const on = () => {
+      h.toggleAttribute("data-scrolled", scrollY > 8);
+      if (bar) bar.style.transform = `scaleX(${Math.min(1, scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight))})`;
+    };
     on();
     addEventListener("scroll", on, { passive: true });
-  }
+    const menu = h.querySelector<HTMLDetailsElement>("[data-header-menu]");
+    if (!menu) return;
+    document.addEventListener("click", (e) => { if (!menu.contains(e.target as Node)) menu.open = false; });
+    menu.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { menu.open = false; menu.querySelector("summary")?.focus(); }
+    });
+  });
 </script>

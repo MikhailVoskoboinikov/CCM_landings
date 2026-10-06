@@ -1,0 +1,108 @@
+---
+/*
+ * Мини-тест: вопрос за вопросом, после ответа — правильный вариант и объяснение,
+ * в конце счёт и кнопка записи. Без React: один небольшой скрипт.
+ * Варианты: card — тест в карточке; off — блока нет.
+ */
+import Icon from "@/components/parts/Icon.astro";
+import Rich from "@/components/parts/Rich.astro";
+import type { Course } from "@/data";
+
+interface Props { variant?: "card" | "off"; course: Course }
+const { variant = "card", course } = Astro.props;
+const q = course.quiz;
+const n = q.items.length;
+---
+{variant === "card" && (
+  <section class="py-14 md:py-24" id="quiz">
+    <div class="container-l">
+      <div class="mx-auto max-w-2xl rounded-[28px] bg-ink p-6 text-white md:p-10" data-quiz data-reveal>
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="text-[26px] font-bold leading-tight md:text-[34px]">{q.title}</h2>
+          <span class="shrink-0 rounded-full bg-white/10 px-3 py-1 text-[13px] font-semibold" data-quiz-progress>1 / {n}</span>
+        </div>
+        <Rich as="p" class="mt-2 text-[15.5px] text-white/70" text={q.lead} />
+        {q.items.map((it, i) => (
+          <div class={i ? "hidden" : ""} data-quiz-item data-answer={it.answer}>
+            <Rich as="p" class="mt-6 text-[19px] font-semibold leading-snug md:text-[22px]" text={it.q} />
+            <div class="mt-5 grid gap-2.5">
+              {it.options.map((o, k) => (
+                <button type="button" data-quiz-option={k} class="group flex min-h-13 items-center gap-3 rounded-2xl bg-white/8 px-4 py-3 text-left text-[16px] ring-1 ring-white/15 transition hover:bg-white/14 disabled:cursor-default data-[state=right]:bg-[#1f8a5b] data-[state=right]:ring-[#1f8a5b] data-[state=wrong]:bg-brand data-[state=wrong]:ring-brand">
+                  <span class="grid size-7 shrink-0 place-items-center rounded-full bg-white/12 text-[13px] font-bold">{"АБВ"[k]}</span>
+                  <Rich text={o} />
+                </button>
+              ))}
+            </div>
+            <div class="mt-5 hidden rounded-2xl bg-white/8 p-4" data-quiz-explain>
+              <p class="flex items-center gap-2 font-semibold" data-quiz-verdict></p>
+              <Rich as="p" class="mt-1.5 text-[15px] leading-relaxed text-white/80" text={it.explain} />
+            </div>
+            <button type="button" class="mt-5 hidden h-12 w-full rounded-full bg-white text-[15px] font-semibold text-ink transition hover:bg-white/90" data-quiz-next>
+              {i < n - 1 ? "Следующий вопрос" : "Узнать результат"}
+            </button>
+          </div>
+        ))}
+        <div class="hidden" data-quiz-result>
+          <p class="mt-8 text-[44px] font-bold leading-none text-sun" data-quiz-score></p>
+          <p class="mt-3 text-[18px] leading-snug" data-quiz-summary></p>
+          <p class="mt-2 text-[15px] text-white/70">Знать — половина дела. На курсе вы отработаете каждое действие руками, чтобы не растеряться в настоящей ситуации.</p>
+          <div class="mt-7 flex flex-col gap-2 sm:flex-row">
+            <button data-lead-open={course.id} class="h-13 flex-1 rounded-full bg-brand px-6 text-base font-semibold text-white transition hover:bg-brand-600">Записаться на курс</button>
+            <button type="button" data-quiz-restart class="flex h-13 items-center justify-center gap-2 rounded-full px-6 text-[15px] font-semibold text-white/80 ring-1 ring-white/20 transition hover:bg-white/10"><Icon name="RotateCcw" size={17} />Пройти ещё раз</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-quiz]").forEach((root) => {
+    const items = [...root.querySelectorAll<HTMLElement>("[data-quiz-item]")];
+    const progress = root.querySelector<HTMLElement>("[data-quiz-progress]")!;
+    const result = root.querySelector<HTMLElement>("[data-quiz-result]")!;
+    let score = 0;
+    const show = (k: number) => {
+      items.forEach((it, j) => it.classList.toggle("hidden", j !== k));
+      result.classList.toggle("hidden", k < items.length);
+      progress.textContent = k < items.length ? `${k + 1} / ${items.length}` : "Готово";
+    };
+    items.forEach((it, j) => {
+      const right = Number(it.dataset.answer);
+      const options = [...it.querySelectorAll<HTMLButtonElement>("[data-quiz-option]")];
+      options.forEach((b) =>
+        b.addEventListener("click", () => {
+          const pick = Number(b.dataset.quizOption);
+          if (pick === right) score++;
+          options.forEach((o) => {
+            o.disabled = true;
+            const k = Number(o.dataset.quizOption);
+            if (k === right) o.dataset.state = "right";
+            else if (k === pick) o.dataset.state = "wrong";
+            else o.classList.add("opacity-50");
+          });
+          it.querySelector("[data-quiz-verdict]")!.textContent = pick === right ? "Верно" : "Не совсем";
+          it.querySelector("[data-quiz-explain]")!.classList.remove("hidden");
+          it.querySelector("[data-quiz-next]")!.classList.remove("hidden");
+        }),
+      );
+      it.querySelector("[data-quiz-next]")!.addEventListener("click", () => {
+        if (j === items.length - 1) {
+          root.querySelector("[data-quiz-score]")!.textContent = `${score} из ${items.length}`;
+          root.querySelector("[data-quiz-summary]")!.textContent =
+            score === items.length ? "Отлично — вы знаете алгоритм." : score > 0 ? "Неплохо, но в экстренной ситуации важна каждая деталь." : "Ничего страшного — именно этому и учат на курсе.";
+        }
+        show(j + 1);
+      });
+    });
+    root.querySelector("[data-quiz-restart]")!.addEventListener("click", () => {
+      score = 0;
+      items.forEach((it) => {
+        it.querySelectorAll<HTMLButtonElement>("[data-quiz-option]").forEach((o) => { o.disabled = false; delete o.dataset.state; o.classList.remove("opacity-50"); });
+        it.querySelector("[data-quiz-explain]")!.classList.add("hidden");
+        it.querySelector("[data-quiz-next]")!.classList.add("hidden");
+      });
+      show(0);
+    });
+  });
+</script>

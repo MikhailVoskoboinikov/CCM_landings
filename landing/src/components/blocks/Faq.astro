@@ -6,7 +6,6 @@
  *  chat — вопросы и ответы в виде переписки
  */
 import Icon from "@/components/parts/Icon.astro";
-import FaqContact from "@/components/parts/FaqContact.astro";
 import Rich from "@/components/parts/Rich.astro";
 import { BrandIcon, MESSENGER_COLOR } from "@/components/parts/BrandIcon";
 import { MESSENGER_LABEL, type Country, type Course } from "@/data";
@@ -14,7 +13,6 @@ import { priceText } from "@/lib/price";
 
 interface Props { variant?: "list" | "chat"; course: Course; country: Country }
 const { variant = "list", course, country } = Astro.props;
-const revised = country.id === "uz" && course.id === "bls";
 const chats = country.messengers.filter((m) => m.id !== "instagram");
 const faq: [string, string][] = [
   course.faq[0],
@@ -22,7 +20,7 @@ const faq: [string, string][] = [
   ...course.faq.slice(1),
 ];
 ---
-<section class="py-16 md:py-28" id="faq" data-faq-revised={revised ? "true" : undefined}>
+<section class="py-14 md:py-28" id="faq">
   <div class="container-l">
     {variant === "list" && (
       <div class="grid gap-10 md:grid-cols-[1.4fr_.6fr] md:gap-14">
@@ -30,7 +28,7 @@ const faq: [string, string][] = [
           <h2 class="h-section" data-reveal>Частые вопросы</h2>
           <div class="mt-8">
             {faq.map(([q, a], i) => (
-              <details class="group py-1" open={i === 0} data-faq-item={revised ? "true" : undefined}>
+              <details class="group py-1" open={i === 0} data-faq-item>
                 <summary class="flex cursor-pointer list-none items-center justify-between gap-6 py-4 text-lg font-semibold [&::-webkit-details-marker]:hidden">
                   {q}
                   <span class="grid size-9 shrink-0 place-items-center rounded-full bg-soft transition-transform group-open:rotate-45 group-open:bg-brand-50 group-open:text-brand"><Icon name="Plus" size={18} /></span>
@@ -42,22 +40,19 @@ const faq: [string, string][] = [
         </div>
 
         <aside class="md:sticky md:top-28 md:self-start" data-reveal>
-          {revised ? <FaqContact country={country} /> : (
-          <div class="rounded-[28px] bg-brand-50/40 p-6 md:p-7">
-            <h3 class="text-xl font-bold">Остались вопросы?</h3>
-            <p class="mt-2 text-[15px] text-ink-2">Спросите нас в мессенджере — подскажем, какой курс подойдёт, и подберём дату.</p>
-            <div class="mt-6 grid gap-2">
+          <div class="rounded-[28px] bg-brand-50/40 p-6 lg:p-7">
+            <h3 class="text-xl font-bold leading-snug">Остались вопросы?</h3>
+            <p class="mt-3 text-[15px] leading-relaxed text-ink-2">Поможем разобраться в программе курса и выбрать удобную дату.</p>
+            <a href={country.phoneHref} class="mt-6 inline-block whitespace-nowrap text-xl font-bold tracking-tight transition-colors hover:text-brand">{country.phone}</a>
+            <p class="mb-3 mt-6 text-xs font-medium text-ink-2">Или напишите нам</p>
+            <div class="flex flex-wrap gap-2">
               {chats.map((m) => (
-                <a href={m.href} class="flex h-12 items-center justify-center gap-2 rounded-2xl font-semibold text-white transition hover:brightness-95" style={`background:${MESSENGER_COLOR[m.id]}`}>
-                  <BrandIcon id={m.id} tone="glyph" className="size-5" />Написать в {MESSENGER_LABEL[m.id]}
+                <a href={m.href} aria-label={`Написать в ${MESSENGER_LABEL[m.id]}`} class="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-[13px] font-semibold text-white transition hover:brightness-95" style={`background:${MESSENGER_COLOR[m.id]}`}>
+                  <BrandIcon id={m.id} tone="glyph" className="size-[18px] shrink-0" />{MESSENGER_LABEL[m.id]}
                 </a>
               ))}
-              <a href={country.phoneHref} class="flex h-12 items-center justify-center gap-2 rounded-2xl text-[15px] font-medium text-ink-2 transition hover:bg-white/70">
-                <Icon name="Phone" size={17} />{country.phone}
-              </a>
             </div>
           </div>
-          )}
         </aside>
       </div>
     )}
@@ -86,7 +81,8 @@ const faq: [string, string][] = [
 </section>
 
 <script>
-  document.querySelectorAll<HTMLDetailsElement>("[data-faq-revised] [data-faq-item]").forEach((details) => {
+  // Плавное раскрытие ответа: высота анимируется от текущей до нужной
+  document.querySelectorAll<HTMLDetailsElement>("[data-faq-item]").forEach((details) => {
     const summary = details.querySelector("summary");
     const answer = details.querySelector<HTMLElement>("[data-faq-answer]");
     if (!summary || !answer) return;

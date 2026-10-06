@@ -1,0 +1,327 @@
+---
+/*
+ * Одна сцена ролика — анимированный SVG 400 × 300. Анимации запускаются, только
+ * когда сцена активна (.film-scene[data-on] в Film.astro), и перезапускаются при показе.
+ * Стиль: плоские фигуры без контуров. Спасатель в красном, пострадавший в сером.
+ * Темп компрессий — настоящий: 110 в минуту (0,545 с на нажатие).
+ */
+import type { FilmKind } from "@/data";
+
+interface Props { kind: FilmKind; count?: string }
+const { kind, count } = Astro.props;
+const C = { skin: "#f1c3a0", skin2: "#e2a57f", hair: "#2b2b31", victim: "#c9ced6", pants: "#4a4f57", res: "#d9262c", resDark: "#b51f25", ink: "#111317", floor: "#e6e8ec", sun: "#ffb81c", white: "#fff" };
+const kidCount = count === "15 : 2" ? 15 : 30;
+---
+<svg viewBox="0 0 400 300" class="size-full" aria-hidden="true">
+  <rect width="400" height="300" fill="#f4f5f7" />
+  <circle cx="200" cy="150" r="128" fill="#fff" />
+
+  {/* Лежащий пострадавший: голова слева, грудь около x = 165 */}
+  {["shake", "breath-check", "compress", "breaths", "aed"].includes(kind) && (
+    <>
+      <rect x="40" y="236" width="320" height="6" rx="3" fill={C.floor} />
+      {kind === "compress" && (
+        <g class="f-rescuer-press">
+          <rect x="196" y="214" width="96" height="20" rx="10" fill={C.pants} />
+          <g transform="rotate(-18 210 196)"><rect x="186" y="108" width="46" height="92" rx="20" fill={C.res} /></g>
+          <circle cx="226" cy="96" r="18" fill={C.skin} />
+          <path d="M210 88a18 18 0 0 1 34 2c-8-6-20-8-34-2Z" fill={C.hair} />
+          <path d="M200 126 L168 190" stroke={C.skin2} stroke-width="13" stroke-linecap="round" />
+          <path d="M210 128 L172 190" stroke={C.skin} stroke-width="13" stroke-linecap="round" />
+          <ellipse cx="168" cy="192" rx="14" ry="8" fill={C.skin} />
+        </g>
+      )}
+      <g class={kind === "breaths" ? "f-chest-rise" : kind === "compress" ? "f-chest-press" : ""}>
+        <rect x="108" y="200" width="124" height="34" rx="16" fill={C.victim} />
+      </g>
+      <rect x="226" y="206" width="128" height="26" rx="13" fill={C.pants} />
+      <rect x="348" y="200" width="14" height="34" rx="6" fill={C.ink} />
+      <circle cx="90" cy="214" r="21" fill={C.skin} />
+      <path d="M70 210a21 21 0 0 1 14-17c-4 8-6 14-14 17Z" fill={C.hair} />
+      <circle cx="80" cy="211" r="2" fill={C.ink} />
+    </>
+  )}
+
+  {kind === "safety" && (
+    <>
+      <rect x="40" y="236" width="320" height="6" rx="3" fill={C.floor} />
+      <g class="f-pop" style="--d:.2s">
+        <path d="M120 230 L160 160 L200 230 Z" fill={C.sun} />
+        <rect x="157" y="182" width="6" height="26" rx="3" fill={C.ink} />
+        <circle cx="160" cy="217" r="4" fill={C.ink} />
+      </g>
+      <g transform="translate(262 150)">
+        <circle r="46" fill="none" stroke={C.floor} stroke-width="8" />
+        <path d="M-46 0a46 46 0 0 1 46-46" fill="none" stroke={C.res} stroke-width="8" stroke-linecap="round" class="f-spin" />
+        <path d="M-24 0c8-12 16-17 24-17s16 5 24 17c-8 12-16 17-24 17s-16-5-24-17Z" fill={C.ink} />
+        <circle r="8" fill="#fff" /><circle r="4" fill={C.ink} />
+      </g>
+      <g class="f-pop" style="--d:2.3s">
+        <circle cx="300" cy="200" r="20" fill="#22a06b" />
+        <path d="M291 200l6 6 12-13" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+      </g>
+    </>
+  )}
+
+  {kind === "shake" && (
+    <>
+      <rect x="120" y="120" width="44" height="88" rx="20" fill={C.res} />
+      <circle cx="142" cy="104" r="18" fill={C.skin} />
+      <path d="M126 98a18 18 0 0 1 34 0c-9-5-22-5-34 0Z" fill={C.hair} />
+      <g class="f-shake">
+        <path d="M130 140 L100 196" stroke={C.skin} stroke-width="12" stroke-linecap="round" />
+        <path d="M156 140 L126 198" stroke={C.skin2} stroke-width="12" stroke-linecap="round" />
+      </g>
+      <g class="f-pop" style="--d:.6s">
+        <rect x="186" y="62" width="186" height="52" rx="18" fill={C.ink} />
+        <path d="M200 112 l-6 16 20-14Z" fill={C.ink} />
+        <text x="279" y="94" text-anchor="middle" fill="#fff" font-size="17" font-weight="700" font-family="var(--font-sans)">Вы меня слышите?</text>
+      </g>
+    </>
+  )}
+
+  {kind === "breath-check" && (
+    <>
+      <rect x="44" y="132" width="40" height="80" rx="18" fill={C.res} />
+      <circle cx="84" cy="150" r="17" fill={C.skin} />
+      <path d="M70 142a17 17 0 0 1 30 4c-8-6-18-8-30-4Z" fill={C.hair} />
+      <path d="M70 166 L88 196" stroke={C.skin} stroke-width="11" stroke-linecap="round" />
+      <g class="f-breath">
+        <path d="M108 196c6-8 6-16 0-24" fill="none" stroke={C.res} stroke-width="4" stroke-linecap="round" />
+        <path d="M120 200c9-12 9-24 0-36" fill="none" stroke={C.res} stroke-width="4" stroke-linecap="round" opacity=".6" />
+      </g>
+      <g transform="translate(300 110)">
+        <circle r="42" fill="none" stroke={C.floor} stroke-width="8" />
+        <circle r="42" fill="none" stroke={C.res} stroke-width="8" stroke-linecap="round" pathLength="100" stroke-dasharray="100" class="f-timer" transform="rotate(-90)" />
+        <text y="8" text-anchor="middle" font-size="24" font-weight="800" fill={C.ink} font-family="var(--font-sans)">10 с</text>
+      </g>
+    </>
+  )}
+
+  {kind === "call" && (
+    <>
+      <g class="f-ring"><circle cx="200" cy="150" r="70" fill="none" stroke={C.res} stroke-width="3" /></g>
+      <g class="f-ring" style="--d:.6s"><circle cx="200" cy="150" r="70" fill="none" stroke={C.res} stroke-width="3" /></g>
+      <g class="f-wobble">
+        <rect x="162" y="70" width="76" height="150" rx="16" fill={C.ink} />
+        <rect x="170" y="86" width="60" height="112" rx="6" fill="#fff" />
+        <text x="200" y="134" text-anchor="middle" font-size="28" font-weight="800" fill={C.res} font-family="var(--font-sans)">103</text>
+        <circle cx="200" cy="166" r="13" fill="#22a06b" />
+        <path d="M194 162c2 5 5 8 10 10l3-3-4-3-2 1c-2-1-3-2-4-4l1-2-3-4Z" fill="#fff" />
+      </g>
+      <g class="f-pop" style="--d:1.6s">
+        <rect x="262" y="176" width="92" height="56" rx="14" fill={C.sun} />
+        <path d="M296 190l-8 16h10l-6 14 16-20h-10l6-10Z" fill={C.ink} />
+        <text x="332" y="210" text-anchor="middle" font-size="13" font-weight="800" fill={C.ink} font-family="var(--font-sans)">АНД</text>
+      </g>
+    </>
+  )}
+
+  {kind === "compress" && (
+    <g transform="translate(300 70)">
+      <rect x="-50" y="-26" width="100" height="58" rx="16" fill={C.ink} />
+      <text data-count data-to={kidCount} data-every="545" y="8" text-anchor="middle" font-size="30" font-weight="800" fill="#fff" font-family="var(--font-sans)">0</text>
+      <text y="24" text-anchor="middle" font-size="11" fill="#fff" opacity=".7" font-family="var(--font-sans)">{count ?? "из 30"}</text>
+    </g>
+  )}
+
+  {kind === "breaths" && (
+    <>
+      <rect x="40" y="128" width="40" height="84" rx="18" fill={C.res} />
+      <circle cx="80" cy="170" r="17" fill={C.skin} />
+      <path d="M66 162a17 17 0 0 1 30 4c-8-6-18-8-30-4Z" fill={C.hair} />
+      <g class="f-puff">
+        <circle cx="94" cy="194" r="5" fill={C.res} opacity=".7" />
+        <circle cx="100" cy="200" r="4" fill={C.res} opacity=".5" />
+      </g>
+      <g transform="translate(300 90)">
+        <rect x="-44" y="-24" width="88" height="48" rx="16" fill={C.ink} />
+        <text y="9" text-anchor="middle" font-size="24" font-weight="800" fill="#fff" font-family="var(--font-sans)">× 2</text>
+      </g>
+    </>
+  )}
+
+  {kind === "aed" && (
+    <>
+      <g class="f-pop" style="--d:.1s">
+        <rect x="262" y="58" width="96" height="76" rx="14" fill={C.sun} />
+        <rect x="276" y="72" width="40" height="26" rx="5" fill={C.ink} />
+        <circle cx="336" cy="106" r="13" fill={C.res} class="f-blink" />
+        <path d="M334 98l-5 9h6l-4 8 10-12h-6l4-5Z" fill="#fff" />
+      </g>
+      <g class="f-pad" style="--d:.9s"><rect x="128" y="196" width="22" height="16" rx="4" fill="#fff" stroke={C.ink} stroke-width="2" /></g>
+      <g class="f-pad" style="--d:1.4s"><rect x="186" y="214" width="22" height="16" rx="4" fill="#fff" stroke={C.ink} stroke-width="2" /></g>
+      <path d="M150 204C190 130 230 120 266 112M208 222C240 170 250 140 270 124" fill="none" stroke={C.ink} stroke-width="2" stroke-dasharray="4 4" class="f-wire" />
+      <g class="f-flash"><path d="M168 150l-14 26h16l-10 24 28-34h-16l12-16Z" fill={C.sun} stroke={C.ink} stroke-width="2" stroke-linejoin="round" /></g>
+    </>
+  )}
+
+  {/* Рука с раной для кровотечения */}
+  {["press", "bandage", "tourniquet"].includes(kind) && (
+    <>
+      <rect x="40" y="168" width="300" height="48" rx="24" fill={C.skin} />
+      <rect x="320" y="160" width="46" height="64" rx="22" fill={C.skin} />
+      <rect x="20" y="160" width="60" height="64" rx="18" fill={C.victim} />
+    </>
+  )}
+
+  {kind === "press" && (
+    <>
+      <g class="f-bleed"><ellipse cx="210" cy="190" rx="26" ry="14" fill={C.res} /></g>
+      <g class="f-press-hand">
+        <rect x="176" y="96" width="70" height="40" rx="18" fill={C.skin2} />
+        <rect x="172" y="132" width="80" height="22" rx="6" fill="#fff" />
+        <rect x="236" y="50" width="34" height="70" rx="16" fill={C.res} transform="rotate(20 253 85)" />
+      </g>
+    </>
+  )}
+
+  {kind === "bandage" && (
+    <>
+      <rect x="182" y="172" width="58" height="40" rx="6" fill="#fff" />
+      {[0, 1, 2, 3, 4].map((k) => (
+        <g class="f-pop" style={`--d:${0.6 + k * 0.45}s`}>
+          <rect x={172 + k * 16} y="162" width="14" height="60" rx="5" fill="#fff" stroke={C.floor} stroke-width="2" transform={`rotate(-12 ${179 + k * 16} 192)`} />
+        </g>
+      ))}
+    </>
+  )}
+
+  {kind === "tourniquet" && (
+    <>
+      <ellipse cx="250" cy="192" rx="20" ry="11" fill={C.res} opacity=".85" />
+      <g class="f-tighten"><rect x="150" y="160" width="20" height="64" rx="6" fill={C.ink} /><rect x="142" y="186" width="36" height="12" rx="4" fill={C.sun} /></g>
+      <g class="f-pop" style="--d:2.4s">
+        <rect x="112" y="72" width="104" height="48" rx="14" fill={C.ink} />
+        <text x="164" y="104" text-anchor="middle" font-size="22" font-weight="800" fill="#fff" font-family="var(--font-sans)">14:32</text>
+        <path d="M150 118 l8 16 8-16Z" fill={C.ink} />
+      </g>
+    </>
+  )}
+
+  {/* Ребёнок стоит, взрослый рядом */}
+  {["cough", "backblows", "abdominal"].includes(kind) && (
+    <>
+      <rect x="40" y="236" width="320" height="6" rx="3" fill={C.floor} />
+      <g class={kind === "abdominal" ? "f-thrust" : ""}>
+        <rect x={kind === "abdominal" ? 188 : 232} y="176" width="16" height="58" rx="8" fill={C.pants} />
+        <rect x={kind === "abdominal" ? 210 : 252} y="176" width="16" height="58" rx="8" fill={C.pants} />
+        <rect x={kind === "abdominal" ? 182 : 226} y="104" width="52" height="84" rx="22" fill={C.res} />
+        <circle cx={kind === "abdominal" ? 222 : 252} cy="86" r="21" fill={C.skin} />
+        <path d={kind === "abdominal" ? "M203 80a21 21 0 0 1 40 0c-11-6-27-6-40 0Z" : "M233 80a21 21 0 0 1 40 0c-11-6-27-6-40 0Z"} fill={C.hair} />
+      </g>
+      <g transform={kind === "backblows" ? "rotate(-28 160 230)" : ""}>
+        <rect x="142" y="196" width="12" height="40" rx="6" fill={C.pants} />
+        <rect x="158" y="196" width="12" height="40" rx="6" fill={C.pants} />
+        <rect x="136" y="146" width="40" height="56" rx="16" fill={C.victim} />
+        <circle cx="156" cy="132" r="17" fill={C.skin} />
+        <path d="M140 128a17 17 0 0 1 32-2c-9-4-22-4-32 2Z" fill="#7a4b2e" />
+      </g>
+      {kind === "cough" && (
+        <g class="f-cough">
+          <path d="M126 134c-10 0-16-6-16-12" fill="none" stroke={C.ink} stroke-width="3" stroke-linecap="round" />
+          <path d="M120 146c-14 0-22-8-22-16" fill="none" stroke={C.ink} stroke-width="3" stroke-linecap="round" opacity=".6" />
+          <text x="62" y="112" font-size="18" font-weight="800" fill={C.ink} font-family="var(--font-sans)">кхе!</text>
+        </g>
+      )}
+      {kind === "cough" && <path d="M226 132 L184 150" stroke={C.skin} stroke-width="11" stroke-linecap="round" />}
+      {kind === "backblows" && (
+        <>
+          <g class="f-blow"><path d="M232 120 L158 160" stroke={C.skin} stroke-width="12" stroke-linecap="round" /><circle cx="156" cy="161" r="9" fill={C.skin} /></g>
+          <g class="f-impact"><circle cx="148" cy="166" r="16" fill="none" stroke={C.res} stroke-width="3" /></g>
+        </>
+      )}
+      {kind === "abdominal" && <path d="M190 132 Q160 150 172 168" stroke={C.skin} stroke-width="11" stroke-linecap="round" fill="none" class="f-thrust" />}
+      {(kind === "backblows" || kind === "abdominal") && (
+        <g transform="translate(320 70)">
+          <rect x="-40" y="-26" width="80" height="58" rx="16" fill={C.ink} />
+          <text data-count data-to="5" data-every={kind === "backblows" ? 1000 : 1100} y="8" text-anchor="middle" font-size="30" font-weight="800" fill="#fff" font-family="var(--font-sans)">0</text>
+          <text y="24" text-anchor="middle" font-size="11" fill="#fff" opacity=".7" font-family="var(--font-sans)">из 5</text>
+        </g>
+      )}
+    </>
+  )}
+
+  {kind === "course" && (
+    <>
+      <g class="f-pop" style="--d:.1s">
+        <rect x="70" y="150" width="130" height="60" rx="26" fill="#efd6c3" />
+        <circle cx="70" cy="180" r="26" fill="#efd6c3" />
+        <rect x="40" y="210" width="190" height="10" rx="5" fill={C.floor} />
+      </g>
+      {["Манекены", "Дефибриллятор", "Экзамен"].map((t, i) => (
+        <g class="f-pop" style={`--d:${0.7 + i * 0.5}s`}>
+          <circle cx="250" cy={92 + i * 40} r="12" fill="#22a06b" />
+          <path d={`M244 ${92 + i * 40}l4 4 8-8`} fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <text x="270" y={98 + i * 40} font-size="16" font-weight="700" fill={C.ink} font-family="var(--font-sans)">{t}</text>
+        </g>
+      ))}
+      <g class="f-slide" style="--d:2.2s">
+        <rect x="236" y="196" width="128" height="74" rx="6" fill="#fff" stroke={C.floor} stroke-width="2" />
+        <rect x="252" y="210" width="40" height="6" rx="3" fill={C.res} />
+        <rect x="252" y="226" width="96" height="8" rx="4" fill={C.ink} opacity=".8" />
+        <rect x="252" y="242" width="70" height="5" rx="2.5" fill={C.floor} />
+        <circle cx="342" cy="252" r="10" fill={C.sun} />
+      </g>
+    </>
+  )}
+</svg>
+
+<style>
+  /* Всё анимируется только в активной сцене; при показе сцены анимации начинаются заново */
+  [class^="f-"], [class*=" f-"] { transform-box: fill-box; }
+  :global(.film-scene:not([data-on])) * { animation: none !important; }
+  .f-pop, .f-pad, .f-slide { opacity: 0; }
+  :global(.film-scene[data-on]) .f-pop { animation: f-pop .5s cubic-bezier(.3,1.6,.5,1) var(--d, 0s) both; transform-origin: center; }
+  :global(.film-scene[data-on]) .f-spin { animation: f-spin 1.4s linear infinite; transform-origin: 100% 100%; }
+  :global(.film-scene[data-on]) .f-rescuer-press { animation: f-press .545s ease-in-out infinite; }
+  :global(.film-scene[data-on]) .f-chest-press { animation: f-squash .545s ease-in-out infinite; transform-origin: 50% 100%; }
+  :global(.film-scene[data-on]) .f-chest-rise { animation: f-rise 1.6s ease-in-out .3s 2; transform-origin: 50% 100%; }
+  :global(.film-scene[data-on]) .f-shake { animation: f-shake .28s ease-in-out infinite; }
+  :global(.film-scene[data-on]) .f-breath { animation: f-breath 1.2s ease-in-out infinite; }
+  :global(.film-scene[data-on]) .f-timer { animation: f-timer 4.4s linear forwards; }
+  :global(.film-scene[data-on]) .f-ring { animation: f-ring 1.6s ease-out var(--d, 0s) infinite; transform-origin: center; opacity: 0; }
+  :global(.film-scene[data-on]) .f-wobble { animation: f-wobble 1.2s ease-in-out infinite; transform-origin: center; }
+  :global(.film-scene[data-on]) .f-puff { animation: f-puff 1.6s ease-in-out .3s 2 both; }
+  :global(.film-scene[data-on]) .f-blink { animation: f-blink .8s steps(2) infinite; }
+  :global(.film-scene[data-on]) .f-pad { animation: f-pad .6s cubic-bezier(.2,.8,.3,1) var(--d) both; }
+  :global(.film-scene[data-on]) .f-wire { animation: f-wire 1s linear infinite, f-show .3s 1.8s both; }
+  .f-wire, .f-flash { opacity: 0; }
+  :global(.film-scene[data-on]) .f-flash { animation: f-flash 1.1s 3s both; transform-origin: center; }
+  :global(.film-scene[data-on]) .f-bleed { animation: f-pulse .8s ease-in-out 3, f-shrink .9s 2.3s forwards; transform-origin: center; }
+  :global(.film-scene[data-on]) .f-press-hand { animation: f-hand 4.6s ease-in-out forwards; }
+  :global(.film-scene[data-on]) .f-wrap { animation: f-wrap 3s ease-in-out .4s both; }
+  :global(.film-scene[data-on]) .f-tighten { animation: f-tight .7s ease-in-out .5s 3; transform-origin: center; }
+  :global(.film-scene[data-on]) .f-cough { animation: f-cough .9s ease-in-out infinite; }
+  :global(.film-scene[data-on]) .f-blow { animation: f-blow 1s ease-in infinite; transform-origin: 100% 0%; }
+  :global(.film-scene[data-on]) .f-impact { animation: f-impact 1s ease-out .3s infinite; transform-origin: center; opacity: 0; }
+  :global(.film-scene[data-on]) .f-thrust { animation: f-thrust 1.1s ease-in-out infinite; }
+  :global(.film-scene[data-on]) .f-slide { animation: f-slide .6s ease-out var(--d) both; }
+
+  @keyframes f-pop { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: scale(1); } }
+  @keyframes f-spin { to { transform: rotate(360deg); } }
+  @keyframes f-press { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(8px); } }
+  @keyframes f-squash { 0%, 100% { transform: scaleY(1); } 45% { transform: scaleY(.8); } }
+  @keyframes f-rise { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.18); } }
+  @keyframes f-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+  @keyframes f-breath { 0%, 100% { opacity: .2; transform: translateX(0); } 50% { opacity: 1; transform: translateX(6px); } }
+  @keyframes f-timer { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 100; } }
+  @keyframes f-ring { from { opacity: .8; transform: scale(.85); } to { opacity: 0; transform: scale(1.5); } }
+  @keyframes f-wobble { 0%, 30%, 100% { transform: rotate(0); } 5%, 15%, 25% { transform: rotate(-5deg); } 10%, 20% { transform: rotate(5deg); } }
+  @keyframes f-puff { 0% { opacity: 0; transform: translateY(-8px); } 40% { opacity: 1; } 100% { opacity: 0; transform: translateY(10px); } }
+  @keyframes f-blink { 50% { opacity: .35; } }
+  @keyframes f-pad { from { opacity: 0; transform: translate(110px, -40px) rotate(20deg); } to { opacity: 1; transform: none; } }
+  @keyframes f-wire { to { stroke-dashoffset: -16; } }
+  @keyframes f-show { to { opacity: 1; } }
+  @keyframes f-flash { 0%, 40%, 80% { opacity: 0; transform: scale(.8); } 20%, 60%, 100% { opacity: 1; transform: scale(1.1); } }
+  @keyframes f-pulse { 50% { transform: scale(1.15); } }
+  @keyframes f-shrink { to { transform: scale(.35); opacity: .5; } }
+  @keyframes f-hand { 0% { opacity: 0; transform: translateY(-70px); } 25% { opacity: 1; transform: translateY(-70px); } 45% { transform: translateY(0); } 60% { transform: translateY(4px); } 75%, 100% { opacity: 1; transform: translateY(0); } }
+  @keyframes f-wrap { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+  @keyframes f-tight { 50% { transform: scale(1.12, .92); } }
+  @keyframes f-cough { 0%, 100% { opacity: .3; transform: translateX(0); } 40% { opacity: 1; transform: translateX(-6px); } }
+  @keyframes f-blow { 0%, 60%, 100% { transform: rotate(-30deg); } 80% { transform: rotate(0); } }
+  @keyframes f-impact { 0%, 75% { opacity: 0; transform: scale(.5); } 80% { opacity: 1; } 100% { opacity: 0; transform: scale(1.6); } }
+  @keyframes f-thrust { 0%, 60%, 100% { transform: translate(0, 0); } 75% { transform: translate(-5px, -4px); } }
+  @keyframes f-slide { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+</style>

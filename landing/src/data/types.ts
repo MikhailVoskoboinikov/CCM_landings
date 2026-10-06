@@ -3,6 +3,32 @@
 export type CountryId = "uz" | "kg";
 export type CourseId = "bls" | "first-aid" | "first-aid-kids";
 export type Messenger = "telegram" | "whatsapp" | "instagram";
+/** Образец сертификата: картинка-основа и раскладка полей — components/parts/CertificateReal.astro */
+export type CertSampleId = "bls-uz" | "bls-kg" | "first-aid" | "first-aid-kids";
+
+/** Частичное переопределение: вложенные объекты сливаются, массивы заменяются целиком */
+export type DeepPartial<T> = {
+  [K in keyof T]?: T[K] extends readonly unknown[] ? T[K] : T[K] extends object ? DeepPartial<T[K]> : T[K];
+};
+
+/** Сцена ролика: kind — какая анимация (components/film/Scene.astro), ms — сколько показывать */
+export type FilmKind =
+  | "safety" | "shake" | "breath-check" | "call" | "compress" | "breaths" | "aed"
+  | "press" | "bandage" | "tourniquet" | "cough" | "backblows" | "abdominal" | "course";
+export interface FilmScene {
+  kind: FilmKind;
+  title: string;
+  text: string;
+  ms: number;
+  /** Подпись на счётчике, например «из 30» или «15 : 2» */
+  count?: string;
+}
+
+export interface Stat {
+  value: string;
+  text: string;
+  source: string;
+}
 
 export interface Country {
   id: CountryId;
@@ -18,6 +44,10 @@ export interface Country {
   /** Основной мессенджер страны — он идёт первым в кнопках */
   messengers: { id: Messenger; href: string }[];
   legal: string;
+  /** Лицензия на образовательную деятельность, если есть */
+  license?: string;
+  /** Местная цифра для блока «Почему это важно»: про скорую помощь в городе */
+  stat?: Stat;
 }
 
 export interface IconText {
@@ -36,6 +66,26 @@ export interface Course {
     b: { title: string; sub: string };
   };
   facts: { icon: string; label: string; value: string }[];
+  /** Почему это важно: цифра и ситуации, в которых пригодится курс */
+  why: {
+    title: string;
+    stat: Stat;
+    items: { icon: string; text: string }[];
+  };
+  /** Ролик-алгоритм на коде: анимированные сцены с подписями */
+  film: { title: string; lead: string; scenes: FilmScene[] };
+  /** Мини-тест: несколько вопросов с объяснением */
+  quiz: { title: string; lead: string; items: { q: string; options: string[]; answer: number; explain: string }[] };
+  /** Расписание дня курса — для варианта программы «Один день» */
+  schedule: { time: string; title: string; text: string }[];
+  /** Ближайшая группа: дата, свободные и все места. confirmed: false — пример, на боевом сайте не показывается */
+  nextGroup?: { date: string; free: number; total: number; confirmed: boolean };
+  /** Чему научитесь: 6 навыков с фото */
+  skills: {
+    title: string;
+    lead: string;
+    items: { image: string; title: string; text: string }[];
+  };
   audience: {
     title: string;
     lead: string;
@@ -44,6 +94,10 @@ export interface Course {
   };
   certificate: {
     kind: "erc" | "center";
+    /** Образец, который показываем на странице */
+    sample: CertSampleId;
+    /** Когда участник получает сертификат */
+    issued: string;
     title: string;
     lead: string;
     docTitle: string;
@@ -72,4 +126,22 @@ export interface Course {
   };
   faq: [string, string][];
   gallery: string[];
+  /** Обучение для организаций. Если есть modes — на странице переключатель «Для себя / Для организации» */
+  org: {
+    title: string;
+    lead: string;
+    items: IconText[];
+    /** Цены для организаций, строки с разметкой */
+    prices?: { title: string; note: string; value: string }[];
+    modes?: {
+      hero: { title: string; sub: string };
+      audience: { title: string; lead: string; items: IconText[] };
+      /** Итоги обучения для организации */
+      deliverables: IconText[];
+      /** Мастер-классы для детей */
+      kids?: { title: string; lead: string; items: { grades: string; hours: string; text: string }[]; note: string };
+    };
+  };
+  /** Отличия страницы в конкретной стране */
+  byCountry?: Partial<Record<CountryId, DeepPartial<Omit<Course, "id" | "byCountry">>>>;
 }

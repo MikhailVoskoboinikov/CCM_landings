@@ -4,7 +4,7 @@ import Icon from "./Icon.astro";
 const keys: ImageKey[] = ["manikin", "aed", "team", "scenario", "airway", "bag", "clinical", "event", "bandage", "choking"];
 const pics = keys.map((key) => IMG[key]);
 ---
-<div class="container-l mt-10" data-timed-carousel>
+<div class="container-l mt-10" data-timed-carousel data-carousel-duration="3500">
   <div class="class-gallery-layout">
     <div class="min-w-0">
       <div data-carousel-main class="relative aspect-[4/3] overflow-hidden rounded-3xl">

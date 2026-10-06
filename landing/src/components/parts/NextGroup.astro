@@ -1,0 +1,29 @@
+---
+/*
+ * Ближайшая группа: дата и шкала мест — занятые закрашены, свободные мягко «дышат».
+ * Пока дата не подтверждена (confirmed: false), блок рисуется только с пометками
+ * (это решает вызывающий код) и дата помечена «уточнить у ЦКМ».
+ */
+import Rich from "./Rich.astro";
+import type { Course } from "@/data";
+
+interface Props { group: NonNullable<Course["nextGroup"]>; dark?: boolean; class?: string }
+const { group, dark = false, class: cls = "" } = Astro.props;
+const date = group.confirmed ? group.date : `[[${group.date}|Ближайшие даты групп и число мест — нужен реальный график учебного центра]]`;
+const taken = group.total - group.free;
+---
+<div class={`flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[14px] ${dark ? "text-white/85" : "text-ink-2"} ${cls}`}>
+  <span>Ближайшая группа — <b class={dark ? "text-white" : "text-ink"}><Rich text={date} /></b></span>
+  <span class="flex items-center gap-2">
+    <span class="flex gap-[3px]" aria-hidden="true">
+      {Array.from({ length: group.total }, (_, i) => (
+        <span class={`h-2.5 w-[7px] rounded-[2px] ${i < taken ? (dark ? "bg-white" : "bg-ink") : `seat-free ${dark ? "bg-white/30" : "bg-brand/35"}`}`} style={i >= taken ? `animation-delay:${(i - taken) * 180}ms` : undefined}></span>
+      ))}
+    </span>
+    <span>свободно {group.free} из {group.total}</span>
+  </span>
+</div>
+<style>
+  .seat-free { animation: seat 1.8s ease-in-out infinite; }
+  @keyframes seat { 50% { opacity: .35; } }
+</style>

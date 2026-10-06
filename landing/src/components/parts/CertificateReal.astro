@@ -1,0 +1,146 @@
+---
+/*
+ * Образец настоящего сертификата. Основа — картинка из PDF-образцов ЦКМ, с которой
+ * сняты имя, номер, дата и QR-код реальных выпускников. Эти поля рисуются поверх в SVG
+ * в тех же координатах (пиксели картинки), поэтому всё масштабируется вместе с ней.
+ * Имя на образце — типичное для страны, не реального выпускника.
+ * spots — номера у четырёх полей (имя, квалификация, номер и дата, QR-код); их связывает
+ * со списком вариант «Что в сертификате» в blocks/Certificate.astro.
+ */
+import { Picture } from "astro:assets";
+import QRCode from "qrcode";
+import "@fontsource/pt-serif/latin-400.css";
+import "@fontsource/pt-serif/latin-700.css";
+import "@fontsource/pt-serif/latin-ext-700.css";
+import "@fontsource/source-sans-3/latin-400.css";
+import "@fontsource/source-sans-3/latin-700.css";
+import blsUz from "@/assets/certificates/bls-uz.png";
+import blsKg from "@/assets/certificates/bls-kg.png";
+import firstAid from "@/assets/certificates/first-aid.png";
+import firstAidKids from "@/assets/certificates/first-aid-kids.png";
+import type { CertSampleId, CountryId } from "@/data";
+
+interface Props { sample: CertSampleId; country: CountryId; spots?: boolean; class?: string }
+const { sample, country, spots = false, class: cls = "" } = Astro.props;
+const NAME: Record<CountryId, string> = { uz: "Malika Karimova", kg: "Aidana Asanova" };
+
+type Field = { text: string; x: number; y: number; size: number; font: "serif" | "sans" | "erc"; weight?: number; fill: string; anchor?: "start" | "middle"; spacing?: number };
+interface Layout {
+  img: typeof blsUz;
+  w: number;
+  h: number;
+  /** Имя: поле и максимальная ширина */
+  name: Omit<Field, "text"> & { max: number };
+  fields: Field[];
+  qr: { x: number; y: number; s: number; url: string };
+  /** Номера полей в пикселях картинки: имя, квалификация, номер и дата, QR-код — рядом с полем, не на тексте */
+  spots: [number, number][];
+}
+
+const VERIFY_CCM = "https://verify.medicaltraining.center";
+const venue = country === "kg" ? "Bishkek, Kyrgyz Republic" : "Tashkent, Republic of Uzbekistan";
+const ccmFooter = (number: string): Field[] => [
+  { text: `Certificate No. • ${number}`, x: 375, y: 1492, size: 21.5, font: "sans", fill: "#4b4f58", anchor: "start" },
+  { text: "Completion date • 12 October 2026", x: 375, y: 1523, size: 21, font: "sans", weight: 600, fill: "#23262e", anchor: "start" },
+];
+
+const LAYOUTS: Record<CertSampleId, Layout> = {
+  "bls-uz": {
+    img: blsUz, w: 2339, h: 1653,
+    name: { x: 1169.5, y: 639, size: 86, font: "serif", weight: 700, fill: "#143264", max: 1500 },
+    fields: [
+      { text: "Tashkent, Republic of Uzbekistan", x: 1169.5, y: 1016, size: 32, font: "serif", weight: 700, fill: "#143264" },
+      ...ccmFooter("ERC-359-XXXXXX"),
+    ],
+    qr: { x: 190, y: 1394, s: 141, url: VERIFY_CCM },
+    spots: [[1860, 600], [1660, 812], [815, 1476], [260, 1335]],
+  },
+  "first-aid": {
+    img: firstAid, w: 2339, h: 1653,
+    name: { x: 1169.5, y: 642, size: 86, font: "serif", weight: 700, fill: "#761d23", max: 1500 },
+    fields: [
+      { text: "FIRST AID", x: 1890, y: 190, size: 57.5, font: "serif", weight: 700, fill: "#761d23", anchor: "start" },
+      { text: "Basic First Aid", x: 1890, y: 230, size: 22.5, font: "sans", fill: "#545861", anchor: "start" },
+      { text: "and CPR", x: 1890, y: 259, size: 22.5, font: "sans", fill: "#545861", anchor: "start" },
+      { text: "First Aid Provider", x: 1169.5, y: 857, size: 76, font: "serif", weight: 700, fill: "#761d23" },
+      { text: "Basic First Aid and Cardiopulmonary Resuscitation", x: 1169.5, y: 916, size: 31, font: "sans", fill: "#545861" },
+      { text: venue, x: 1169.5, y: 991, size: 32, font: "serif", weight: 700, fill: "#761d23" },
+      ...ccmFooter("CCM-XXXXXXXX"),
+    ],
+    qr: { x: 190, y: 1394, s: 141, url: VERIFY_CCM },
+    spots: [[1860, 600], [1660, 812], [815, 1476], [260, 1335]],
+  },
+  "first-aid-kids": {
+    img: firstAidKids, w: 2339, h: 1653,
+    name: { x: 1169.5, y: 640, size: 86, font: "serif", weight: 700, fill: "#134850", max: 1500 },
+    fields: [
+      { text: "FIRST AID", x: 1975, y: 209, size: 48, font: "serif", weight: 700, fill: "#134850", anchor: "start" },
+      { text: "for Children", x: 1976, y: 242, size: 19.5, font: "sans", fill: "#7a3e9d", anchor: "start" },
+      { text: "and Infants", x: 1976, y: 266, size: 19.5, font: "sans", fill: "#7a3e9d", anchor: "start" },
+      { text: "Paediatric First Aid", x: 1169.5, y: 857, size: 76, font: "serif", weight: 700, fill: "#134850" },
+      { text: "First Aid for Children and Infants", x: 1169.5, y: 920, size: 36, font: "serif", fill: "#37636a" },
+      { text: venue, x: 1169.5, y: 999, size: 32, font: "serif", weight: 700, fill: "#134850" },
+      ...ccmFooter("CCM-XXXXXXXX"),
+    ],
+    qr: { x: 190, y: 1394, s: 141, url: VERIFY_CCM },
+    spots: [[1860, 600], [1660, 812], [815, 1476], [260, 1335]],
+  },
+  "bls-kg": {
+    img: blsKg, w: 1684, h: 1190,
+    name: { x: 846.5, y: 308, size: 100, font: "erc", weight: 700, fill: "#1d4489", max: 1400 },
+    fields: [
+      { text: "12/10/2026", x: 449, y: 1010, size: 20, font: "erc", fill: "#1a1a1a", anchor: "start" },
+      { text: "ERC-315-XXXXXX", x: 1047, y: 1097, size: 19.5, font: "erc", fill: "#1a1a1a", anchor: "start" },
+    ],
+    qr: { x: 55, y: 991, s: 150, url: "https://cosy.erc.edu/en/verify-certificate" },
+    spots: [[1305, 272], [1265, 470], [615, 1005], [131, 935]],
+  },
+};
+
+const L = LAYOUTS[sample];
+const FONT = { serif: "'PT Serif', Georgia, serif", sans: "var(--font-sans)", erc: "'Source Sans 3', var(--font-sans)" };
+
+/* QR-код рисуем сами одним path: так он чёткий при любом масштабе */
+const qr = QRCode.create(L.qr.url, { errorCorrectionLevel: "M" });
+const n = qr.modules.size;
+const cell = L.qr.s / n;
+let qrPath = "";
+for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.modules.get(r, c)) qrPath += `M${(L.qr.x + c * cell).toFixed(2)} ${(L.qr.y + r * cell).toFixed(2)}h${cell.toFixed(2)}v${cell.toFixed(2)}h-${cell.toFixed(2)}z`;
+---
+<figure class={`relative ${cls}`}>
+  <div class="relative overflow-hidden rounded-[10px] bg-white @container shadow-[0_24px_60px_-24px_rgba(17,19,23,.45)] ring-1 ring-black/5" style={`aspect-ratio:${L.w}/${L.h}`}>
+    <Picture src={L.img} formats={["avif", "webp"]} widths={[700, 1100, 1600]} sizes="(min-width: 1024px) 620px, (min-width: 768px) 80vw, 100vw" alt="Образец сертификата" loading="lazy" class="absolute inset-0 size-full" />
+    <svg viewBox={`0 0 ${L.w} ${L.h}`} class="absolute inset-0 size-full" aria-hidden="true">
+      <text x={L.name.x} y={L.name.y} font-size={L.name.size} font-family={FONT[L.name.font]} font-weight={L.name.weight ?? 400} fill={L.name.fill} text-anchor="middle">{NAME[country]}</text>
+      {L.fields.map((f) => (
+        <text x={f.x} y={f.y} font-size={f.size} font-family={FONT[f.font]} font-weight={f.weight ?? 400} fill={f.fill} text-anchor={f.anchor ?? "middle"} letter-spacing={f.spacing ?? 0}>{f.text}</text>
+      ))}
+      <path d={qrPath} fill="#111317" />
+    </svg>
+    {spots && L.spots.map(([x, y], i) => (
+      <button type="button" data-spot={i + 1} class="cert-spot" style={`left:${(x / L.w) * 100}%;top:${(y / L.h) * 100}%`} aria-label={`Пункт ${i + 1}`}>{i + 1}</button>
+    ))}
+  </div>
+</figure>
+
+<style>
+  .cert-spot {
+    position: absolute;
+    translate: -50% -50%;
+    z-index: 2;
+    width: clamp(22px, 5cqi, 30px);
+    height: clamp(22px, 5cqi, 30px);
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--brand);
+    color: #fff;
+    font: 700 clamp(12px, 2.4cqi, 15px)/1 var(--font-sans);
+    box-shadow: 0 0 0 3px #fff, 0 4px 12px rgb(17 19 23 / 25%);
+    transition: transform .2s ease;
+  }
+  .cert-spot[data-on] { transform: scale(1.25); }
+  .cert-spot:not([data-on]) { animation: spot-hint 2.4s ease-in-out infinite; }
+  .cert-spot:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
+  @keyframes spot-hint { 0%, 70%, 100% { box-shadow: 0 0 0 3px #fff, 0 0 0 3px rgb(217 38 44 / .5); } 85% { box-shadow: 0 0 0 3px #fff, 0 0 0 9px rgb(217 38 44 / 0); } }
+</style>

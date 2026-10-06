@@ -2,22 +2,27 @@
 /*
  * Сертификат — главный блок: по брифу информация должна быть больше
  * о сертификате, чем о курсе. Варианты:
- *  anatomy — образец с пронумерованными точками и пояснениями к ним
- *  tilt    — объёмная карточка и «где пригодится»
- *  path    — путь от курса до проверки подлинности
+ *  anatomy — настоящий образец с номерами у полей и список «что в сертификате»: наведение
+ *            или тап по пункту или номеру выделяет пару; без касаний подсветка идёт по пунктам сама
+ *  real — настоящий образец сертификата; срок, проверка и где пригодится
+ *  tilt — объёмная карточка и «где пригодится»
+ *  path — путь от курса до проверки подлинности
  */
 import Icon from "@/components/parts/Icon.astro";
 import Rich from "@/components/parts/Rich.astro";
-import CertificateDoc from "@/components/parts/CertificateDoc.astro";
-import CertificateTemplate from "@/components/parts/CertificateTemplate.astro";
-import AudienceIcon from "@/components/parts/AudienceIcon.astro";
-import { BLS_UZ_CERTIFICATE } from "@/data/bls-uz";
+import CertificateReal from "@/components/parts/CertificateReal.astro";
 import Tilt from "@/components/parts/Tilt";
-import type { Course } from "@/data";
+import type { Country, Course } from "@/data";
 
-interface Props { variant?: "anatomy" | "tilt" | "path"; course: Course; revised?: boolean }
-const { variant = "anatomy", course, revised = false } = Astro.props;
-const c = revised ? { ...course.certificate, ...BLS_UZ_CERTIFICATE } : course.certificate;
+interface Props { variant?: "anatomy" | "real" | "tilt" | "path"; course: Course; country: Country }
+const { variant = "anatomy", course, country } = Astro.props;
+const c = course.certificate;
+const facts = [
+  { icon: "UserCheck", label: "Именной", value: "После экзамена" },
+  { icon: "CalendarClock", label: "Действует", value: c.validity },
+  { icon: "QrCode", label: "Проверка", value: "Онлайн по QR-коду и номеру" },
+  { icon: "Send", label: "Когда получите", value: c.issued },
+];
 const steps = [
   { icon: "Hand", title: "Курс", text: "Один день практики в малой группе" },
   { icon: "BadgeCheck", title: c.kind === "erc" ? "Экзамен по стандарту ERC" : "Итоговая оценка навыков", text: "Инструктор проверяет каждый навык на манекене" },
@@ -25,47 +30,76 @@ const steps = [
   { icon: "QrCode", title: "Проверка", text: c.verify },
 ];
 ---
-<section class="relative overflow-hidden bg-soft py-16 md:py-28" id="certificate">
+<section class="relative overflow-hidden bg-soft py-14 md:py-28" id="certificate">
   <div class="pointer-events-none absolute -left-32 top-10 size-96 rounded-full bg-brand/10 blur-3xl"></div>
 
   {variant === "anatomy" && (
     <div class="container-l relative" data-cert-anatomy>
       <div class="max-w-2xl" data-reveal>
         <h2 class="h-section">{c.title}</h2>
-        {!revised && <p class="lead-text mt-4"><Rich text={c.lead} /></p>}
+        <Rich as="p" class="lead-text mt-3" text={c.lead} />
       </div>
-      <div class:list={["mt-12 grid gap-10 md:grid-cols-[1.15fr_.85fr] md:gap-14", revised ? "items-start" : "items-center"]}>
-        <div data-reveal>{revised ? <CertificateTemplate hotspots /> : <CertificateDoc course={course} hotspots />}</div>
-        <div>
-          {revised && <p class="lead-text mb-6" data-reveal><Rich text={c.lead} /></p>}
-        <ol class="grid gap-2">
+      <div class="mt-8 grid gap-6 md:mt-12 md:grid-cols-[1.15fr_.85fr] md:items-center md:gap-14">
+        <div data-reveal><CertificateReal sample={c.sample} country={country.id} spots /></div>
+        <ol class="grid gap-1.5">
           {c.anatomy.map((a, i) => (
-            <li data-anatomy={i + 1} class="flex cursor-default gap-4 rounded-2xl p-4 transition-colors hover:bg-white data-[on]:bg-white data-[on]:shadow-sm" data-reveal style={`--reveal-delay:${i * 70}ms`}>
-              <span class="grid size-8 shrink-0 place-items-center rounded-full bg-brand text-sm font-bold text-white">{i + 1}</span>
-              <div>
-                <h3 class="font-bold">{a.title}</h3>
-                <p class="mt-0.5 text-[15px] text-ink-2"><Rich text={a.text} /></p>
-              </div>
+            <li>
+              <button type="button" data-anatomy={i + 1} class="flex w-full gap-4 rounded-2xl p-3.5 text-left transition-colors hover:bg-white data-[on]:bg-white data-[on]:shadow-[0_6px_24px_-12px_rgba(17,19,23,.2)] md:p-4">
+                <span class="grid size-8 shrink-0 place-items-center rounded-full bg-brand text-sm font-bold text-white">{i + 1}</span>
+                <span>
+                  <span class="block font-bold leading-snug">{a.title}</span>
+                  <Rich as="span" class="mt-0.5 block text-[15px] leading-snug text-ink-2" text={a.text} />
+                </span>
+              </button>
             </li>
           ))}
         </ol>
-        </div>
       </div>
-      <div class="mt-12 grid gap-4 sm:grid-cols-3">
-        {c.useful.map((u) => revised ? (
-          <article class="audience-card flex flex-col gap-4 rounded-3xl bg-white p-6 transition-colors hover:bg-brand-50 sm:row-span-2 sm:grid sm:grid-rows-subgrid" data-reveal>
-            <div class="flex items-center gap-3">
-              <span class="grid size-12 shrink-0 place-items-center rounded-2xl bg-soft text-brand"><AudienceIcon name={u.icon} size={24} /></span>
-              <h3 class="min-w-0 text-base font-bold leading-snug">{u.title}</h3>
-            </div>
-            <p class="text-[15px] leading-relaxed text-ink-2"><Rich text={u.text} /></p>
-          </article>
-        ) : (
-          <div class="flex gap-3 rounded-2xl bg-white p-5" data-reveal>
-            <Icon name={u.icon} class="mt-0.5 shrink-0 text-brand" />
-            <div><h3 class="font-bold">{u.title}</h3><p class="mt-1 text-[15px] text-ink-2"><Rich text={u.text} /></p></div>
+      <dl class="mt-8 grid grid-cols-2 gap-2.5 md:mt-12 md:grid-cols-4 md:gap-4">
+        {facts.map((f, i) => (
+          <div class="rounded-2xl bg-white p-4" data-reveal style={`--reveal-delay:${i * 60}ms`}>
+            <dt class="flex items-center gap-2 text-[13px] text-muted-foreground"><Icon name={f.icon} size={16} class="text-brand" />{f.label}</dt>
+            <dd class="mt-1.5 text-[15px] font-semibold leading-snug"><Rich text={f.value} /></dd>
           </div>
         ))}
+      </dl>
+      <div class="mt-3 grid gap-3 sm:grid-cols-3 md:mt-4 md:gap-4">
+        {c.useful.map((u, i) => (
+          <article class="audience-card flex gap-3 rounded-3xl bg-white p-5 transition-colors hover:bg-brand-50 md:flex-col md:gap-4 md:p-6" data-reveal style={`--reveal-delay:${i * 60}ms`}>
+            <span class="grid size-11 shrink-0 place-items-center rounded-2xl bg-soft text-brand"><Icon name={u.icon} size={22} animated /></span>
+            <div><h3 class="font-bold leading-snug">{u.title}</h3><Rich as="p" class="mt-1 text-[14.5px] leading-snug text-ink-2" text={u.text} /></div>
+          </article>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {variant === "real" && (
+    <div class="container-l relative grid gap-8 md:grid-cols-[1.15fr_.85fr] md:items-center md:gap-14">
+      <div class="md:col-span-2 md:max-w-2xl" data-reveal>
+        <h2 class="h-section">{c.title}</h2>
+        <Rich as="p" class="lead-text mt-3" text={c.lead} />
+      </div>
+      <div data-reveal>
+        <CertificateReal sample={c.sample} country={country.id} />
+      </div>
+      <div>
+        <dl class="grid grid-cols-2 gap-2.5">
+          {facts.map((f, i) => (
+            <div class="rounded-2xl bg-white p-4" data-reveal style={`--reveal-delay:${i * 60}ms`}>
+              <dt class="flex items-center gap-2 text-[13px] text-muted-foreground"><Icon name={f.icon} size={16} class="text-brand" />{f.label}</dt>
+              <dd class="mt-1.5 text-[15px] font-semibold leading-snug"><Rich text={f.value} /></dd>
+            </div>
+          ))}
+        </dl>
+        <ul class="mt-6 grid gap-3">
+          {c.useful.map((u, i) => (
+            <li class="audience-card flex gap-3" data-reveal style={`--reveal-delay:${i * 60}ms`}>
+              <span class="grid size-10 shrink-0 place-items-center rounded-full bg-white text-brand"><Icon name={u.icon} size={20} animated /></span>
+              <div><h3 class="font-bold leading-snug">{u.title}</h3><Rich as="p" class="text-[14.5px] leading-snug text-ink-2" text={u.text} /></div>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   )}
@@ -73,7 +107,7 @@ const steps = [
   {variant === "tilt" && (
     <div class="container-l relative grid items-center gap-12 md:grid-cols-2 md:gap-16">
       <div class="mx-auto w-full max-w-[540px]" data-reveal>
-        <Tilt client:visible>{revised ? <CertificateTemplate /> : <CertificateDoc course={course} />}</Tilt>
+        <Tilt client:visible><CertificateReal sample={c.sample} country={country.id} /></Tilt>
         <p class="mt-6 flex items-center justify-center gap-2 text-sm text-ink-2"><Icon name="ShieldCheck" size={18} class="text-brand" /><Rich text={c.verify} /></p>
       </div>
       <div>
@@ -83,7 +117,7 @@ const steps = [
         <ul class="mt-4 grid gap-3">
           {c.useful.map((u, i) => (
             <li class="audience-card flex gap-4 rounded-2xl bg-white p-5 shadow-[0_2px_20px_-8px_rgba(17,19,23,.12)]" data-reveal style={`--reveal-delay:${i * 80}ms`}>
-              <span class="grid size-11 shrink-0 place-items-center rounded-full bg-brand-50 text-brand">{revised ? <AudienceIcon name={u.icon} size={24} /> : <Icon name={u.icon} size={20} />}</span>
+              <span class="grid size-11 shrink-0 place-items-center rounded-full bg-brand-50 text-brand"><Icon name={u.icon} size={22} animated /></span>
               <div><h4 class="font-bold">{u.title}</h4><p class="mt-0.5 text-[15px] text-ink-2"><Rich text={u.text} /></p></div>
             </li>
           ))}
@@ -98,7 +132,7 @@ const steps = [
         <h2 class="h-section">{c.title}</h2>
         <p class="lead-text mt-4"><Rich text={c.lead} /></p>
       </div>
-      <div class="mx-auto mt-12 max-w-[560px]" data-reveal>{revised ? <CertificateTemplate /> : <CertificateDoc course={course} />}</div>
+      <div class="mx-auto mt-12 max-w-[560px]" data-reveal><CertificateReal sample={c.sample} country={country.id} /></div>
       <ol class="relative mt-14 grid gap-8 md:grid-cols-4 md:gap-6">
         <span class="absolute left-[22px] top-2 h-[calc(100%-16px)] w-0.5 bg-brand/25 md:left-0 md:top-[22px] md:h-0.5 md:w-full" aria-hidden="true"></span>
         {steps.map((s, i) => (
@@ -117,22 +151,32 @@ const steps = [
 </section>
 
 <script>
-  // Связь пунктов «анатомии» с точками на образце
+  // Пункты списка ↔ номера на сертификате. Пока не трогали — подсветка идёт по кругу
   document.querySelectorAll<HTMLElement>("[data-cert-anatomy]").forEach((root) => {
-    const items = root.querySelectorAll<HTMLElement>("[data-anatomy]");
-    const light = (n: string | null) => {
-      items.forEach((it) => it.toggleAttribute("data-on", it.dataset.anatomy === n));
-      root.querySelectorAll<HTMLElement>("[data-spot]").forEach((s) => (s.style.transform = s.dataset.spot === n ? "scale(1.25)" : ""));
+    const items = [...root.querySelectorAll<HTMLElement>("[data-anatomy]")];
+    const spots = [...root.querySelectorAll<HTMLElement>("[data-spot]")];
+    let auto = 0, n = 0, touched = false;
+    const light = (k: number) => {
+      n = k;
+      const id = String(k);
+      items.forEach((el) => el.toggleAttribute("data-on", el.dataset.anatomy === id));
+      spots.forEach((el) => el.toggleAttribute("data-on", el.dataset.spot === id));
     };
-    items.forEach((it) => {
-      it.addEventListener("pointerenter", () => light(it.dataset.anatomy!));
-      it.addEventListener("click", () => light(it.dataset.anatomy!));
+    const pick = (k: number) => { touched = true; clearInterval(auto); light(k); };
+    items.forEach((el) => {
+      el.addEventListener("click", () => pick(Number(el.dataset.anatomy)));
+      el.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && pick(Number(el.dataset.anatomy)));
     });
-    root.querySelectorAll<HTMLElement>("[data-spot]").forEach((s) => {
-      s.addEventListener("pointerenter", () => light(s.dataset.spot!));
-      s.addEventListener("focus", () => light(s.dataset.spot!));
-      s.addEventListener("click", () => light(s.dataset.spot!));
+    spots.forEach((el) => {
+      el.addEventListener("click", () => pick(Number(el.dataset.spot)));
+      el.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && pick(Number(el.dataset.spot)));
     });
-    root.addEventListener("pointerleave", () => light(null));
+    new IntersectionObserver(([e]) => {
+      clearInterval(auto);
+      if (e.isIntersecting && !touched) {
+        if (!n) light(1);
+        auto = window.setInterval(() => light((n % items.length) + 1), 2600);
+      }
+    }, { threshold: 0.4 }).observe(root);
   });
 </script>

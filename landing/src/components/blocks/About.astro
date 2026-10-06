@@ -1,37 +1,27 @@
 ---
 /*
  * О ЦКМ: почему нам доверять. Варианты:
- *  stats — счётчики и четыре причины доверять
+ *  stats — карта учебных центров, счётчики и четыре причины доверять
  *  photo — фото с флагами ЦКМ на всю ширину, текст и цифры поверх светлой части
- *  map   — схема учебных центров из точек и цифры
+ *  map   — карта учебных центров, причины доверять и цифры
  *  story — фото инструкторов и история ЦКМ
  */
 import Icon from "@/components/parts/Icon.astro";
 import Rich from "@/components/parts/Rich.astro";
 import CentersMap from "@/components/parts/CentersMap.astro";
 import { CENTERS, STATS, TRUST } from "@/data/about";
-import { BLS_UZ_TRUST } from "@/data/bls-uz";
 import { IMG, type Country } from "@/data";
 import { Picture } from "astro:assets";
 import flags from "@/assets/ccm-flags.png";
 
-interface Props { variant?: "stats" | "photo" | "map" | "story"; country: Country; revised?: boolean }
-const { variant = "stats", country, revised = false } = Astro.props;
+interface Props { variant?: "stats" | "photo" | "map" | "story"; country: Country }
+const { variant = "stats", country } = Astro.props;
 
-const trust = revised ? BLS_UZ_TRUST : TRUST;
 const intro = "С 2006 года ЦКМ оказывает медицинскую помощь на предприятиях и в удалённых регионах. Практический опыт наших специалистов лежит в основе обучающих курсов.";
 const stat = (s: (typeof STATS)[number]) => (s.q ? `[[${new Intl.NumberFormat("ru-RU").format(s.value)}${s.suffix}|${s.q}]]` : "");
 
-/* Схема: прямоугольная проекция участка 25–90° в. д., 38–62° с. ш. */
-const box = { lon0: 25, lon1: 90, lat0: 38, lat1: 62 };
-const MW = 520, MH = 300;
-const px = (lon: number) => ((lon - box.lon0) / (box.lon1 - box.lon0)) * MW;
-const py = (lat: number) => ((box.lat1 - lat) / (box.lat1 - box.lat0)) * MH;
-const dots: [number, number][] = [];
-for (let x = 6; x < MW; x += 13) for (let y = 6; y < MH; y += 13) dots.push([x, y]);
-const home = CENTERS.find((c) => c.country === country.id) ?? CENTERS[0];
 ---
-<section class={`relative overflow-hidden ${variant === "photo" ? "" : "py-16 md:py-28"}`} id="about">
+<section class={`relative overflow-hidden ${variant === "photo" ? "" : "py-14 md:py-28"}`} id="about">
   {variant === "photo" && (
     <div class="relative md:flex md:min-h-[620px] md:items-center lg:min-h-[680px]">
       {/* Фото медленно дрейфует; справа (на телефоне — снизу) растворяется в белом, там текст */}
@@ -61,16 +51,12 @@ const home = CENTERS.find((c) => c.country === country.id) ?? CENTERS[0];
   <div class="container-l">
     {variant === "stats" && (
       <>
-        <div class:list={[revised ? "grid items-center gap-8 md:grid-cols-[1.1fr_.9fr] md:gap-12" : "grid items-center gap-10 md:grid-cols-[1.05fr_.95fr] md:gap-16"]}>
+        <div class="grid items-center gap-8 md:grid-cols-[1.1fr_.9fr] md:gap-12">
           <div data-reveal>
             <h2 class="h-section">Центр корпоративной медицины</h2>
-            <p class="lead-text mt-4">{revised ? intro : "С 2006 года ЦКМ оказывает медицинскую помощь там, где до больницы далеко: здравпункты на промышленных объектах, медицинская эвакуация, дистанционные консультации. Этот опыт — основа наших курсов."}</p>
+            <p class="lead-text mt-4">{intro}</p>
           </div>
-          {revised ? <div data-reveal><CentersMap country={country} /></div> : (
-            <div class="relative" data-reveal style="--reveal-delay:100ms">
-              <Picture src={flags} formats={["avif", "webp"]} widths={[640, 1024]} sizes="(min-width: 768px) 520px, 100vw" alt="Флаги Центра корпоративной медицины на фоне карты объектов" loading="lazy" class="aspect-[16/10] w-full rounded-[28px] object-cover object-[30%_center]" />
-            </div>
-          )}
+          <div data-reveal><CentersMap country={country} /></div>
         </div>
         <dl class="mt-12 grid grid-cols-2 gap-x-6 gap-y-10 md:mt-16 md:grid-cols-4">
           {STATS.map((s, i) => (
@@ -82,57 +68,31 @@ const home = CENTERS.find((c) => c.country === country.id) ?? CENTERS[0];
             </div>
           ))}
         </dl>
-        {revised ? (
-          <div class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {trust.map((t, i) => (
-              <article class="flex flex-col gap-4 rounded-3xl bg-soft p-5 transition-colors hover:bg-brand-50 sm:row-span-2 sm:grid sm:grid-rows-subgrid" data-reveal style={`--reveal-delay:${i * 70}ms`}>
-                <div class="flex items-center gap-3">
-                  <span class="grid size-12 shrink-0 place-items-center rounded-2xl bg-white text-brand"><Icon name={t.icon} size={24} /></span>
-                  <h3 class="min-w-0 text-base font-bold leading-snug">{t.title}</h3>
-                </div>
-                <p class="text-[15px] leading-relaxed text-ink-2">{t.text}</p>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <div class="-mx-5 mt-14 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-5 px-5 pb-2 [scrollbar-width:none] md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-4">
-            {trust.map((t, i) => (
-              <div class="w-[76%] shrink-0 snap-start rounded-3xl bg-soft p-6 md:w-auto" data-reveal style={`--reveal-delay:${i * 70}ms`}>
-                <Icon name={t.icon} size={28} class="text-brand" />
-                <h3 class="mt-6 text-lg font-bold leading-snug">{t.title}</h3>
-                <p class="mt-2 text-[15px] text-ink-2">{t.text}</p>
-              </div>
-            ))}
-          </div>
-        )}
+        <div class="mt-10 grid grid-cols-2 gap-3 md:mt-14 md:gap-4 lg:grid-cols-4">
+          {TRUST.map((t, i) => (
+            <article class="flex flex-col gap-3 rounded-3xl bg-soft p-4 md:p-5" data-reveal style={`--reveal-delay:${i * 60}ms`}>
+              <span class="grid size-11 shrink-0 place-items-center rounded-2xl bg-white text-brand"><Icon name={t.icon} size={22} /></span>
+              <h3 class="text-[15.5px] font-bold leading-snug md:text-base">{t.title}</h3>
+              <p class="text-[14px] leading-snug text-ink-2 md:text-[15px]">{t.text}</p>
+            </article>
+          ))}
+        </div>
       </>
     )}
 
     {variant === "map" && (
       <div class="grid items-center gap-10 md:grid-cols-[.9fr_1.1fr] md:gap-16">
         <div data-reveal>
-          <h2 class="h-section">{revised ? "Центр корпоративной медицины" : "Шесть учебных центров"}</h2>
-          <p class="lead-text mt-4">{revised ? intro : "Центр корпоративной медицины работает с 2006 года. Учебные центры — в Узбекистане, Кыргызстане, Казахстане и России."}</p>
+          <h2 class="h-section">Центр корпоративной медицины</h2>
+          <p class="lead-text mt-4">{intro}</p>
           <ul class="mt-8 grid gap-4">
-            {trust.slice(0, 3).map((t) => (
+            {TRUST.slice(0, 3).map((t) => (
               <li class="flex gap-3"><Icon name={t.icon} size={22} class="mt-0.5 shrink-0 text-brand" /><div><b>{t.title}</b><p class="text-[15px] text-ink-2">{t.text}</p></div></li>
             ))}
           </ul>
         </div>
         <div class="relative" data-reveal>
-          {revised ? <CentersMap country={country} /> : (<svg viewBox={`0 0 ${MW} ${MH}`} class="w-full" role="img" aria-label="Схема учебных центров ЦКМ">
-            {dots.map(([x, y]) => <circle cx={x} cy={y} r="1.6" fill="#d5d8dd" />)}
-            {CENTERS.filter((c) => c !== home).map((c) => (
-              <path d={`M${px(home.lon)} ${py(home.lat)} Q ${(px(home.lon) + px(c.lon)) / 2} ${Math.min(py(home.lat), py(c.lat)) - 40} ${px(c.lon)} ${py(c.lat)}`} fill="none" stroke="var(--brand)" stroke-opacity=".35" stroke-width="1.5" stroke-dasharray="4 5" />
-            ))}
-            {CENTERS.map((c) => (
-              <g transform={`translate(${px(c.lon)} ${py(c.lat)})`}>
-                {c === home && <circle r="8" fill="var(--brand)" class="origin-center animate-pulse-ring" style="transform-box: fill-box" />}
-                <circle r={c === home ? 7 : 5} fill={c === home ? "var(--brand)" : "#111317"} stroke="#fff" stroke-width="2.5" />
-                <text x={c.side === "l" ? -12 : 12} y="4" text-anchor={c.side === "l" ? "end" : "start"} font-size={c === home ? 15 : 12} font-weight={c === home ? 700 : 500} fill="#111317">{c.city}</text>
-              </g>
-            ))}
-          </svg>)}
+          <CentersMap country={country} />
           <div class="mt-6 grid grid-cols-3 gap-4 text-center">
             <div><p class="text-3xl font-bold text-brand"><span data-count="20">0</span></p><p class="text-sm text-ink-2">лет работы</p></div>
             <div><p class="text-3xl font-bold text-brand"><span data-count="6">0</span></p><p class="text-sm text-ink-2">центров</p></div>
@@ -144,17 +104,16 @@ const home = CENTERS.find((c) => c.country === country.id) ?? CENTERS[0];
 
     {variant === "story" && (
       <div class="grid items-center gap-10 md:grid-cols-2 md:gap-16">
-        {revised ? <div class="order-2" data-reveal><CentersMap country={country} /></div> : (
-        <div class="relative" data-reveal>
+                <div class="relative" data-reveal>
           <img src={IMG.team} alt="Инструкторы учебного центра с манекеном" loading="lazy" class="aspect-[4/3] w-full rounded-[28px] object-cover" />
           <div class="absolute -bottom-5 right-4 rounded-2xl bg-white px-5 py-4 shadow-xl md:-right-6">
             <p class="text-3xl font-bold text-brand">с 2006</p>
             <p class="text-sm text-ink-2">года на удалённых объектах</p>
           </div>
-        </div>)}
-        <div class:list={[{ "order-1": revised }]} data-reveal>
-          <h2 class="h-section">{revised ? "Центр корпоративной медицины" : "Мы сами оказываем помощь там, где до больницы далеко"}</h2>
-          <p class="lead-text mt-5">{revised ? intro : "Центр корпоративной медицины обеспечивает медицинскую помощь на промышленных объектах: здравпункты, медицинская эвакуация, дистанционные консультации. Инструкторы учебного центра учат тому, что делают на работе."}</p>
+        </div>
+        <div data-reveal>
+          <h2 class="h-section">Мы сами оказываем помощь там, где до больницы далеко</h2>
+          <p class="lead-text mt-5">{"Центр корпоративной медицины обеспечивает медицинскую помощь на промышленных объектах: здравпункты, медицинская эвакуация, дистанционные консультации. Инструкторы учебного центра учат тому, что делают на работе."}</p>
           <ul class="mt-8 grid gap-3">
             <li class="flex gap-3"><Icon name="Check" class="shrink-0 text-brand" />Учебные центры в Ташкенте, Бишкеке, Астане, Москве, Санкт-Петербурге и Томске</li>
             <li class="flex gap-3"><Icon name="Check" class="shrink-0 text-brand" /><Rich text="Под медицинским сопровождением ЦКМ — [[около 95 000 человек|Можно ли публиковать число сотрудников под сопровождением?]]" /></li>
