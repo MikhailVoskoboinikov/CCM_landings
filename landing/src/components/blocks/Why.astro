@@ -5,6 +5,7 @@
  * цифра курса — второй, поменьше.
  */
 import Icon from "@/components/parts/Icon.astro";
+import WhyIcon from "@/components/parts/WhyIcon.astro";
 import Rich from "@/components/parts/Rich.astro";
 import Ecg from "@/components/parts/Ecg.astro";
 import type { Country, Course } from "@/data";
@@ -12,6 +13,9 @@ import type { Country, Course } from "@/data";
 interface Props { course: Course; country: Country }
 const { course, country } = Astro.props;
 const w = course.why;
+const revised = course.id === "bls" && country.id === "uz";
+const arrestBeat = (x: number) => `L${x + 8} 60 C${x + 11} 60 ${x + 12} 54 ${x + 16} 54 C${x + 20} 54 ${x + 21} 60 ${x + 24} 60 L${x + 36} 60 L${x + 38} 63.5 L${x + 42.5} 12 L${x + 46.5} 70 L${x + 50} 60 L${x + 72} 60 C${x + 80} 60 ${x + 88} 47 ${x + 96} 47 C${x + 102} 47 ${x + 106} 60 ${x + 110} 60 L${x + 160} 60`;
+const arrestPath = `M0 60 ${arrestBeat(0)} ${arrestBeat(160)} L480 60`;
 const main = country.stat ?? w.stat;
 const second = country.stat ? w.stat : undefined;
 ---
@@ -22,10 +26,15 @@ const second = country.stat ? w.stat : undefined;
     <div class="mt-7 grid gap-3 md:mt-10 md:grid-cols-2 md:gap-6">
     <div class="flex flex-col gap-3" data-reveal>
       <div class="relative flex-1 overflow-hidden rounded-[28px] bg-brand p-6 pb-20 text-white md:p-9 md:pb-24">
-        {/* Та же кардиограмма, что на первом экране: на телефоне бежит, на компьютере неподвижна —
-            две бегущие рядом с кардиограммой первого экрана смотрелись бы странно */}
-        <Ecg beats={3} base={0.22} class="pointer-events-none absolute inset-x-0 bottom-3 h-16 w-full text-white md:hidden" />
-        <Ecg beats={3} still base={0.22} class="pointer-events-none absolute inset-x-0 bottom-3 hidden h-20 w-full text-white md:block" />
+        {revised ? (
+          <svg viewBox="0 0 480 80" preserveAspectRatio="none" class="pointer-events-none absolute inset-x-0 bottom-3 h-16 w-full text-white md:h-20" aria-hidden="true">
+            <path d={arrestPath} fill="none" stroke="currentColor" stroke-opacity=".65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+            <path d={arrestPath} fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" pathLength="1" stroke-dasharray=".16 .84" class="animate-ecg md:hidden" style="animation-duration:3.2s" />
+          </svg>
+        ) : <>
+          <Ecg beats={3} base={0.22} class="pointer-events-none absolute inset-x-0 bottom-3 h-16 w-full text-white md:hidden" />
+          <Ecg beats={3} still base={0.22} class="pointer-events-none absolute inset-x-0 bottom-3 hidden h-20 w-full text-white md:block" />
+        </>}
         <p class="relative text-[56px] font-bold leading-none tracking-tight md:text-[80px]"><Rich text={main.value} /></p>
         <Rich as="p" class="relative mt-3 max-w-md text-[17px] leading-snug md:text-xl" text={main.text} />
         <Rich as="p" class="relative mt-4 text-[12.5px] text-white/70" text={main.source} />
@@ -42,8 +51,8 @@ const second = country.stat ? w.stat : undefined;
     </div>
     <ul class="grid grid-cols-2 gap-2.5 md:flex md:flex-col md:gap-3">
       {w.items.map((it, i) => (
-        <li class="flex flex-col gap-2.5 rounded-2xl bg-soft p-3.5 md:flex-1 md:flex-row md:items-center md:gap-4 md:px-5" data-reveal style={`--reveal-delay:${i * 60}ms`}>
-          <span class="grid size-9 shrink-0 place-items-center rounded-full bg-white text-brand md:size-10"><Icon name={it.icon} size={19} /></span>
+        <li class:list={[revised && "why-card transition-colors hover:bg-brand-50", "flex flex-col gap-2.5 rounded-2xl bg-soft p-3.5 md:flex-1 md:flex-row md:items-center md:gap-4 md:px-5"]} data-reveal style={`--reveal-delay:${i * 60}ms`}>
+          <span class="grid size-9 shrink-0 place-items-center rounded-full bg-white text-brand md:size-10">{revised ? <WhyIcon name={it.icon} size={19} /> : <Icon name={it.icon} size={19} />}</span>
           <Rich as="p" class="text-[14.5px] font-medium leading-snug md:text-[15.5px]" text={it.text} />
         </li>
       ))}

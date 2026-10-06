@@ -20,8 +20,8 @@ import firstAid from "@/assets/certificates/first-aid.png";
 import firstAidKids from "@/assets/certificates/first-aid-kids.png";
 import type { CertSampleId, CountryId } from "@/data";
 
-interface Props { sample: CertSampleId; country: CountryId; spots?: boolean; class?: string }
-const { sample, country, spots = false, class: cls = "" } = Astro.props;
+interface Props { sample: CertSampleId; country: CountryId; spots?: boolean; selectable?: boolean; class?: string }
+const { sample, country, spots = false, selectable = false, class: cls = "" } = Astro.props;
 const NAME: Record<CountryId, string> = { uz: "Malika Karimova", kg: "Aidana Asanova" };
 
 type Field = { text: string; x: number; y: number; size: number; font: "serif" | "sans" | "erc"; weight?: number; fill: string; anchor?: "start" | "middle"; spacing?: number };
@@ -107,7 +107,7 @@ const cell = L.qr.s / n;
 let qrPath = "";
 for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.modules.get(r, c)) qrPath += `M${(L.qr.x + c * cell).toFixed(2)} ${(L.qr.y + r * cell).toFixed(2)}h${cell.toFixed(2)}v${cell.toFixed(2)}h-${cell.toFixed(2)}z`;
 ---
-<figure class={`relative ${cls}`}>
+<figure class={`relative ${cls}`} data-cert-selectable={selectable ? "" : undefined}>
   <div class="relative overflow-hidden rounded-[10px] bg-white @container shadow-[0_24px_60px_-24px_rgba(17,19,23,.45)] ring-1 ring-black/5" style={`aspect-ratio:${L.w}/${L.h}`}>
     <Picture src={L.img} formats={["avif", "webp"]} widths={[700, 1100, 1600]} sizes="(min-width: 1024px) 620px, (min-width: 768px) 80vw, 100vw" alt="Образец сертификата" loading="lazy" class="absolute inset-0 size-full" />
     <svg viewBox={`0 0 ${L.w} ${L.h}`} class="absolute inset-0 size-full" aria-hidden="true">
@@ -118,7 +118,7 @@ for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.modules.get(r, c)
       <path d={qrPath} fill="#111317" />
     </svg>
     {spots && L.spots.map(([x, y], i) => (
-      <button type="button" data-spot={i + 1} class="cert-spot" style={`left:${(x / L.w) * 100}%;top:${(y / L.h) * 100}%`} aria-label={`Пункт ${i + 1}`}>{i + 1}</button>
+      <button type="button" data-spot={i + 1} data-on={selectable && i === 0 ? "" : undefined} aria-pressed={selectable ? i === 0 : undefined} class:list={["cert-spot", selectable && "cert-spot-selectable"]} style={`left:${(x / L.w) * 100}%;top:${(y / L.h) * 100}%`} aria-label={`Пункт ${i + 1}`}>{i + 1}</button>
     ))}
   </div>
 </figure>
@@ -141,6 +141,8 @@ for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.modules.get(r, c)
   }
   .cert-spot[data-on] { transform: scale(1.25); }
   .cert-spot:not([data-on]) { animation: spot-hint 2.4s ease-in-out infinite; }
+  .cert-spot-selectable { background: #c3c7ce; animation: none; transition: background-color .2s ease, transform .2s ease; }
+  .cert-spot-selectable[data-on] { background: var(--brand); }
   .cert-spot:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
   @keyframes spot-hint { 0%, 70%, 100% { box-shadow: 0 0 0 3px #fff, 0 0 0 3px rgb(217 38 44 / .5); } 85% { box-shadow: 0 0 0 3px #fff, 0 0 0 9px rgb(217 38 44 / 0); } }
 </style>

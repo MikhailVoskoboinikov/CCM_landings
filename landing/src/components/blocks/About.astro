@@ -7,16 +7,24 @@
  *  story — фото инструкторов и история ЦКМ
  */
 import Icon from "@/components/parts/Icon.astro";
+import TrustIcon from "@/components/parts/TrustIcon.astro";
 import Rich from "@/components/parts/Rich.astro";
 import CentersMap from "@/components/parts/CentersMap.astro";
 import { CENTERS, STATS, TRUST } from "@/data/about";
-import { IMG, type Country } from "@/data";
+import { IMG, type Country, type Course } from "@/data";
 import { Picture } from "astro:assets";
 import flags from "@/assets/ccm-flags.png";
 
-interface Props { variant?: "stats" | "photo" | "map" | "story"; country: Country }
-const { variant = "stats", country } = Astro.props;
+interface Props { variant?: "stats" | "photo" | "map" | "story"; country: Country; course?: Course }
+const { variant = "stats", country, course } = Astro.props;
 
+const revised = country.id === "uz" && course?.id === "bls";
+const trust = revised ? [
+  { icon: "Stethoscope", title: "Обучение проводят практикующие врачи", text: "Реаниматологи, кардиологи и фельдшеры, которые имеют большой опыт в экстренной медицине" },
+  { icon: "BadgeCheck", title: "Международные стандарты", text: "Программа разработана по рекомендациям Европейского совета по реанимации (ERC) 2025" },
+  { icon: "Ambulance", title: "Опыт на реальных объектах", text: "ЦКМ оказывает медицинскую помощь людям в самых различных экстренных ситуациях" },
+  { icon: "HeartPulse", title: "Много практики", text: "Основой курса является отработка практических навыков на манекенах под руководством инструкторов" },
+] : TRUST;
 const intro = "С 2006 года ЦКМ оказывает медицинскую помощь на предприятиях и в удалённых регионах. Практический опыт наших специалистов лежит в основе обучающих курсов.";
 const stat = (s: (typeof STATS)[number]) => (s.q ? `[[${new Intl.NumberFormat("ru-RU").format(s.value)}${s.suffix}|${s.q}]]` : "");
 
@@ -69,10 +77,10 @@ const stat = (s: (typeof STATS)[number]) => (s.q ? `[[${new Intl.NumberFormat("r
           ))}
         </dl>
         <div class="mt-10 grid grid-cols-2 gap-3 md:mt-14 md:gap-4 lg:grid-cols-4">
-          {TRUST.map((t, i) => (
-            <article class="flex flex-col gap-3 rounded-3xl bg-soft p-4 md:p-5" data-reveal style={`--reveal-delay:${i * 60}ms`}>
-              <span class="grid size-11 shrink-0 place-items-center rounded-2xl bg-white text-brand"><Icon name={t.icon} size={22} /></span>
-              <h3 class="text-[15.5px] font-bold leading-snug md:text-base">{t.title}</h3>
+          {trust.map((t, i) => (
+            <article class:list={["flex flex-col gap-3 rounded-3xl bg-soft p-4 md:p-5", revised && "audience-card transition-colors hover:bg-brand-50"]} data-reveal style={`--reveal-delay:${i * 60}ms`}>
+              <span class="grid size-11 shrink-0 place-items-center rounded-2xl bg-white text-brand">{revised ? <TrustIcon name={t.icon} size={22} /> : <Icon name={t.icon} size={22} />}</span>
+              <h3 class:list={["text-[15.5px] font-bold leading-snug md:text-base", revised && "min-h-[4.125em]"]}>{t.title}</h3>
               <p class="text-[14px] leading-snug text-ink-2 md:text-[15px]">{t.text}</p>
             </article>
           ))}
@@ -86,7 +94,7 @@ const stat = (s: (typeof STATS)[number]) => (s.q ? `[[${new Intl.NumberFormat("r
           <h2 class="h-section">Центр корпоративной медицины</h2>
           <p class="lead-text mt-4">{intro}</p>
           <ul class="mt-8 grid gap-4">
-            {TRUST.slice(0, 3).map((t) => (
+            {trust.slice(0, 3).map((t) => (
               <li class="flex gap-3"><Icon name={t.icon} size={22} class="mt-0.5 shrink-0 text-brand" /><div><b>{t.title}</b><p class="text-[15px] text-ink-2">{t.text}</p></div></li>
             ))}
           </ul>

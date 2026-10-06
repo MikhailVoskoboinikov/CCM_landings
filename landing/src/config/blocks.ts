@@ -58,3 +58,12 @@ export const DEFAULTS: Record<string, string> = {
   faq: "list",
   lead: "form",
 };
+
+/** Выбранный порядок BLS Узбекистан одинаков для лендинга и стенда. */
+export function blocksFor(country: string, course: string): BlockDef[] {
+  if (country !== "uz" || course !== "bls") return BLOCKS;
+  const instructors = BLOCKS.find((block) => block.id === "instructors")!;
+  const ordered = BLOCKS.filter((block) => block.id !== "instructors");
+  ordered.splice(ordered.findIndex((block) => block.id === "about") + 1, 0, instructors);
+  return ordered;
+}
