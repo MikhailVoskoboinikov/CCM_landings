@@ -22,7 +22,7 @@ export const BLOCKS: BlockDef[] = [
   { id: "film", label: "Ролик-алгоритм", variants: [["steps", "Ролик и шаги"], ["off", "Нет блока"]] },
   { id: "audience", label: "Для кого", variants: [["adaptive", "ПК — плитки, телефон — список"], ["cards", "Плитки"], ["list", "Список"]] },
   { id: "certificate", label: "Сертификат", variants: [["anatomy", "Что в сертификате"], ["real", "Настоящий образец"], ["tilt", "Объёмная карточка"], ["path", "Путь к сертификату"]] },
-  { id: "skills", label: "Чему научитесь", variants: [["swipe", "Телефон — листаются прокруткой"], ["list", "Телефон — список с фото"]] },
+  { id: "skills", label: "Чему научитесь", variants: [["swipe", "Телефон — лента, листается вбок"], ["list", "Телефон — список с фото"]] },
   { id: "quiz", label: "Мини-тест", variants: [["card", "Тест"], ["off", "Нет блока"]] },
   { id: "program", label: "Программа", variants: [["adaptive", "ПК — пазл, телефон — список"], ["accordion", "Раскрывающийся список"], ["puzzle", "Пазл"], ["timeline", "Линия"], ["day", "Как проходит день"], ["schedule", "День по часам"]] },
   { id: "instructors", label: "Инструкторы", variants: [["grid", "Сетка"], ["lead", "Ведущий инструктор"]] },
