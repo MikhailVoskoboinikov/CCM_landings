@@ -7,7 +7,7 @@
 import Base from "@/layouts/Base.astro";
 import Block from "@/components/blocks/Block.astro";
 import Footer from "@/components/blocks/Footer.astro";
-import { BLOCKS, DEFAULTS } from "@/config/blocks";
+import { blocksFor, DEFAULTS } from "@/config/blocks";
 import { COUNTRIES, COURSE_LIST, courseFor, type CountryId, type CourseId } from "@/data";
 import { url } from "@/lib/url";
 
@@ -17,10 +17,11 @@ export function getStaticPaths() {
 
 const country = COUNTRIES[Astro.params.country as CountryId];
 const course = courseFor(Astro.params.course as CourseId, country.id);
-const pg = { blocks: BLOCKS, defaults: DEFAULTS, course: course.id, country: country.id };
+const blocks = blocksFor(country.id, course.id);
+const pg = { blocks: blocks, defaults: DEFAULTS, course: course.id, country: country.id };
 ---
 <Base title={`Стенд: ${course.name} · ${country.city}`} country={country} courseId={course.id} noindex>
-  {BLOCKS.map((b) => (
+  {blocks.map((b) => (
     <div data-pg-block={b.id} class="contents">
       <div data-pg-bar={b.id} class="relative z-30 flex flex-wrap items-center gap-x-3 gap-y-1.5 bg-[#1c2030] px-4 py-2 text-[12px] text-white/70">
         <b class="text-white">{b.label}</b>

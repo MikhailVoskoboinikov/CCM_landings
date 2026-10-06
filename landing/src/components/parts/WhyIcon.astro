@@ -1,0 +1,75 @@
+---
+import Icon from "./Icon.astro";
+interface Props { name: string; size?: number }
+const { name, size = 19 } = Astro.props;
+---
+<svg class="why-motion" xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  {name === "PersonStanding" && <g class="falling-person">
+        <circle cx="12" cy="5" r="2" />
+    <path d="M12 7v7" />
+    <path class="person-arms" d="M12 8L9 11L8 15 M12 8L15 11L16 15" />
+    <path class="person-legs" d="M12 14L10 18L10 21 M12 14L14 18L14 21" />
+  </g>}
+  {name === "WavesLadder" && <>
+    <path d="M8 16V4a2 2 0 0 1 4 0 M16 16V4a2 2 0 0 1 4 0 M8 8h8 M8 12h8" />
+    <svg x="1" y="15" width="22" height="9" viewBox="1 15 22 9" overflow="hidden">
+      <g class="pool-waves"><path d="M-5 18q3-3 6 0t6 0t6 0t6 0t6 0t6 0t6 0t6 0t6 0t6 0 M-5 22q3-3 6 0t6 0t6 0t6 0t6 0t6 0t6 0t6 0t6 0t6 0" /></g>
+    </svg>
+  </>}
+  {name === "Dumbbell" && <g class="falling-dumbbell">
+    <Icon name="Dumbbell" size={24} strokeWidth={1.8} />
+  </g>}
+  {name === "Utensils" && <>
+    <g class="falling-fork"><path d="M4 3v5a3 3 0 0 0 6 0V3 M7 3v18" /></g>
+    <g class="falling-knife"><path d="M20 3c-3 0-5 3-5 7v3h5 M20 3v18" /></g>
+  </>}
+</svg>
+<style>
+  .why-motion { overflow: visible; transition: color .2s ease, filter .2s ease, transform .2s ease; }
+  .falling-person { transform-origin: 12px 13px; }
+  .falling-dumbbell { transform-origin: 12px 12px; }
+  .falling-fork { transform-origin: 7px 18px; }
+  .falling-knife { transform-origin: 20px 18px; }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    :global(.why-card:hover) .why-motion { color: #ed1725; filter: drop-shadow(0 0 3px rgb(237 23 37 / 18%)); transform: scale(1.08); }
+    :global(.why-card:hover) .falling-person { animation: person-fall 2.4s ease-in-out infinite; }
+    :global(.why-card:hover) .person-arms { animation: person-arms-fold 2.4s ease-in-out infinite; }
+    :global(.why-card:hover) .person-legs { animation: person-knees-bend 2.4s ease-in-out infinite; }
+    :global(.why-card:hover) .pool-waves { animation: pool-wave 2.4s linear infinite; }
+    :global(.why-card:hover) .falling-dumbbell { animation: dumbbell-drop 2.4s ease-in-out infinite; }
+    :global(.why-card:hover) .falling-fork { animation: fork-drop 2.4s ease-in-out infinite; }
+    :global(.why-card:hover) .falling-knife { animation: knife-drop 2.4s ease-in-out infinite; }
+  }
+  @keyframes person-fall {
+    0%, 85%, 100% { transform: translateY(0) rotate(0deg); }
+    15% { transform: translateY(1px) rotate(10deg); }
+    38%, 58% { transform: translateY(3px) rotate(68deg); }
+    68% { transform: translateY(2px) rotate(35deg); }
+  }
+  @keyframes person-arms-fold {
+    0%, 85%, 100% { d: path("M12 8L9 11L8 15 M12 8L15 11L16 15"); }
+    38%, 58% { d: path("M12 8L8 10L10 13 M12 8L15 10L13 13"); }
+  }
+  @keyframes person-knees-bend {
+    0%, 85%, 100% { d: path("M12 14L10 18L10 21 M12 14L14 18L14 21"); }
+    38%, 58% { d: path("M12 14L8 17L11 20 M12 14L12 18L15 20"); }
+  }
+  @keyframes pool-wave { to { transform: translateX(-12px); } }
+  @keyframes dumbbell-drop {
+    0%, 80%, 100% { transform: translateY(0) rotate(0deg); }
+    15% { transform: translateY(-1px) rotate(-8deg); }
+    38% { transform: translateY(4px) rotate(22deg); }
+    48% { transform: translateY(2px) rotate(16deg); }
+    60% { transform: translateY(4px) rotate(22deg); }
+  }
+  @keyframes fork-drop {
+    0%, 80%, 100% { transform: translateY(0) rotate(0deg); }
+    35%, 55% { transform: translateY(3px) rotate(-30deg); }
+    45% { transform: translateY(2px) rotate(-25deg); }
+  }
+  @keyframes knife-drop {
+    0%, 10%, 80%, 100% { transform: translateY(0) rotate(0deg); }
+    40%, 60% { transform: translateY(3px) rotate(28deg); }
+    50% { transform: translateY(2px) rotate(23deg); }
+  }
+</style>

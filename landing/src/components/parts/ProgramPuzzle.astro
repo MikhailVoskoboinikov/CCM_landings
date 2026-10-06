@@ -32,14 +32,31 @@ const offsets = [[6, 6], [27, 6], [6, 27], [27, 27]];
         {offsets.map((offset, i) => <span class="puzzle-dock-piece" style={`transform:translate(${offset[0]}px,${offset[1]}px) scale(.75)`}><PuzzlePiece index={i} /></span>)}
       </span>
     </span>
-    <div class="rounded-3xl border border-line bg-soft p-4 md:p-6">
-      <h3 class="text-lg font-bold md:text-xl">Экзамен</h3>
-      <p class="mt-2 text-[15.5px] leading-relaxed text-ink-2"><Rich text={p.exam} /></p>
+    <div class="puzzle-exam rounded-3xl border border-line bg-white p-4 md:p-6">
+      <h3 class="text-lg font-bold md:text-xl"><span class="puzzle-exam-title">Экзамен</span></h3>
+      <div class="mt-3 flex items-start gap-3">
+        <svg class="exam-checkbox mt-1 size-5 shrink-0 text-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="2.5" y="2.5" width="19" height="19" rx="4" />
+          <path class="exam-check" d="m7 12 3.5 3.5L17 9" pathLength="1" />
+        </svg>
+        <p class="text-[15.5px] leading-relaxed text-ink-2"><Rich text={p.exam} /></p>
+      </div>
     </div>
   </div>
 </div>
 
 <style>
+  .puzzle-exam-title { text-decoration: underline; text-decoration-color: var(--brand); text-decoration-thickness: 3px; text-underline-offset: 7px; }
+  .exam-check { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .55s ease .15s; }
+  .puzzle-program[data-complete] .exam-check { stroke-dashoffset: 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    .puzzle-program[data-complete] .puzzle-exam { animation: exam-complete .75s ease-out both; }
+  }
+  @media (prefers-reduced-motion: reduce) { .exam-check { transition: none; } }
+  @keyframes exam-complete {
+    0%, 100% { transform: translateY(0); box-shadow: 0 0 0 0 rgb(217 38 44 / 0); }
+    40% { transform: translateY(-3px); box-shadow: 0 0 0 3px rgb(217 38 44 / .12), 0 10px 28px -16px rgb(217 38 44 / .24); }
+  }
   .puzzle-program { --puzzle-rail: 72px; position: relative; display: grid; gap: 12px; }
   .puzzle-row { position: relative; display: grid; grid-template-columns: var(--puzzle-rail) minmax(0, 1fr); gap: 8px; }
   .puzzle-anchor { position: relative; align-self: start; justify-self: center; width: 64px; height: 64px; margin-top: 7px; color: var(--brand); }
@@ -88,7 +105,10 @@ const offsets = [[6, 6], [27, 6], [6, 27], [27, 27]];
 
     const render = () => {
       queued = false;
-      if (reduceMotion) return;
+      if (reduceMotion) {
+        if (anchors[anchors.length - 1].getBoundingClientRect().top + radius <= innerHeight * .56) root.setAttribute("data-complete", "");
+        return;
+      }
       const bounds = root.getBoundingClientRect();
       const positions = anchors.map((anchor) => {
         const rect = anchor.getBoundingClientRect();
