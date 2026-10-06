@@ -3,7 +3,7 @@
  * Сертификат — главный блок: по брифу информация должна быть больше
  * о сертификате, чем о курсе. Варианты:
  *  anatomy — настоящий образец с номерами у полей и список «что в сертификате»: наведение
- *            или тап по пункту или номеру выделяет пару; без касаний подсветка идёт по пунктам сама
+ *            или тап по пункту или номеру выделяет пару
  *  real — настоящий образец сертификата; срок, проверка и где пригодится
  *  tilt — объёмная карточка и «где пригодится»
  *  path — путь от курса до проверки подлинности
@@ -51,8 +51,8 @@ const steps = [
         <ol class="grid gap-1.5">
           {c.anatomy.map((a, i) => (
             <li>
-              <button type="button" data-anatomy={i + 1} data-on={revised && i === 0 ? "" : undefined} aria-pressed={revised ? i === 0 : undefined} class="flex w-full gap-4 rounded-2xl p-3.5 text-left transition-colors hover:bg-white data-[on]:bg-white data-[on]:shadow-[0_6px_24px_-12px_rgba(17,19,23,.2)] md:p-4">
-                <span class="anatomy-number grid size-8 shrink-0 place-items-center rounded-full bg-brand text-sm font-bold text-white">{i + 1}</span>
+              <button type="button" data-anatomy={i + 1} data-on={revised && i === 0 ? "" : undefined} aria-pressed={revised ? i === 0 : undefined} class="group flex w-full gap-4 rounded-2xl p-3.5 text-left transition-colors hover:bg-white data-[on]:bg-white data-[on]:shadow-[0_6px_24px_-12px_rgba(17,19,23,.2)] md:p-4">
+                <span class="anatomy-number grid size-7 shrink-0 place-items-center rounded-full bg-muted-foreground text-xs font-bold text-white transition-colors group-data-[on]:bg-brand">{i + 1}</span>
                 <span>
                   <span class="block font-bold leading-snug">{a.title}</span>
                   <Rich as="span" class="mt-0.5 block text-[15px] leading-snug text-ink-2" text={a.text} />
@@ -158,44 +158,30 @@ const steps = [
 </section>
 
 <script>
-  // Пункты списка ↔ номера на сертификате. Пока не трогали — подсветка идёт по кругу
+  // Пункты списка ↔ номера на сертификате: наведение, фокус или касание выделяют пару.
   document.querySelectorAll<HTMLElement>("[data-cert-anatomy]").forEach((root) => {
     const items = [...root.querySelectorAll<HTMLElement>("[data-anatomy]")];
     const spots = [...root.querySelectorAll<HTMLElement>("[data-spot]")];
-    let auto = 0, n = 0, touched = false;
     const light = (k: number) => {
-      n = k;
       const id = String(k);
-      items.forEach((el) => el.toggleAttribute("data-on", el.dataset.anatomy === id));
-      spots.forEach((el) => el.toggleAttribute("data-on", el.dataset.spot === id));
+      items.forEach((el) => {
+        const selected = el.dataset.anatomy === id;
+        el.toggleAttribute("data-on", selected);
+        el.setAttribute("aria-pressed", String(selected));
+      });
+      spots.forEach((el) => {
+        const selected = el.dataset.spot === id;
+        el.toggleAttribute("data-on", selected);
+        el.setAttribute("aria-pressed", String(selected));
+      });
     };
-    if (root.hasAttribute("data-cert-manual")) {
-      const select = (k: number) => {
-        light(k);
-        items.forEach((el) => el.setAttribute("aria-pressed", String(el.dataset.anatomy === String(k))));
-        spots.forEach((el) => el.setAttribute("aria-pressed", String(el.dataset.spot === String(k))));
-      };
-      select(1);
-      items.forEach((el) => el.addEventListener("click", () => select(Number(el.dataset.anatomy))));
-      spots.forEach((el) => el.addEventListener("click", () => select(Number(el.dataset.spot))));
-      return;
-    }
-    const pick = (k: number) => { touched = true; clearInterval(auto); light(k); };
-    items.forEach((el) => {
-      el.addEventListener("click", () => pick(Number(el.dataset.anatomy)));
-      el.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && pick(Number(el.dataset.anatomy)));
+    [...items, ...spots].forEach((el) => {
+      const pick = () => light(Number(el.dataset.anatomy ?? el.dataset.spot));
+      el.addEventListener("pointerenter", (e) => e.pointerType !== "touch" && pick());
+      el.addEventListener("focus", pick);
+      el.addEventListener("click", pick);
     });
-    spots.forEach((el) => {
-      el.addEventListener("click", () => pick(Number(el.dataset.spot)));
-      el.addEventListener("pointerenter", (e) => e.pointerType === "mouse" && pick(Number(el.dataset.spot)));
-    });
-    new IntersectionObserver(([e]) => {
-      clearInterval(auto);
-      if (e.isIntersecting && !touched) {
-        if (!n) light(1);
-        auto = window.setInterval(() => light((n % items.length) + 1), 2600);
-      }
-    }, { threshold: 0.4 }).observe(root);
+    light(1);
   });
 </script>
 

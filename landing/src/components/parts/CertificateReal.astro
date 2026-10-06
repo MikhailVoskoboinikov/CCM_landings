@@ -128,21 +128,18 @@ for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.modules.get(r, c)
     position: absolute;
     translate: -50% -50%;
     z-index: 2;
-    width: clamp(22px, 5cqi, 30px);
-    height: clamp(22px, 5cqi, 30px);
+    width: clamp(20px, 4.5cqi, 26px);
+    height: clamp(20px, 4.5cqi, 26px);
     display: grid;
     place-items: center;
     border-radius: 50%;
-    background: var(--brand);
+    background: var(--muted-foreground);
     color: #fff;
-    font: 700 clamp(12px, 2.4cqi, 15px)/1 var(--font-sans);
+    font: 700 clamp(11px, 2.2cqi, 13px)/1 var(--font-sans);
     box-shadow: 0 0 0 3px #fff, 0 4px 12px rgb(17 19 23 / 25%);
-    transition: transform .2s ease;
+    transition: background-color .2s ease;
   }
-  .cert-spot[data-on] { transform: scale(1.25); }
-  .cert-spot:not([data-on]) { animation: spot-hint 2.4s ease-in-out infinite; }
-  .cert-spot-selectable { background: #c3c7ce; animation: none; transition: background-color .2s ease, transform .2s ease; }
-  .cert-spot-selectable[data-on] { background: var(--brand); }
+  .cert-spot-selectable { background: #c3c7ce; }
+  .cert-spot[data-on] { background: var(--brand); }
   .cert-spot:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
-  @keyframes spot-hint { 0%, 70%, 100% { box-shadow: 0 0 0 3px #fff, 0 0 0 3px rgb(217 38 44 / .5); } 85% { box-shadow: 0 0 0 3px #fff, 0 0 0 9px rgb(217 38 44 / 0); } }
 </style>
