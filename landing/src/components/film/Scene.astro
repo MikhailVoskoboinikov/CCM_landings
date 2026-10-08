@@ -6,17 +6,37 @@
  * Темп компрессий — настоящий: 110 в минуту (0,545 с на нажатие).
  */
 import type { FilmKind } from "@/data";
-import responseIllustration from "@/assets/film-response-v2.png";
-import breathingIllustration from "@/assets/film-breath-check.png";
-import safetyIllustration from "@/assets/film-safety.png";
-import callIllustration from "@/assets/film-emergency-call.png";
-import compressionIllustration from "@/assets/film-compressions.png";
-import rescueBreathsIllustration from "@/assets/film-rescue-breaths.png";
-import aedIllustration from "@/assets/film-aed-v7.png";
-import courseIllustration from "@/assets/film-course.png";
+import KidsMotion from "./KidsMotion.astro";
+import kidsCoughIllustration from "@/assets/film-kids-cough.svg?url";
+import kidsBackBlowsIllustration from "@/assets/film-kids-back-blows.svg?url";
+import kidsAbdominalThrustsIllustration from "@/assets/film-kids-abdominal-thrusts.svg?url";
+import kidsCallIllustration from "@/assets/film-kids-emergency-call.svg?url";
+import kidsResuscitationIllustration from "@/assets/film-kids-resuscitation.svg?url";
+import kidsTrainingIllustration from "@/assets/film-kids-training.svg?url";
+import bleedingBandageIllustration from "@/assets/film-bleeding-bandage.svg?url";
+import bleedingTourniquetIllustration from "@/assets/film-bleeding-tourniquet.svg?url";
+import bleedingTrainingIllustration from "@/assets/film-bleeding-training.svg?url";
+import pressureIllustration from "@/assets/film-bleeding-pressure.svg?url";
+import responseIllustration from "@/assets/film-bls-response.svg?url";
+import breathingIllustration from "@/assets/film-bls-breath-check.svg?url";
+import safetyIllustration from "@/assets/film-safety.svg?url";
+import callIllustration from "@/assets/film-emergency-call.svg?url";
+import compressionIllustration from "@/assets/film-bls-compressions.svg?url";
+import rescueBreathsIllustration from "@/assets/film-bls-rescue-breaths.svg?url";
+import aedIllustration from "@/assets/film-bls-aed.svg?url";
+import blsTrainingIllustration from "@/assets/film-bls-training.svg?url";
 
-interface Props { kind: FilmKind; count?: string }
-const { kind, count } = Astro.props;
+interface Props { kind: FilmKind; count?: string; bleeding?: boolean; kids?: boolean }
+const { kind, count, bleeding = false, kids = false } = Astro.props;
+const kidsIllustrations: Partial<Record<FilmKind, string>> = {
+  cough: kidsCoughIllustration,
+  backblows: kidsBackBlowsIllustration,
+  abdominal: kidsAbdominalThrustsIllustration,
+  call: kidsCallIllustration,
+  compress: kidsResuscitationIllustration,
+  course: kidsTrainingIllustration,
+};
+const kidsIllustration = kids ? kidsIllustrations[kind] : undefined;
 const C = { skin: "#f1c3a0", skin2: "#e2a57f", hair: "#2b2b31", victim: "#c9ced6", pants: "#4a4f57", res: "#d9262c", resDark: "#b51f25", ink: "#111317", floor: "#e6e8ec", sun: "#ffb81c", white: "#fff" };
 const kidCount = count === "15 : 2" ? 15 : 30;
 ---
@@ -24,10 +44,15 @@ const kidCount = count === "15 : 2" ? 15 : 30;
   <rect width="400" height="300" fill="#f4f5f7" />
   <circle cx="200" cy="150" r="128" fill="#fff" />
 
+  {kidsIllustration ? (<>
+    <image href={kidsIllustration} x="16" y="20" width="368" height="260" preserveAspectRatio="xMidYMid meet" />
+    <KidsMotion kind={kind} />
+  </>) : (<>
+
   {kind === "safety" && (
     <>
       <rect x="32" y="237" width="336" height="5" rx="2.5" fill={C.floor} />
-      <image href={safetyIllustration.src} x="16" y="28" width="368" height="250" preserveAspectRatio="xMidYMid meet" />
+      <image href={safetyIllustration} x="16" y="28" width="368" height="250" preserveAspectRatio="xMidYMid meet" />
       <g transform="translate(300 90)">
         <circle r="33" fill="#fff" stroke={C.floor} stroke-width="5" />
         <circle r="33" fill="none" stroke={C.res} stroke-width="5" stroke-linecap="round" pathLength="1" stroke-dasharray=".18 .82" class="f-eye-scan" />
@@ -44,7 +69,7 @@ const kidCount = count === "15 : 2" ? 15 : 30;
   {kind === "shake" && (
     <>
       <rect x="32" y="237" width="336" height="5" rx="2.5" fill={C.floor} />
-      <image href={responseIllustration.src} x="16" y="28" width="368" height="250" preserveAspectRatio="xMidYMid meet" />
+      <image href={responseIllustration} x="16" y="28" width="368" height="250" preserveAspectRatio="xMidYMid meet" />
       <g class="f-speech-pop" style="--d:.45s">
       <rect x="208" y="54" width="173" height="49" rx="15" fill={C.ink} />
       <path d="m220 101-8 16 25-15Z" fill={C.ink} />
@@ -55,7 +80,7 @@ const kidCount = count === "15 : 2" ? 15 : 30;
   {kind === "breath-check" && (
     <>
       <rect x="32" y="237" width="336" height="5" rx="2.5" fill={C.floor} />
-      <image href={breathingIllustration.src} x="16" y="28" width="368" height="250" preserveAspectRatio="xMidYMid meet" />
+      <image href={breathingIllustration} x="16" y="28" width="368" height="250" preserveAspectRatio="xMidYMid meet" />
       <g transform="translate(300 110)">
         <circle r="42" fill="none" stroke={C.floor} stroke-width="8" />
         <g transform="rotate(-90)"><circle r="42" fill="none" stroke={C.res} stroke-width="8" stroke-linecap="round" pathLength="100" stroke-dasharray="100" class="f-timer" /></g>
@@ -66,24 +91,24 @@ const kidCount = count === "15 : 2" ? 15 : 30;
   {kind === "call" && (
     <>
       <rect x="32" y="237" width="336" height="5" rx="2.5" fill={C.floor} />
-      <image href={callIllustration.src} x="16" y="28" width="368" height="250" preserveAspectRatio="xMidYMid meet" />
+      <image href={callIllustration} x="16" y="28" width="368" height="250" preserveAspectRatio="xMidYMid meet" />
       <g transform="translate(294 138)">
         <rect class="f-call-pulse" x="-43" y="-20" width="86" height="40" rx="20" fill="none" stroke={C.res} stroke-width="2" />
         <rect x="-40" y="-17" width="80" height="34" rx="17" fill="#fff" stroke={C.floor} stroke-width="1.5" />
         <path d="M-21-7c-2 0-4 2-3 5 2 6 6 10 12 12 3 1 5-1 5-3l-5-3-2 2c-3-1-5-3-6-6l2-2Z" fill={C.res} />
         <text x="11" y="7" text-anchor="middle" font-size="20" font-weight="800" fill={C.ink} font-family="var(--font-sans)">103</text>
       </g>
-      <g class="f-speech-right" style="--d:.8s">
+      {!bleeding && (<g class="f-speech-right" style="--d:.8s">
         <rect x="208" y="48" width="173" height="48" rx="16" fill={C.ink} />
         <path d="M211 66 164 84 211 84Z" fill={C.ink} />
         <text x="294.5" y="78" text-anchor="middle" fill="#fff" font-size="18" font-weight="700" font-family="var(--font-sans)">Нужен АНД!</text>
-      </g>
+      </g>)}
     </>
   )}
   {kind === "compress" && (
     <>
       <rect x="32" y="237" width="336" height="5" rx="2.5" fill={C.floor} />
-      <image href={compressionIllustration.src} x="16" y="28" width="368" height="250" preserveAspectRatio="xMidYMid meet" />
+      <image href={compressionIllustration} x="16" y="28" width="368" height="250" preserveAspectRatio="xMidYMid meet" />
       <g transform="translate(300 80)">
         <rect x="-50" y="-26" width="100" height="58" rx="16" fill={C.ink} />
         <text data-count data-to={kidCount} data-every="545" y="8" text-anchor="middle" font-size="30" font-weight="800" fill="#fff" font-family="var(--font-sans)">0</text>
@@ -101,7 +126,7 @@ const kidCount = count === "15 : 2" ? 15 : 30;
   {kind === "breaths" && (
     <>
       <rect x="32" y="237" width="336" height="5" rx="2.5" fill={C.floor} />
-      <image href={rescueBreathsIllustration.src} x="16" y="28" width="368" height="250" preserveAspectRatio="xMidYMid meet" />
+      <image href={rescueBreathsIllustration} x="16" y="28" width="368" height="250" preserveAspectRatio="xMidYMid meet" />
       <g transform="translate(300 90)">
         <rect x="-44" y="-24" width="88" height="48" rx="16" fill={C.ink} />
         <text y="9" text-anchor="middle" font-size="24" font-weight="800" fill="#fff" font-family="var(--font-sans)">× 2</text>
@@ -116,7 +141,7 @@ const kidCount = count === "15 : 2" ? 15 : 30;
   {kind === "aed" && (
     <>
       <rect x="32" y="237" width="336" height="5" rx="2.5" fill={C.floor} />
-      <image href={aedIllustration.src} x="16" y="28" width="368" height="250" preserveAspectRatio="xMidYMid meet" />
+      <image href={aedIllustration} x="16" y="28" width="368" height="250" preserveAspectRatio="xMidYMid meet" />
       <g transform="translate(300 80)">
         <rect x="-44" y="-24" width="88" height="48" rx="16" fill={C.ink} />
         <text y="8" text-anchor="middle" font-size="23" font-weight="800" fill="#fff" font-family="var(--font-sans)">АНД</text>
@@ -127,7 +152,7 @@ const kidCount = count === "15 : 2" ? 15 : 30;
     </>
   )}
   {/* Рука с раной для кровотечения */}
-  {["press", "bandage", "tourniquet"].includes(kind) && (
+  {!bleeding && ["bandage", "tourniquet"].includes(kind) && (
     <>
       <rect x="40" y="168" width="300" height="48" rx="24" fill={C.skin} />
       <rect x="320" y="160" width="46" height="64" rx="22" fill={C.skin} />
@@ -136,17 +161,12 @@ const kidCount = count === "15 : 2" ? 15 : 30;
   )}
 
   {kind === "press" && (
-    <>
-      <g class="f-bleed"><ellipse cx="210" cy="190" rx="26" ry="14" fill={C.res} /></g>
-      <g class="f-press-hand">
-        <rect x="176" y="96" width="70" height="40" rx="18" fill={C.skin2} />
-        <rect x="172" y="132" width="80" height="22" rx="6" fill="#fff" />
-        <rect x="236" y="50" width="34" height="70" rx="16" fill={C.res} transform="rotate(20 253 85)" />
-      </g>
-    </>
+    <image href={pressureIllustration} x="16" y="20" width="368" height="260" preserveAspectRatio="xMidYMid meet" />
   )}
 
-  {kind === "bandage" && (
+  {kind === "bandage" && (bleeding ? (
+    <image href={bleedingBandageIllustration} x="16" y="20" width="368" height="260" preserveAspectRatio="xMidYMid meet" />
+  ) : (
     <>
       <rect x="182" y="172" width="58" height="40" rx="6" fill="#fff" />
       {[0, 1, 2, 3, 4].map((k) => (
@@ -155,9 +175,11 @@ const kidCount = count === "15 : 2" ? 15 : 30;
         </g>
       ))}
     </>
-  )}
+  ))}
 
-  {kind === "tourniquet" && (
+  {kind === "tourniquet" && (bleeding ? (
+    <image href={bleedingTourniquetIllustration} x="16" y="20" width="368" height="260" preserveAspectRatio="xMidYMid meet" />
+  ) : (
     <>
       <ellipse cx="250" cy="192" rx="20" ry="11" fill={C.res} opacity=".85" />
       <g class="f-tighten"><rect x="150" y="160" width="20" height="64" rx="6" fill={C.ink} /><rect x="142" y="186" width="36" height="12" rx="4" fill={C.sun} /></g>
@@ -167,7 +189,7 @@ const kidCount = count === "15 : 2" ? 15 : 30;
         <path d="M150 118 l8 16 8-16Z" fill={C.ink} />
       </g>
     </>
-  )}
+  ))}
 
   {/* Ребёнок стоит, взрослый рядом */}
   {["cough", "backblows", "abdominal"].includes(kind) && (
@@ -212,9 +234,11 @@ const kidCount = count === "15 : 2" ? 15 : 30;
     </>
   )}
 
-  {kind === "course" && (
+  {kind === "course" && (bleeding ? (
+    <image href={bleedingTrainingIllustration} x="16" y="20" width="368" height="260" preserveAspectRatio="xMidYMid meet" />
+  ) : (
     <>
-      <image href={courseIllustration.src} x="16" y="28" width="368" height="250" preserveAspectRatio="xMidYMid meet" />
+      <image href={blsTrainingIllustration} x="16" y="28" width="368" height="250" preserveAspectRatio="xMidYMid meet" />
       <g class="f-slide" style="--d:2.2s">
         <rect x="297" y="181" width="83" height="58" rx="5" fill="#fff" stroke={C.floor} stroke-width="2" />
         <rect x="308" y="193" width="28" height="4" rx="2" fill={C.res} />
@@ -223,7 +247,8 @@ const kidCount = count === "15 : 2" ? 15 : 30;
         <circle cx="366" cy="226" r="6" fill={C.sun} />
       </g>
     </>
-  )}
+  ))}
+  </>)}
 </svg>
 
 <style>
