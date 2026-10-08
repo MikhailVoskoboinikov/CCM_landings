@@ -1,0 +1,76 @@
+---
+import type { FilmKind } from "@/data";
+interface Props { kind: FilmKind }
+const { kind } = Astro.props;
+const red = "#da282d";
+---
+{kind === "cough" && (
+  <g class="kid-cough" fill="none" stroke={red} stroke-width="2" stroke-linecap="round">
+    <path d="M239 123l-10-6 M237 130l-12-1 M241 136l-9 5" />
+  </g>
+)}
+{(kind === "backblows" || kind === "call") && (
+  <g transform={kind === "call" ? "translate(208 147)" : "translate(245 136)"}>
+    <circle class="kid-claps" r="8" fill={red} fill-opacity=".06" stroke={red} stroke-width="1.6" />
+  </g>
+)}
+{kind === "abdominal" && (
+  <g class="kid-thrust" fill="none" stroke={red} stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M259 179c-1-8-4-15-9-20l-2-3 M248 156l-1 8 M248 156l8 2" />
+  </g>
+)}
+{kind === "call" && (
+  <g class="kid-phone-bubble">
+    <rect x="302" y="28" width="77" height="42" rx="17" fill="#fff" stroke="#e6e8ec" stroke-width="1" />
+    <path d="M310 68l-5 20 19-19" fill="#fff" stroke="#e6e8ec" stroke-width="1" />
+    <path d="M310 68h14" stroke="#fff" stroke-width="2" />
+    <text x="340.5" y="56" text-anchor="middle" fill={red} font-size="24" font-weight="800" font-family="var(--font-sans)">103</text>
+  </g>
+)}
+{kind === "compress" && (
+  <>
+    <g transform="translate(235 207)">
+      <circle class="kid-compression-ring" r="15" fill="none" stroke={red} stroke-width="1.6" />
+    </g>
+    <g transform="translate(265 177)">
+      <path class="kid-compression-tick" d="M-5-3l5 5 5-5 M-5 4l5 5 5-5" fill="none" stroke={red} stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+  </>
+)}
+{kind === "course" && (
+  <g class="kid-certificate">
+    <rect x="270" y="211" width="108" height="68" rx="7" fill="#fff" stroke="#e6e8ec" stroke-width="1.5" />
+    <path d="M277 218h94" stroke={red} stroke-width="3" stroke-linecap="round" />
+    <path d="M280 237h54 M280 246h43 M280 259h30" fill="none" stroke="#bec2cb" stroke-width="2.5" stroke-linecap="round" />
+    <circle cx="359" cy="253" r="11" fill="#fff" stroke={red} stroke-width="1.5" />
+    <path class="kid-certificate-check" d="M354 253l3 3 6-7" fill="none" stroke={red} stroke-width="2" stroke-linecap="round" stroke-linejoin="round" pathLength="1" />
+  </g>
+)}
+<style>
+  .kid-cough, .kid-claps, .kid-thrust, .kid-compression-ring, .kid-compression-tick { opacity: 0; }
+  .kid-phone-bubble, .kid-certificate { opacity: 0; transform-box: fill-box; transform-origin: center; }
+  .kid-cough, .kid-thrust, .kid-compression-tick { transform-box: fill-box; transform-origin: center; }
+  .kid-compression-ring, .kid-claps { transform-box: fill-box; transform-origin: center; }
+  .kid-certificate-check { stroke-dasharray: 1; stroke-dashoffset: 1; }
+  :global(.film-scene[data-on]) .kid-cough { animation: kid-cough 1.6s ease-out .3s infinite; }
+  :global(.film-scene[data-on]) .kid-claps { animation: kid-claps 1s ease-out .4s 5 both; }
+  :global(.film-scene[data-on]) .kid-thrust { animation: kid-thrust 1.75s ease-in-out .5s 3 both; }
+  :global(.film-scene[data-on]) .kid-phone-bubble { animation: kid-appear .55s cubic-bezier(.2,.8,.3,1) .75s both; }
+  :global(.film-scene[data-on]) .kid-compression-ring { animation: kid-ring .545s ease-out .5s infinite; }
+  :global(.film-scene[data-on]) .kid-compression-tick { animation: kid-press .545s ease-in-out .5s infinite; }
+  :global(.film-scene[data-on]) .kid-certificate { animation: kid-certificate .75s cubic-bezier(.2,.8,.3,1) 1.6s both; }
+  :global(.film-scene[data-on]) .kid-certificate-check { animation: kid-check .45s ease-out 2.25s both; }
+  @keyframes kid-cough { 0%, 65%, 100% { opacity: 0; transform: translateX(0); } 15% { opacity: .85; } 45% { opacity: 0; transform: translateX(-4px); } }
+  @keyframes kid-claps { 0% { opacity: 0; transform: scale(.65); } 15% { opacity: .65; } 65%, 100% { opacity: 0; transform: scale(1.9); } }
+  @keyframes kid-thrust { 0%, 100% { opacity: 0; } 20%, 65% { opacity: 1; } }
+  @keyframes kid-appear { from { opacity: 0; transform: translateY(5px) scale(.94); } to { opacity: 1; transform: none; } }
+  @keyframes kid-ring { from { opacity: .5; transform: scale(.8); } to { opacity: 0; transform: scale(1.5); } }
+  @keyframes kid-press { 0%, 100% { opacity: .3; transform: translateY(-2px); } 45% { opacity: .85; transform: translateY(1px); } }
+  @keyframes kid-certificate { from { opacity: 0; transform: translate(15px, 10px) rotate(4deg); } to { opacity: 1; transform: none; } }
+  @keyframes kid-check { to { stroke-dashoffset: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.film-scene[data-on]) [class^="kid-"] { animation: none; }
+    .kid-phone-bubble, .kid-certificate, .kid-thrust { opacity: 1; transform: none; }
+    .kid-certificate-check { stroke-dashoffset: 0; }
+  }
+</style>
