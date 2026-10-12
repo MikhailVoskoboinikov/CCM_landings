@@ -64,7 +64,7 @@ export const SCROLL_DETAILS: Record<string, string> = {
 };
 
 export const DEFAULTS: Record<string, string> = {
-  scroll: "fullpage",
+  scroll: "free",
   header: "full",
   hero: "adaptive",
   "hero.copy": "a",
