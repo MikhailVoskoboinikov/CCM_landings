@@ -7,7 +7,7 @@
 import Base from "@/layouts/Base.astro";
 import Block from "@/components/blocks/Block.astro";
 import Footer from "@/components/blocks/Footer.astro";
-import { blocksFor, DEFAULTS, PLAYGROUND_SCROLL, SCROLL_DETAILS } from "@/config/blocks";
+import { blocksFor, defaultsFor, PLAYGROUND_SCROLL, SCROLL_DETAILS } from "@/config/blocks";
 import { COUNTRIES, COURSE_LIST, courseFor, type CountryId, type CourseId } from "@/data";
 import { url } from "@/lib/url";
 
@@ -18,6 +18,7 @@ export function getStaticPaths() {
 const country = COUNTRIES[Astro.params.country as CountryId];
 const course = courseFor(Astro.params.course as CourseId, country.id);
 const blocks = blocksFor(country.id, course.id);
+const DEFAULTS = defaultsFor(country.id, course.id);
 const pg = { blocks: blocks, scroll: PLAYGROUND_SCROLL, scrollDetails: SCROLL_DETAILS, defaults: DEFAULTS, course: course.id, country: country.id };
 ---
 <Base title={`Стенд: ${course.name} · ${country.city}`} country={country} courseId={course.id} scroll={DEFAULTS.scroll} noindex>

@@ -1,6 +1,7 @@
 ---
 /*
- * Ближайшая группа: дата и шкала мест — занятые закрашены, свободные мягко «дышат».
+ * Ближайшая группа: дата и, если места известны, шкала — занятые закрашены, свободные мягко «дышат».
+ * Еженедельные группы (group.weekly): браузер подставляет ближайшую дату не раньше weekly.from.
  * Пока дата не подтверждена (confirmed: false), блок рисуется только с пометками
  * (это решает вызывающий код) и дата помечена «уточнить у ЦКМ».
  */
@@ -10,19 +11,32 @@ import type { Course } from "@/data";
 interface Props { group: NonNullable<Course["nextGroup"]>; dark?: boolean; class?: string }
 const { group, dark = false, class: cls = "" } = Astro.props;
 const date = group.confirmed ? group.date : `[[${group.date}|Ближайшие даты групп и число мест — нужен реальный график учебного центра]]`;
-const taken = group.total - group.free;
+const seats = group.free != null && group.total != null ? { free: group.free, total: group.total, taken: group.total - group.free } : undefined;
 ---
 <div class={`flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[14px] ${dark ? "text-white/85" : "text-ink-2"} ${cls}`}>
-  <span>Ближайшая группа — <b class={dark ? "text-white" : "text-ink"}><Rich text={date} /></b></span>
-  <span class="flex items-center gap-2">
-    <span class="flex gap-[3px]" aria-hidden="true">
-      {Array.from({ length: group.total }, (_, i) => (
-        <span class={`h-2.5 w-[7px] rounded-[2px] ${i < taken ? (dark ? "bg-white" : "bg-ink") : `seat-free ${dark ? "bg-white/30" : "bg-brand/35"}`}`} style={i >= taken ? `animation-delay:${(i - taken) * 180}ms` : undefined}></span>
-      ))}
+  <span>Ближайшая группа — <b class={dark ? "text-white" : "text-ink"} data-weekly-from={group.weekly?.from}><Rich text={date} /></b>{group.weekly && <>, {group.weekly.label}</>}</span>
+  {seats && (
+    <span class="flex items-center gap-2">
+      <span class="flex gap-[3px]" aria-hidden="true">
+        {Array.from({ length: seats.total }, (_, i) => (
+          <span class={`h-2.5 w-[7px] rounded-[2px] ${i < seats.taken ? (dark ? "bg-white" : "bg-ink") : `seat-free ${dark ? "bg-white/30" : "bg-brand/35"}`}`} style={i >= seats.taken ? `animation-delay:${(i - seats.taken) * 180}ms` : undefined}></span>
+        ))}
+      </span>
+      <span>свободно {seats.free} из {seats.total}</span>
     </span>
-    <span>свободно {group.free} из {group.total}</span>
-  </span>
+  )}
 </div>
+<script>
+  // Еженедельные группы: ближайшая дата — первый такой же день недели не раньше сегодняшнего и не раньше from
+  document.querySelectorAll<HTMLElement>("[data-weekly-from]").forEach((el) => {
+    const [y, m, d] = el.dataset.weeklyFrom!.split("-").map(Number);
+    const next = new Date(y, m - 1, d);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    while (next < today) next.setDate(next.getDate() + 7);
+    el.textContent = next.toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
+  });
+</script>
 <style>
   .seat-free { animation: seat 1.8s ease-in-out infinite; }
   @keyframes seat { 50% { opacity: .35; } }

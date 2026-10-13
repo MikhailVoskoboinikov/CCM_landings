@@ -3,7 +3,7 @@
  * Клиенты — сразу после «О ЦКМ», как просили в ЦКМ.
  * Кыргызстан: реальные клиенты из презентации учебного центра с тем, чему учились.
  * Узбекистан: пока отрасли (нужны логотипы и разрешение компаний). Варианты:
- *  marquee — бегущая строка; grid — сетка.
+ *  marquee — бегущая строка; grid — сетка; off — блока нет (так в Узбекистане: учебный центр решил обойтись без клиентов).
  */
 import Icon from "@/components/parts/Icon.astro";
 import Rich from "@/components/parts/Rich.astro";
@@ -11,13 +11,14 @@ import Marquee from "@/components/parts/Marquee.astro";
 import { CLIENTS, CLIENTS_KG } from "@/data/about";
 import type { Country } from "@/data";
 
-interface Props { variant?: "marquee" | "grid"; country: Country }
+interface Props { variant?: "marquee" | "grid" | "off"; country: Country }
 const { variant = "marquee", country } = Astro.props;
 const named = country.id === "kg" ? CLIENTS_KG : undefined;
 const title = named
   ? "[[С кем мы уже работали в Кыргызстане|Можно ли показывать эти названия на сайте, как в презентации?]]"
   : "[[Обучаем сотрудников компаний из разных отраслей|Логотипы клиентов в Узбекистане и разрешение на их показ — сейчас вместо них отрасли]]";
 ---
+{variant !== "off" && (
 <section class="py-12 md:py-16" id="clients">
   <div class="container-l">
     <Rich as="h2" class="text-[22px] font-bold leading-tight md:text-[30px]" text={title} />
@@ -63,3 +64,4 @@ const title = named
     </div>
   )}
 </section>
+)}

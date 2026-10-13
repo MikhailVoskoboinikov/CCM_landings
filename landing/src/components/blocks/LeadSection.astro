@@ -39,7 +39,7 @@ const courses = COURSE_LIST.map((c) => ({ id: c.id, name: c.name }));
             <ul class="mt-4 grid gap-2 text-[15px] text-ink-2 sm:grid-cols-2">
               {course.price.includes.map((i) => <li class="flex gap-2"><Icon name="Check" size={18} class="mt-0.5 shrink-0 text-brand" />{i}</li>)}
             </ul>
-            <Rich as="p" class="mt-4 text-sm text-ink-2" text={`Для групп — [[скидка от ${course.price.groupDiscounts[0].from} человек|Есть ли групповые скидки и какие?]]`} />
+            <Rich as="p" class="mt-4 text-sm text-ink-2" text={course.price.groupDiscounts.length ? `Для групп — [[скидка от ${course.price.groupDiscounts[0].from} человек|Есть ли групповые скидки и какие?]]` : "Для групп условия обсудим отдельно"} />
           </div>
           <div class="mt-6 hidden gap-1 md:grid">
             <a href={country.phoneHref} class="text-xl font-bold">{country.phone}</a>

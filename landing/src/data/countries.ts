@@ -3,7 +3,7 @@ import type { Country, CountryId } from "./types";
 /*
  * Контакты — с alfamedtraining.com. Кыргызстан: юрлицо, лицензия, WhatsApp как
  * основной канал и цифра про скорую — из презентации учебного центра в Бишкеке.
- * Узбекистан: юрлицо — с образца сертификата; Telegram первым — гипотеза,
+ * Узбекистан: юрлицо назвал учебный центр; Telegram первым — гипотеза,
  * проверить по истории заявок в amoCRM.
  */
 export const COUNTRIES: Record<CountryId, Country> = {
@@ -23,7 +23,7 @@ export const COUNTRIES: Record<CountryId, Country> = {
       { id: "whatsapp", href: "#" },
       { id: "instagram", href: "#" },
     ],
-    legal: "[[ООО «CCM Global», Ташкент|Юрлицо взято с образца сертификата (CCM Global LLC). Как писать по-русски и какой ИНН — для подвала и оферты?]]",
+    legal: "ООО «CCM GLOBAL»",
   },
   kg: {
     id: "kg",

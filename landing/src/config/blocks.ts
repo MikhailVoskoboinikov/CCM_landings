@@ -27,7 +27,7 @@ export const BLOCKS: BlockDef[] = [
   { id: "program", label: "Программа", variants: [["adaptive", "ПК — пазл, телефон — список"], ["accordion", "Раскрывающийся список"], ["puzzle", "Пазл"], ["timeline", "Линия"], ["day", "Как проходит день"], ["schedule", "День по часам"]] },
   { id: "instructors", label: "Инструкторы", variants: [["grid", "Сетка"], ["lead", "Ведущий инструктор"]] },
   { id: "about", label: "О ЦКМ", variants: [["stats", "Карта, цифры и причины"], ["photo", "Фото на весь блок"], ["map", "Карта центров"], ["story", "История"]] },
-  { id: "clients", label: "Клиенты", variants: [["marquee", "Бегущая строка"], ["grid", "Сетка"]] },
+  { id: "clients", label: "Клиенты", variants: [["marquee", "Бегущая строка"], ["grid", "Сетка"], ["off", "Нет блока"]] },
   { id: "gallery", label: "Фотогалерея", variants: [["classes", "Крупное фото"], ["off", "Нет блока"], ["carousel", "Лента"], ["mosaic", "Мозаика"]] },
   { id: "pricing", label: "Стоимость", variants: [["off", "Нет блока — цена в заявке"], ["card", "Карточка"], ["calc", "Калькулятор"], ["dates", "Ближайшие даты"]] },
   { id: "reviews", label: "Отзывы", variants: [["cards", "Бегущая лента"], ["video", "Видео"]] },
@@ -86,6 +86,11 @@ export const DEFAULTS: Record<string, string> = {
   faq: "list",
   lead: "form",
 };
+
+/** Варианты блоков для страницы: общие DEFAULTS и отличия страны. В Узбекистане блока клиентов нет. */
+export function defaultsFor(country: string, _course: string): Record<string, string> {
+  return country === "uz" ? { ...DEFAULTS, clients: "off" } : DEFAULTS;
+}
 
 /** Выбранный порядок BLS Узбекистан одинаков для лендинга и стенда. */
 export function blocksFor(country: string, course: string): BlockDef[] {

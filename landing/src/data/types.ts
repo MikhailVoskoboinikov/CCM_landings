@@ -78,8 +78,12 @@ export interface Course {
   quiz: { title: string; lead: string; items: { q: string; options: string[]; answer: number; explain: string }[] };
   /** Расписание дня курса — для варианта программы «Один день» */
   schedule: { time: string; title: string; text: string }[];
-  /** Ближайшая группа: дата, свободные и все места. confirmed: false — пример, на боевом сайте не показывается */
-  nextGroup?: { date: string; free: number; total: number; confirmed: boolean };
+  /**
+   * Ближайшая группа: дата и, если известны, свободные и все места.
+   * weekly — группы идут каждую неделю с даты from (ГГГГ-ММ-ДД): дату на странице пересчитывает браузер.
+   * confirmed: false — пример, на боевом сайте не показывается.
+   */
+  nextGroup?: { date: string; weekly?: { from: string; label: string }; free?: number; total?: number; confirmed: boolean };
   /** Чему научитесь: 6 навыков с фото */
   skills: {
     title: string;

@@ -2,7 +2,7 @@
 import "@/styles/global.css";
 import "fullpage.js/dist/fullpage.css";
 import LeadSheet from "@/components/lead/LeadSheet";
-import { COURSE_LIST, type Country, type CourseId } from "@/data";
+import { COURSE_LIST, courseFor, type Country, type CourseId } from "@/data";
 import { priceText } from "@/lib/price";
 import { showMarks } from "@/lib/rich";
 import { url } from "@/lib/url";
@@ -18,7 +18,7 @@ interface Props {
 }
 const { title, description = "", country, courseId, noindex, scroll } = Astro.props;
 const courses = COURSE_LIST.map((c) => ({ id: c.id, name: c.name }));
-const prices = Object.fromEntries(COURSE_LIST.map((c) => [c.id, priceText(c, country)]));
+const prices = Object.fromEntries(COURSE_LIST.map((c) => [c.id, priceText(courseFor(c.id, country.id), country)]));
 ---
 <!doctype html>
 <html lang="ru" data-snap={scroll}>
