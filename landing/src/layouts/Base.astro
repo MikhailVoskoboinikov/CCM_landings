@@ -2,6 +2,7 @@
 import "@/styles/global.css";
 import "fullpage.js/dist/fullpage.css";
 import LeadSheet from "@/components/lead/LeadSheet";
+import CookieNote from "@/components/parts/CookieNote.astro";
 import { COURSE_LIST, courseFor, type Country, type CourseId } from "@/data";
 import { priceText } from "@/lib/price";
 import { showMarks } from "@/lib/rich";
@@ -33,6 +34,7 @@ const prices = Object.fromEntries(COURSE_LIST.map((c) => [c.id, priceText(course
   </head>
   <body class="min-h-dvh">
     <div data-landing-content><slot /></div>
+    <CookieNote />
     <LeadSheet client:idle country={country} courses={courses} courseId={courseId} prices={prices} />
     {showMarks && <div id="q-tip" class="pointer-events-none fixed z-[100] hidden max-w-72 rounded-xl bg-ink px-3 py-2 text-[13px] leading-snug text-white shadow-xl"></div>}
 
