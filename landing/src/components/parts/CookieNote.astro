@@ -2,11 +2,16 @@
 /*
  * Согласие на cookie: одна строка и кнопка в углу экрана. Пока посетитель не нажал
  * «Принять», пиксель Meta не подключается (lib/pixel.ts). После согласия плашка
- * больше не появляется.
+ * больше не появляется. Слово «cookie» ведёт на политику конфиденциальности страны.
  */
+import { url } from "@/lib/url";
+import type { Country } from "@/data";
+
+interface Props { country: Country }
+const { country } = Astro.props;
 ---
 <div class="fixed bottom-3 left-3 z-40 hidden items-center gap-2.5 rounded-full bg-white py-1.5 pl-4 pr-1.5 text-[13px] text-ink-2 shadow-[0_6px_24px_-8px_rgba(17,19,23,.3)] ring-1 ring-black/5 data-[on]:flex" data-cookie-note>
-  Сайт использует cookie
+  <span>Сайт использует <a href={url(`/${country.id}/privacy`)} class="underline underline-offset-2">cookie</a></span>
   <button class="h-8 rounded-full bg-ink px-3.5 text-[13px] font-semibold text-white transition-colors hover:bg-ink-2" data-cookie-accept>Принять</button>
 </div>
 <script>

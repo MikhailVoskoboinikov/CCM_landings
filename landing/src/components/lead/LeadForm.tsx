@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { BrandIcon } from "@/components/parts/BrandIcon";
 import { MessengerGlyph } from "@/components/parts/MessengerGlyph";
 import { attributionPayload } from "@/lib/attribution";
+import { url } from "@/lib/url";
 import { cn } from "@/lib/utils";
 import type { Country, Messenger } from "@/data/types";
 
@@ -181,7 +182,7 @@ export function LeadForm({ country, courses, courseId, compact, onDone }: LeadFo
         {state === "sending" ? "Отправляем…" : "Оставить заявку"}
       </Button>
       {state === "error" && <p className="text-sm text-destructive">Не получилось отправить. Позвоните нам: {country.phone}</p>}
-      <p className="text-xs leading-relaxed text-muted-foreground">Нажимая кнопку, вы соглашаетесь на обработку <a href="#" onClick={(event) => event.preventDefault()} className="underline underline-offset-2 transition-colors hover:text-brand">персональных данных</a>.</p>
+      <p className="text-xs leading-relaxed text-muted-foreground">Нажимая кнопку, вы соглашаетесь на обработку <a href={url(`/${country.id}/privacy`)} target="_blank" rel="noopener" className="underline underline-offset-2 transition-colors hover:text-brand">персональных данных</a>.</p>
     </form>
   );
 }

@@ -1,0 +1,80 @@
+---
+/*
+ * Политика конфиденциальности: /uz/privacy, /kg/privacy. Короткий текст о том, что сайт
+ * действительно собирает: заявка (имя, телефон, способ связи), cookie и метки рекламы,
+ * пиксель Meta после согласия. Оператор и контакты берутся из данных страны.
+ * Текст — рабочая версия до проверки юристом ЦКМ.
+ */
+import Base from "@/layouts/Base.astro";
+import Block from "@/components/blocks/Block.astro";
+import Footer from "@/components/blocks/Footer.astro";
+import { plain } from "@/lib/rich";
+import { COUNTRIES, courseFor, type CountryId } from "@/data";
+
+export function getStaticPaths() {
+  return Object.keys(COUNTRIES).map((country) => ({ params: { country } }));
+}
+
+const country = COUNTRIES[Astro.params.country as CountryId];
+const course = courseFor("bls", country.id);
+const operator = plain(country.legal);
+const sections: { title: string; text?: string[]; list?: string[] }[] = [
+  {
+    title: "Кто обрабатывает данные",
+    text: [`Оператор — ${operator} (учебный центр ЦКМ), ${country.address}. Вопросы о персональных данных: ${country.email}, ${country.phone}.`],
+  },
+  {
+    title: "Какие данные мы получаем",
+    list: [
+      "Из заявки: имя, номер телефона, выбранный курс и удобный способ связи.",
+      "Технические данные: с какой страницы и по какой рекламной ссылке вы пришли (UTM-метки, идентификатор клика), сведения о браузере и случайный идентификатор посетителя в файле cookie.",
+      "Если вы нажали «Принять» в уведомлении о cookie — данные о посещении сайта, которые собирает пиксель Meta (Facebook, Instagram).",
+    ],
+  },
+  {
+    title: "Зачем",
+    list: [
+      "Связаться с вами по заявке, подобрать дату курса и записать в группу.",
+      "Понять, какая реклама приводит заявки, и не показывать лишнюю.",
+    ],
+    text: ["Мы не используем данные для рассылок без вашего согласия и не продаём их."],
+  },
+  {
+    title: "Кому передаём",
+    text: [
+      "Данные заявки видят сотрудники учебного центра и хранятся в системе учёта заявок. Сведения о посещениях после вашего согласия получает компания Meta Platforms — её серверы находятся за пределами страны. Другим лицам данные передаются только по требованию закона.",
+    ],
+  },
+  {
+    title: "Cookie",
+    text: [
+      "Сайт сохраняет в браузере идентификатор посетителя и рекламные метки, чтобы связать заявку с источником. Пиксель Meta подключается только после нажатия «Принять». Удалить cookie и запретить их можно в настройках браузера — сайт продолжит работать.",
+    ],
+  },
+  {
+    title: "Сколько храним",
+    text: ["Пока это нужно для обучения и связи с вами либо пока вы не попросите удалить данные, если закон не требует хранить их дольше."],
+  },
+  {
+    title: "Ваши права",
+    text: [`Вы можете узнать, какие данные о вас хранятся, попросить исправить или удалить их и отозвать согласие на обработку. Напишите на ${country.email} — ответим и выполним просьбу.`],
+  },
+];
+---
+<Base title={`Политика конфиденциальности — учебный центр ЦКМ, ${country.city}`} country={country} courseId={course.id} noindex>
+  <Block id="header" variant="ad" course={course} country={country} />
+  <main class="container-l py-10 md:py-16">
+    <h1 class="h-section">Политика конфиденциальности</h1>
+    <p class="mt-3 text-sm text-muted-foreground">Действует с 13 октября 2026 года</p>
+    <div class="mt-8 grid max-w-3xl gap-8 text-[16px] leading-relaxed text-ink-2 md:mt-10">
+      {sections.map((s) => (
+        <section>
+          <h2 class="mb-2 text-lg font-bold text-ink">{s.title}</h2>
+          {s.list && <ul class="grid list-disc gap-1.5 pl-5">{s.list.map((i) => <li>{i}</li>)}</ul>}
+          {s.text?.map((t) => <p class={s.list ? "mt-3" : ""}>{t}</p>)}
+        </section>
+      ))}
+    </div>
+  </main>
+  <Footer country={country} />
+</Base>

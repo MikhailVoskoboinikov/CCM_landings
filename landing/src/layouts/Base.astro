@@ -34,7 +34,7 @@ const prices = Object.fromEntries(COURSE_LIST.map((c) => [c.id, priceText(course
   </head>
   <body class="min-h-dvh">
     <div data-landing-content><slot /></div>
-    <CookieNote />
+    <CookieNote country={country} />
     <LeadSheet client:idle country={country} courses={courses} courseId={courseId} prices={prices} />
     {showMarks && <div id="q-tip" class="pointer-events-none fixed z-[100] hidden max-w-72 rounded-xl bg-ink px-3 py-2 text-[13px] leading-snug text-white shadow-xl"></div>}
 

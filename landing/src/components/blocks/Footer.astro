@@ -31,7 +31,7 @@ const { country, base = "" } = Astro.props;
     </div>
     <div>
       <h3 class="mb-4 font-semibold tracking-wide">Документы</h3>
-      <a href="#" class="mb-2 block text-brand hover:underline">Политика конфиденциальности</a>
+      <a href={url(`/${country.id}/privacy`)} class="mb-2 block text-brand hover:underline">Политика конфиденциальности</a>
       <a href="#" class="mb-2 block text-brand hover:underline">Договор-оферта</a>
       <Rich as="p" class="mt-4 text-sm text-muted-foreground" text={country.legal} />
       {country.license && <p class="mt-1 text-sm text-muted-foreground">{country.license}</p>}
